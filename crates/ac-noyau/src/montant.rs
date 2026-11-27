@@ -204,10 +204,12 @@ impl Montant {
         }
         // Somme des parts en i128 : avec des parts de i64, un débordement exigerait davantage de
         // parts qu'il n'y a d'octets adressables, mais il reste contrôlé proprement.
-        let somme_parts = parts.iter().try_fold(0i128, |acc, &p| {
-            acc.checked_add(i128::from(p))
-                .ok_or(ErreurNoyau::Depassement)
-        })?;
+        let mut somme_parts = 0i128;
+        for &part in parts {
+            somme_parts = somme_parts
+                .checked_add(i128::from(part))
+                .ok_or(ErreurNoyau::Depassement)?;
+        }
         if somme_parts == 0 {
             return Err(ErreurNoyau::RepartitionImpossible(format!(
                 "la somme des parts est nulle : impossible de répartir {self}"
@@ -217,27 +219,28 @@ impl Montant {
         // Proportion de chaque part, arrondie au franc le plus proche (0,5 s'éloignant de zéro).
         // Produit exact en i128 : total ≤ 10^15 et part ≤ 9,2 × 10^18 donnent un produit
         // ≤ 9,2 × 10^33, en dessous du maximum de i128 ; le doublage du reste est contrôlé.
-        let mut parts_calculees: Vec<i128> = parts
-            .iter()
-            .map(|&part| {
-                let produit = total_abs * i128::from(part);
-                let quotient = produit / somme_parts;
-                let reste = produit % somme_parts;
-                let double = reste.checked_mul(2).ok_or(ErreurNoyau::Depassement)?;
-                if double >= somme_parts {
-                    Ok(quotient + 1)
-                } else {
-                    Ok(quotient)
-                }
-            })
-            .collect::<Resultat<Vec<i128>>>()?;
+        let mut parts_calculees: Vec<i128> = Vec::with_capacity(parts.len());
+        for &part in parts {
+            let produit = total_abs * i128::from(part);
+            let quotient = produit / somme_parts;
+            let reste = produit % somme_parts;
+            let double = reste.checked_mul(2).ok_or(ErreurNoyau::Depassement)?;
+            if double >= somme_parts {
+                parts_calculees.push(quotient + 1);
+            } else {
+                parts_calculees.push(quotient);
+            }
+        }
         // Ordre décroissant des parts d'origine ; le tri stable conserve l'ordre fourni à parts
         // égales, donc le premier indice est celui de la première part maximale.
         let mut ordre: Vec<usize> = (0..parts.len()).collect();
         ordre.sort_by(|&a, &b| parts[b].cmp(&parts[a]));
-        let somme_arrondie = parts_calculees.iter().try_fold(0i128, |acc, &p| {
-            acc.checked_add(p).ok_or(ErreurNoyau::Depassement)
-        })?;
+        let mut somme_arrondie = 0i128;
+        for &part in &parts_calculees {
+            somme_arrondie = somme_arrondie
+                .checked_add(part)
+                .ok_or(ErreurNoyau::Depassement)?;
+        }
         // |écart| < nombre de parts : chaque arrondi diffère de son quotient exact de moins d'un.
         let mut ecart = total_abs - somme_arrondie;
         if ecart > 0 {
@@ -262,17 +265,16 @@ impl Montant {
             }
         }
         let signe = if total < 0 { -1i128 } else { 1i128 };
-        parts_calculees
-            .into_iter()
-            .map(|part| {
-                // La somme des parts vaut le total et chaque part est positive : aucune part ne
-                // peut dépasser le montant réparti, donc rester hors des bornes de `Montant`.
-                let valeur = signe * part;
-                let francs = i64::try_from(valeur)
-                    .map_err(|_| ErreurNoyau::MontantHorsLimites(valeur))?;
-                Montant::new(francs)
-            })
-            .collect()
+        // La somme des parts vaut le total et chaque part est positive : aucune part ne peut
+        // dépasser le montant réparti, donc rester hors des bornes de `Montant`.
+        let mut resultats = Vec::with_capacity(parts_calculees.len());
+        for &part in &parts_calculees {
+            let valeur = signe * part;
+            let francs = i64::try_from(valeur)
+                .map_err(|_| ErreurNoyau::MontantHorsLimites(valeur))?;
+            resultats.push(Montant::new(francs)?);
+        }
+        Ok(resultats)
     }
 
     /// Convertit un décimal en montant selon la règle d'arrondi.
@@ -413,89 +415,54 @@ mod tests {
 
     #[test]
     fn multiplication_par_quantite_exemples() {
-        // 1 250 FCFA × 3,5 = 4 375 FCFA (exemple de l'issue n° 9)
+        // 1 250 FCFA × 3,5 = 4 375 FCFA (exemple de l'issue n° 9) : produit exact.
         let prix = m(1_250);
         let trois_demis = Quantite::depuis_texte("3,5").unwrap();
         for arrondi in [Arrondi::PlusProche, Arrondi::Inferieur, Arrondi::Superieur] {
-            assert_eq!(
-                prix.multiplier_quantite(trois_demis, arrondi).unwrap(),
-                m(4_375)
-            );
+            let produit = prix.multiplier_quantite(trois_demis, arrondi).unwrap();
+            assert_eq!(produit, m(4_375));
         }
         // 0,333 × 1 001 FCFA = 333,333 → 333 FCFA au plus proche (exemple de l'issue n° 9)
         let tiers = Quantite::depuis_texte("0,333").unwrap();
-        assert_eq!(
-            m(1_001)
-                .multiplier_quantite(tiers, Arrondi::PlusProche)
-                .unwrap(),
-            m(333)
-        );
-        assert_eq!(
-            m(1_001)
-                .multiplier_quantite(tiers, Arrondi::Inferieur)
-                .unwrap(),
-            m(333)
-        );
-        assert_eq!(
-            m(1_001)
-                .multiplier_quantite(tiers, Arrondi::Superieur)
-                .unwrap(),
-            m(334)
-        );
+        let facture = m(1_001);
+        let plus_proche = facture.multiplier_quantite(tiers, Arrondi::PlusProche);
+        let inferieur = facture.multiplier_quantite(tiers, Arrondi::Inferieur);
+        let superieur = facture.multiplier_quantite(tiers, Arrondi::Superieur);
+        assert_eq!(plus_proche.unwrap(), m(333));
+        assert_eq!(inferieur.unwrap(), m(333));
+        assert_eq!(superieur.unwrap(), m(334));
         // Cas zéro, dans les deux sens
-        assert_eq!(
-            prix
-                .multiplier_quantite(Quantite::ZERO, Arrondi::PlusProche)
-                .unwrap(),
-            Montant::ZERO
-        );
-        assert_eq!(
-            Montant::ZERO
-                .multiplier_quantite(trois_demis, Arrondi::PlusProche)
-                .unwrap(),
-            Montant::ZERO
-        );
+        for arrondi in [Arrondi::PlusProche, Arrondi::Inferieur, Arrondi::Superieur] {
+            let prix_nul = prix.multiplier_quantite(Quantite::ZERO, arrondi);
+            let quantite_nulle = Montant::ZERO.multiplier_quantite(trois_demis, arrondi);
+            assert_eq!(prix_nul.unwrap(), Montant::ZERO);
+            assert_eq!(quantite_nulle.unwrap(), Montant::ZERO);
+        }
         // Cas d'arrondi exact à 0,5 : le demi-franc s'éloigne de zéro
         let demi = Quantite::depuis_texte("0,5").unwrap();
-        assert_eq!(
-            m(1).multiplier_quantite(demi, Arrondi::PlusProche).unwrap(),
-            m(1)
-        );
-        assert_eq!(
-            m(1).multiplier_quantite(demi, Arrondi::Inferieur).unwrap(),
-            m(0)
-        );
-        assert_eq!(
-            m(1).multiplier_quantite(demi, Arrondi::Superieur).unwrap(),
-            m(1)
-        );
+        let un_franc = m(1);
+        let arrondi_proche = un_franc.multiplier_quantite(demi, Arrondi::PlusProche);
+        let arrondi_bas = un_franc.multiplier_quantite(demi, Arrondi::Inferieur);
+        let arrondi_haut = un_franc.multiplier_quantite(demi, Arrondi::Superieur);
+        assert_eq!(arrondi_proche.unwrap(), m(1));
+        assert_eq!(arrondi_bas.unwrap(), m(0));
+        assert_eq!(arrondi_haut.unwrap(), m(1));
         // Symétrie pour les avoirs (montants négatifs)
-        assert_eq!(
-            m(-1_250)
-                .multiplier_quantite(trois_demis, Arrondi::PlusProche)
-                .unwrap(),
-            m(-4_375)
-        );
-        assert_eq!(
-            m(-1)
-                .multiplier_quantite(demi, Arrondi::PlusProche)
-                .unwrap(),
-            m(-1)
-        );
-        assert_eq!(
-            m(-1).multiplier_quantite(demi, Arrondi::Inferieur).unwrap(),
-            m(0)
-        );
+        let avoir = m(-1_250);
+        let avoir_facture = avoir.multiplier_quantite(trois_demis, Arrondi::PlusProche);
+        assert_eq!(avoir_facture.unwrap(), m(-4_375));
+        let avoir_franc = m(-1);
+        let demi_negatif = avoir_franc.multiplier_quantite(demi, Arrondi::PlusProche);
+        assert_eq!(demi_negatif.unwrap(), m(-1));
+        let demi_tronque = avoir_franc.multiplier_quantite(demi, Arrondi::Inferieur);
+        assert_eq!(demi_tronque.unwrap(), m(0));
         // Multiplication par une unité exacte et dépassement des bornes
-        assert_eq!(
-            prix
-                .multiplier_quantite(Quantite::UN, Arrondi::PlusProche)
-                .unwrap(),
-            prix
-        );
-        assert!(m(Montant::MAX)
-            .multiplier_quantite(Quantite::depuis_texte("1,001").unwrap(), Arrondi::PlusProche)
-            .is_err());
+        let unite_exacte = prix.multiplier_quantite(Quantite::UN, Arrondi::PlusProche);
+        assert_eq!(unite_exacte.unwrap(), prix);
+        let beaucoup = Quantite::depuis_texte("1,001").unwrap();
+        let plafond = m(Montant::MAX);
+        let trop = plafond.multiplier_quantite(beaucoup, Arrondi::PlusProche);
+        assert!(trop.is_err());
     }
 
     #[test]
