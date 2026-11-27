@@ -2,9 +2,7 @@
 
 use std::collections::BTreeSet;
 
-use ac_compta::{
-    BrouillonEcriture, LigneBrouillon, ModuleOrigine, NumeroCompte, passer_ecriture,
-};
+use ac_compta::{BrouillonEcriture, LigneBrouillon, ModuleOrigine, NumeroCompte, passer_ecriture};
 use ac_donnees::audit::{journaliser, Evenement};
 use ac_donnees::rusqlite::OptionalExtension;
 use ac_donnees::{Permission, Session, Transaction};

@@ -38,10 +38,7 @@ pub(crate) fn journal_creer(
 }
 
 /// Prochain code libre : `BQ` → `BQ1`, `BQ2`, … ; `MM` → `MM1`, `MM2`, …
-pub(crate) fn journal_prochain_code(
-    tx: &Transaction<'_>,
-    prefixe: &str,
-) -> Resultat<String> {
+pub(crate) fn journal_prochain_code(tx: &Transaction<'_>, prefixe: &str) -> Resultat<String> {
     for numero in 1..=99 {
         let code = format!("{prefixe}{numero}");
         if !code_valide(&code) {

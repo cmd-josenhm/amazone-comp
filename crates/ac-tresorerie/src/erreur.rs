@@ -112,7 +112,7 @@ impl ErreurTresorerie {
             ErreurTresorerie::PieceOuvertureObligatoire => "PIECE_OUVERTURE_OBLIGATOIRE",
             ErreurTresorerie::ContrepartieOuvertureObligatoire => {
                 "CONTREPARTIE_OUVERTURE_OBLIGATOIRE"
-            },
+            }
             ErreurTresorerie::ContrepartieInconnue(_) => "CONTREPARTIE_INCONNUE",
             ErreurTresorerie::NumeroDejaUtilise => "NUMERO_DEJA_UTILISE",
             ErreurTresorerie::CompteRacineAvecMouvements(_) => "COMPTE_RACINE_AVEC_MOUVEMENTS",
