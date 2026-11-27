@@ -13,7 +13,7 @@ use axum::{
 };
 use chrono::Months;
 use serde_json::{json, Value};
-use sqlx::PgPool;
+use sqlx::postgres::PgPool;
 use tower::ServiceExt;
 
 use amazone_plateforme::{

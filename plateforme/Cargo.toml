@@ -7,7 +7,8 @@ name = "amazone-plateforme"
 description = "Plateforme en ligne AMAZONE COMP : comptes, inscription des entreprises, CGU, licences signées."
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.89"
+# sqlx 0.9 impose Rust 1.94 minimum (sa propre politique MSRV).
+rust-version = "1.94"
 license = "AGPL-3.0-only"
 publish = false
 
@@ -57,9 +58,11 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 # Empreintes SHA-256 des jetons et codes stockés (jamais la valeur en clair).
 sha2 = "0.10"
-# Accès PostgreSQL (imposé par l'ADR 0008) + migrations.
-sqlx = { version = "0.8", default-features = false, features = [
-    "runtime-tokio-rustls",
+# Accès PostgreSQL (imposé par l'ADR 0008) + migrations. `default-features = false`
+# n'active que le pilote Postgres (aucun lien natif SQLite, pas de conflit avec rusqlite).
+sqlx = { version = "0.9", default-features = false, features = [
+    "runtime-tokio",
+    "tls-rustls",
     "postgres",
     "chrono",
     "migrate",
