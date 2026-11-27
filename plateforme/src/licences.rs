@@ -385,9 +385,13 @@ async fn transferer_licence(
     .execute(&etat.bdd)
     .await
     .map_err(crate::erreur_bdd)?;
-    let mut reponse =
-        creer_licence_signee(&etat, compte.compte_id, &entreprise, &corps.nouvelle_empreinte)
-            .await?;
+    let mut reponse = creer_licence_signee(
+        &etat,
+        compte.compte_id,
+        &entreprise,
+        &corps.nouvelle_empreinte,
+    )
+    .await?;
     reponse["transferts_restants"] = json!(limite - deja_faits - 1);
     Ok(Json(reponse).into_response())
 }

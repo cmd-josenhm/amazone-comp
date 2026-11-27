@@ -172,13 +172,11 @@ pub fn connexion_verrouillee(etat: &Etat, courriel: &str) -> bool {
 pub fn enregistrer_echec_connexion(etat: &Etat, courriel: &str) {
     let maintenant = std::time::Instant::now();
     let mut map = verrouiller_map(&etat.echecs_connexion);
-    let entree = map
-        .entry(courriel.to_owned())
-        .or_insert(EchecsConnexion {
-            echecs: 0,
-            dernier: maintenant,
-            verrouille_jusqu: None,
-        });
+    let entree = map.entry(courriel.to_owned()).or_insert(EchecsConnexion {
+        echecs: 0,
+        dernier: maintenant,
+        verrouille_jusqu: None,
+    });
     if entree.verrouille_jusqu.is_some_and(|j| maintenant >= j) {
         entree.echecs = 0;
         entree.verrouille_jusqu = None;
@@ -266,7 +264,9 @@ async fn envoyer_code_verification(
 ) -> Result<(), ErreurApi> {
     let code = creer_code(etat, compte_id, "VERIFICATION_COURRIEL").await?;
     let message = courriel::courriel_verification(courriel, &etat.courriel_expediteur, &code);
-    etat.courriel.envoyer(&message).map_err(|_| ErreurApi::interne())
+    etat.courriel
+        .envoyer(&message)
+        .map_err(|_| ErreurApi::interne())
 }
 
 async fn verifier_courriel(
@@ -392,12 +392,11 @@ async fn mot_de_passe_oublie(
     let courriel = normaliser_courriel(&corps.courriel);
     if let Some((compte_id, _hash, _verifie)) = compte_par_courriel(&etat, &courriel).await? {
         let code = creer_code(&etat, compte_id, "REINITIALISATION_MOT_DE_PASSE").await?;
-        let message = courriel::courriel_reinitialisation(
-            &courriel,
-            &etat.courriel_expediteur,
-            &code,
-        );
-        etat.courriel.envoyer(&message).map_err(|_| ErreurApi::interne())?;
+        let message =
+            courriel::courriel_reinitialisation(&courriel, &etat.courriel_expediteur, &code);
+        etat.courriel
+            .envoyer(&message)
+            .map_err(|_| ErreurApi::interne())?;
     }
     Ok((
         StatusCode::ACCEPTED,
@@ -576,6 +575,9 @@ mod tests {
 
     #[test]
     fn courriel_normalise() {
-        assert_eq!(normaliser_courriel("  Marie@Exemple.BJ "), "marie@exemple.bj");
+        assert_eq!(
+            normaliser_courriel("  Marie@Exemple.BJ "),
+            "marie@exemple.bj"
+        );
     }
 }

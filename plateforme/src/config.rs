@@ -92,8 +92,7 @@ fn charger_cle_privee() -> Result<[u8; 32], ErreurConfig> {
         ));
     };
     let hex = contenu.trim();
-    octets_depuis_hex(hex)
-        .ok_or_else(|| ErreurConfig::ClePriveeInvalide(source.to_owned()))
+    octets_depuis_hex(hex).ok_or_else(|| ErreurConfig::ClePriveeInvalide(source.to_owned()))
 }
 
 /// Convertit 64 caractères hexadécimaux en 32 octets. Renvoie `None` si le texte est invalide.
@@ -146,7 +145,10 @@ mod tests {
         let mut octets = [0u8; 32];
         octets[0] = 0xAB;
         octets[31] = 0xCD;
-        assert_eq!(octets_depuis_hex(&hex_depuis_octets(&octets).to_uppercase()), Some(octets));
+        assert_eq!(
+            octets_depuis_hex(&hex_depuis_octets(&octets).to_uppercase()),
+            Some(octets)
+        );
     }
 
     #[test]

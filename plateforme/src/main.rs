@@ -23,9 +23,9 @@ async fn main() -> Result<(), ErreurDemarrage> {
     let adresse: SocketAddr = config.adresse.parse().map_err(|_| {
         ErreurDemarrage::Serveur(format!("PLATEFORME_ADRESSE invalide : {}", config.adresse))
     })?;
-    let ecouteur = tokio::net::TcpListener::bind(adresse)
-        .await
-        .map_err(|e| ErreurDemarrage::Serveur(format!("impossible d'écouter sur {adresse} : {e}")))?;
+    let ecouteur = tokio::net::TcpListener::bind(adresse).await.map_err(|e| {
+        ErreurDemarrage::Serveur(format!("impossible d'écouter sur {adresse} : {e}"))
+    })?;
     println!("Plateforme AMAZONE COMP à l'écoute sur {adresse}");
     axum::serve(
         ecouteur,

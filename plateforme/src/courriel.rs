@@ -137,7 +137,8 @@ mod tests {
         assert!(m.corps.contains("123456"));
         assert!(m.corps.contains("15 minutes"));
         assert_eq!(m.code, "123456");
-        let r = courriel_reinitialisation("marie@exemple.bj", "ne-pas-repondre@amazone.bj", "654321");
+        let r =
+            courriel_reinitialisation("marie@exemple.bj", "ne-pas-repondre@amazone.bj", "654321");
         assert!(r.corps.contains("Ne le communiquez jamais"));
         assert_eq!(r.code, "654321");
     }
@@ -145,9 +146,12 @@ mod tests {
     #[test]
     fn transport_memoire_conserve_les_messages() {
         let env = EnvoyeurMemoire::nouveau();
-        env.envoyer(&courriel_verification("a@b.bj", "x@y.bj", "111111")).unwrap();
-        env.envoyer(&courriel_verification("a@b.bj", "x@y.bj", "222222")).unwrap();
-        env.envoyer(&courriel_verification("c@d.bj", "x@y.bj", "333333")).unwrap();
+        env.envoyer(&courriel_verification("a@b.bj", "x@y.bj", "111111"))
+            .unwrap();
+        env.envoyer(&courriel_verification("a@b.bj", "x@y.bj", "222222"))
+            .unwrap();
+        env.envoyer(&courriel_verification("c@d.bj", "x@y.bj", "333333"))
+            .unwrap();
         assert_eq!(env.messages().len(), 3);
         assert_eq!(env.dernier_code("a@b.bj").as_deref(), Some("222222"));
         assert_eq!(env.dernier_code("c@d.bj").as_deref(), Some("333333"));

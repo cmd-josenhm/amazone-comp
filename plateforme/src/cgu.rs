@@ -59,12 +59,11 @@ async fn accepter_cgu(
 ) -> Result<Response, ErreurApi> {
     let compte = crate::authentifier(&etat, &en_tetes).await?;
     let corps = crate::corps_json(corps)?;
-    let courante: Option<(i32,)> = sqlx::query_as(
-        "SELECT version FROM cgu_versions ORDER BY version DESC LIMIT 1",
-    )
-    .fetch_optional(&etat.bdd)
-    .await
-    .map_err(crate::erreur_bdd)?;
+    let courante: Option<(i32,)> =
+        sqlx::query_as("SELECT version FROM cgu_versions ORDER BY version DESC LIMIT 1")
+            .fetch_optional(&etat.bdd)
+            .await
+            .map_err(crate::erreur_bdd)?;
     match courante.map(|(v,)| v) {
         Some(version) if version == corps.version => {}
         Some(version) => {

@@ -31,7 +31,10 @@ fn signataire_test() -> SignataireLicences {
 
 /// Construit l'application de test (migrations comprises, transport en mémoire).
 async fn app(pool: PgPool) -> (Router, Arc<EnvoyeurMemoire>) {
-    sqlx::migrate!("./migrations").run(&pool).await.expect("migrations");
+    sqlx::migrate!("./migrations")
+        .run(&pool)
+        .await
+        .expect("migrations");
     let env = Arc::new(EnvoyeurMemoire::nouveau());
     let etat = Etat::nouveau(
         pool,
@@ -59,7 +62,9 @@ fn req_json(methode: &str, uri: &str, corps: &Value, jeton: Option<&str>) -> Req
 async fn envoyer(app: &Router, requete: Request<Body>) -> (StatusCode, Value) {
     let reponse = app.clone().oneshot(requete).await.expect("réponse HTTP");
     let statut = reponse.status();
-    let corps = to_bytes(reponse.into_body(), usize::MAX).await.expect("corps");
+    let corps = to_bytes(reponse.into_body(), usize::MAX)
+        .await
+        .expect("corps");
     let valeur = if corps.is_empty() {
         Value::Null
     } else {
@@ -117,7 +122,9 @@ async fn compte_verifie(app: &Router, env: &EnvoyeurMemoire, courriel: &str) -> 
     )
     .await;
     assert_eq!(statut, StatusCode::CREATED, "création du compte");
-    let code = env.dernier_code(courriel).expect("code de vérification envoyé");
+    let code = env
+        .dernier_code(courriel)
+        .expect("code de vérification envoyé");
     let (statut, _) = envoyer(
         app,
         req_json(
@@ -140,16 +147,15 @@ async fn compte_verifie(app: &Router, env: &EnvoyeurMemoire, courriel: &str) -> 
     )
     .await;
     assert_eq!(statut, StatusCode::OK, "connexion");
-    corps["jeton"].as_str().expect("jeton de session").to_owned()
+    corps["jeton"]
+        .as_str()
+        .expect("jeton de session")
+        .to_owned()
 }
 
 /// Accepte les CGU courantes puis inscrit l'entreprise ; renvoie son identifiant.
 async fn entreprise_inscrite(app: &Router, jeton: &str, ifu: &str) -> i64 {
-    let (statut, corps) = envoyer(
-        app,
-        req_json("GET", "/v1/cgu/courante", &json!({}), None),
-    )
-    .await;
+    let (statut, corps) = envoyer(app, req_json("GET", "/v1/cgu/courante", &json!({}), None)).await;
     assert_eq!(statut, StatusCode::OK, "CGU courantes");
     let version = corps["version"].as_i64().expect("version des CGU");
     let (statut, _) = envoyer(
@@ -208,10 +214,20 @@ async fn parcours_complet_inscription_verification_connexion_entreprise_licence(
     assert_eq!(charge.format, 1);
     assert_eq!(
         charge.expire_le,
-        charge.emise_le.checked_add_months(Months::new(6)).expect("6 mois")
+        charge
+            .emise_le
+            .checked_add_months(Months::new(6))
+            .expect("6 mois")
     );
     let mut altere = jeton_licence.to_owned();
-    altere.replace_range(0..1, if &jeton_licence[0..1] == "A" { "B" } else { "A" });
+    altere.replace_range(
+        0..1,
+        if &jeton_licence[0..1] == "A" {
+            "B"
+        } else {
+            "A"
+        },
+    );
     assert!(verifier_jeton(&altere, &signataire_test().cle_publique_hex()).is_err());
 
     // L'état de l'entreprise est consultable par son compte.
@@ -235,7 +251,12 @@ async fn fiche_invalide_renvoie_la_meme_liste_erreurs(pool: PgPool) {
     let jeton = compte_verifie(&app, &env, "pierre@exemple.bj").await;
     let (statut, _) = envoyer(
         &app,
-        req_json("POST", "/v1/cgu/acceptations", &json!({ "version": 1 }), Some(&jeton)),
+        req_json(
+            "POST",
+            "/v1/cgu/acceptations",
+            &json!({ "version": 1 }),
+            Some(&jeton),
+        ),
     )
     .await;
     assert_eq!(statut, StatusCode::CREATED);
@@ -256,7 +277,8 @@ async fn fiche_invalide_renvoie_la_meme_liste_erreurs(pool: PgPool) {
     .await;
     assert_eq!(statut, StatusCode::UNPROCESSABLE_ENTITY);
     // La liste « erreurs » est exactement celle de FicheEntreprise::valider().
-    let attendu = ac_noyau::entreprise::FicheEntreprise::default().valider(amazone_plateforme::aujourdhui());
+    let attendu =
+        ac_noyau::entreprise::FicheEntreprise::default().valider(amazone_plateforme::aujourdhui());
     let champs: Vec<String> = corps["erreurs"]
         .as_array()
         .expect("liste d'erreurs")
@@ -278,7 +300,12 @@ async fn ifu_deja_inscrirefus(pool: PgPool) {
     // CGU acceptées pour le second compte, puis IFU identique.
     let (statut, _) = envoyer(
         &app,
-        req_json("POST", "/v1/cgu/acceptations", &json!({ "version": 1 }), Some(&jeton_b)),
+        req_json(
+            "POST",
+            "/v1/cgu/acceptations",
+            &json!({ "version": 1 }),
+            Some(&jeton_b),
+        ),
     )
     .await;
     assert_eq!(statut, StatusCode::CREATED);
@@ -403,11 +430,13 @@ async fn renouvellement_refuse_si_entreprise_suspendue(pool: PgPool) {
     assert_eq!(statut, StatusCode::CREATED);
 
     // Suspension (action d'administration, lot 7) : renouvellement et émission refusés.
-    sqlx::query("UPDATE entreprises SET statut = 'SUSPENDUE', motif = 'motif de test' WHERE id = $1")
-        .bind(entreprise_id)
-        .execute(&pool)
-        .await
-        .expect("suspension");
+    sqlx::query(
+        "UPDATE entreprises SET statut = 'SUSPENDUE', motif = 'motif de test' WHERE id = $1",
+    )
+    .bind(entreprise_id)
+    .execute(&pool)
+    .await
+    .expect("suspension");
     let (statut, corps) = envoyer(
         &app,
         req_json(
@@ -755,6 +784,9 @@ async fn modification_fiche_et_demande_changement_ifu(pool: PgPool) {
     )
     .await;
     assert_eq!(statut, StatusCode::OK);
-    assert_eq!(corps["ifu"], "3201912345678", "l'IFU actuel ne change pas tout seul");
+    assert_eq!(
+        corps["ifu"], "3201912345678",
+        "l'IFU actuel ne change pas tout seul"
+    );
     assert_eq!(corps["demandes_ifu_en_attente"], json!(["3012345678901"]));
 }

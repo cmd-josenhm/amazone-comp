@@ -206,14 +206,26 @@ mod tests {
 
     #[test]
     fn classes_selon_le_chemin() {
-        assert_eq!(ClasseDebit::pour_chemin("/v1/comptes"), ClasseDebit::Inscription);
+        assert_eq!(
+            ClasseDebit::pour_chemin("/v1/comptes"),
+            ClasseDebit::Inscription
+        );
         assert_eq!(
             ClasseDebit::pour_chemin("/v1/mots-de-passe/reinitialiser"),
             ClasseDebit::Inscription
         );
-        assert_eq!(ClasseDebit::pour_chemin("/v1/sessions"), ClasseDebit::Connexion);
-        assert_eq!(ClasseDebit::pour_chemin("/v1/licences/renouveler"), ClasseDebit::Licence);
-        assert_eq!(ClasseDebit::pour_chemin("/v1/cgu/courante"), ClasseDebit::Generale);
+        assert_eq!(
+            ClasseDebit::pour_chemin("/v1/sessions"),
+            ClasseDebit::Connexion
+        );
+        assert_eq!(
+            ClasseDebit::pour_chemin("/v1/licences/renouveler"),
+            ClasseDebit::Licence
+        );
+        assert_eq!(
+            ClasseDebit::pour_chemin("/v1/cgu/courante"),
+            ClasseDebit::Generale
+        );
     }
 
     #[test]
@@ -249,9 +261,7 @@ mod tests {
             .body(axum::body::Body::empty())
             .unwrap();
         assert_eq!(adresse_client(&requete), "203.0.113.7");
-        let sans = Request::builder()
-            .body(axum::body::Body::empty())
-            .unwrap();
+        let sans = Request::builder().body(axum::body::Body::empty()).unwrap();
         assert_eq!(adresse_client(&sans), "inconnu");
     }
 }

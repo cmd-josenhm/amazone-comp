@@ -82,8 +82,7 @@ pub fn verifier_jeton(jeton: &str, cle_publique_hex: &str) -> Result<Licence, Er
         .map_err(|_| ErreurJeton::Format)?;
     let cle_octets =
         crate::config::octets_depuis_hex(cle_publique_hex).ok_or(ErreurJeton::Signature)?;
-    let cle_publique =
-        VerifyingKey::from_bytes(&cle_octets).map_err(|_| ErreurJeton::Signature)?;
+    let cle_publique = VerifyingKey::from_bytes(&cle_octets).map_err(|_| ErreurJeton::Signature)?;
     let signature = ed25519_dalek::Signature::from_bytes(&signature_tableau);
     cle_publique
         .verify_strict(&charge, &signature)
@@ -167,7 +166,10 @@ mod tests {
     fn jeton_mal_forme() {
         let signataire = SignataireLicences::nouveau([3u8; 32]);
         let pub_hex = signataire.cle_publique_hex();
-        assert_eq!(verifier_jeton("sans-point", &pub_hex), Err(ErreurJeton::Format));
+        assert_eq!(
+            verifier_jeton("sans-point", &pub_hex),
+            Err(ErreurJeton::Format)
+        );
         assert_eq!(verifier_jeton("a.b.c", &pub_hex), Err(ErreurJeton::Format));
         assert_eq!(verifier_jeton("", &pub_hex), Err(ErreurJeton::Format));
     }

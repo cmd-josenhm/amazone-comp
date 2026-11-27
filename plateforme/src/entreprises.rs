@@ -112,14 +112,20 @@ async fn entreprise_possedee(
     compte_id: i64,
     id: i64,
 ) -> Result<EntreprisePossedee, ErreurApi> {
-    let ligne: Option<(i64, String, String, Option<String>, Option<DateTime<Utc>>, i64)> =
-        sqlx::query_as(
-            "SELECT id, ifu, statut, motif, statut_change_le, compte_id FROM entreprises WHERE id = $1",
-        )
-        .bind(id)
-        .fetch_optional(&etat.bdd)
-        .await
-        .map_err(crate::erreur_bdd)?;
+    let ligne: Option<(
+        i64,
+        String,
+        String,
+        Option<String>,
+        Option<DateTime<Utc>>,
+        i64,
+    )> = sqlx::query_as(
+        "SELECT id, ifu, statut, motif, statut_change_le, compte_id FROM entreprises WHERE id = $1",
+    )
+    .bind(id)
+    .fetch_optional(&etat.bdd)
+    .await
+    .map_err(crate::erreur_bdd)?;
     let Some((id, ifu, statut, motif, statut_change_le, proprietaire)) = ligne else {
         return Err(ErreurApi::introuvable("Entreprise introuvable."));
     };
@@ -291,10 +297,7 @@ async fn deposer_justificatif(
     let compte = crate::authentifier(&etat, &en_tetes).await?;
     let entreprise = entreprise_possedee(&etat, compte.compte_id, id).await?;
     let corps = crate::corps_json(corps)?;
-    if !matches!(
-        corps.categorie.as_str(),
-        "ATTESTATION_IFU" | "EXTRAIT_RCCM"
-    ) {
+    if !matches!(corps.categorie.as_str(), "ATTESTATION_IFU" | "EXTRAIT_RCCM") {
         return Err(ErreurApi::invalide(
             "Catégorie de justificatif inconnue : attendu ATTESTATION_IFU ou EXTRAIT_RCCM.",
         ));
@@ -319,9 +322,8 @@ async fn deposer_justificatif(
             "Le fichier dépasse la taille maximale de 5 Mo.",
         ));
     }
-    let taille = i32::try_from(contenu.len()).map_err(|_| ErreurApi::trop_grand(
-        "Le fichier dépasse la taille maximale de 5 Mo.",
-    ))?;
+    let taille = i32::try_from(contenu.len())
+        .map_err(|_| ErreurApi::trop_grand("Le fichier dépasse la taille maximale de 5 Mo."))?;
     let (justificatif_id,): (i64,) = sqlx::query_as(
         "INSERT INTO justificatifs (entreprise_id, categorie, nom_fichier, mime, contenu, taille)
          VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
