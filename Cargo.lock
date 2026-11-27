@@ -48,7 +48,9 @@ dependencies = [
 name = "ac-etats"
 version = "0.1.0"
 dependencies = [
+ "ac-compta",
  "ac-donnees",
+ "ac-noyau",
  "chrono",
  "serde",
  "thiserror 2.0.21",
