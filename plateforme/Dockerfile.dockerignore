@@ -1,0 +1,19 @@
+# Fichiers exclus du contexte de build Docker (contexte = racine du dépôt).
+.git
+.github
+.vscode
+.idea
+node_modules
+ui/dist
+target
+plateforme/target
+src-tauri/target
+coverage
+*.log
+*.acdb
+*.acdb-wal
+*.acdb-shm
+.env
+.env.*
+!.env.exemple
+plateforme/secrets

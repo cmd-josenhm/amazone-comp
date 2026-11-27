@@ -1,0 +1,77 @@
+# Plateforme en ligne (A10) — format, lint, tests et couverture avec PostgreSQL.
+# La plateforme est un crate Rust séparé (hors workspace de l'application) : cette CI
+# lui est entièrement consacrée. Propriétaire : agent A10.
+name: Plateforme
+
+on:
+  push:
+    branches: [main, 'arena/**']
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plateforme-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
+jobs:
+  plateforme:
+    name: Plateforme — format, lint, tests, couverture
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: amazone_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/amazone_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy, llvm-tools-preview
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: plateforme
+      - name: Format
+        working-directory: plateforme
+        run: cargo fmt --check
+      - name: Clippy (aucun avertissement)
+        working-directory: plateforme
+        run: cargo clippy --all-targets -- -D warnings
+      - name: Tests (service PostgreSQL)
+        working-directory: plateforme
+        run: cargo test
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
+      - name: Couverture (seuil 80 %)
+        working-directory: plateforme
+        run: cargo llvm-cov --fail-under-lines 80 --summary-only
+      - name: Publier le verrou de dépendances (Cargo.lock)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cargo-lock-plateforme
+          path: plateforme/Cargo.lock
+          if-no-files-found: ignore
+
+  image:
+    name: Image Docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Construire l'image de la plateforme
+        run: docker build -f plateforme/Dockerfile -t amazone-plateforme:test .

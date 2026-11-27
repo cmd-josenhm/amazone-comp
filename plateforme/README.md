@@ -1,30 +1,45 @@
 # Plateforme en ligne AMAZONE COMP — Propriétaire : A10
 
-Service unique **Rust (axum) + PostgreSQL**, déployé sur un VPS (ADR 0008). Rien n'est encore écrit :
-A10 crée ce dossier en suivant `PROMPT_A10.md`.
+Service unique **Rust (axum) + PostgreSQL**, déployé en conteneur Docker sur un VPS (ADR 0008).
+Crate binaire **séparé** du workspace de l'application (son propre `Cargo.toml` et `Cargo.lock`) :
+il dépend de `ac-noyau` et `ac-licence` par chemin pour la validation unique de la fiche
+entreprise (C11) et le format du jeton de licence (ADR 0004).
 
-Arborescence attendue :
+**État : lot 1 livré** (comptes, vérification du courriel, sessions, mot de passe oublié,
+CGU versionnées, inscription des entreprises, licences signées Ed25519). Les lots suivants
+(client `ac-licence`, glue `src-tauri`, console d'administration, ASSISTANCE, sauvegardes,
+mises à jour) viendront ensuite — voir `PROMPT_A10.md`.
+
+Arborescence :
 
 ```
 plateforme/
 ├── Cargo.toml            crate binaire « amazone-plateforme » (hors workspace de l'application)
 ├── migrations/           SQL PostgreSQL (sqlx)
 ├── src/
-│   ├── main.rs
-│   ├── comptes.rs        inscription, connexion, vérification e-mail, mot de passe oublié
-│   ├── entreprises.rs    fiche entreprise (IFU, RCCM…), statut de vérification, justificatifs (ADR 0009)
-│   ├── assistance.rs     conversations, messages, pièces jointes, flux SSE (ADR 0010)
-│   ├── annonces.rs       messages diffusés dans le logiciel
+│   ├── main.rs           démarrage, configuration, écoute HTTP
+│   ├── lib.rs            état partagé, authentification, routeur
+│   ├── config.rs         variables d'environnement, clé de signature
+│   ├── erreur.rs         erreurs API (messages français)
+│   ├── jetons.rs         jetons opaques, codes, jetons de licence Ed25519
+│   ├── limitation.rs     limitation de débit (couche tower)
+│   ├── courriel.rs       envoi des codes (journal, futur SMTP)
+│   ├── comptes.rs        inscription, vérification, sessions, mot de passe oublié
 │   ├── cgu.rs            versions des conditions, acceptations
-│   ├── licences.rs       émission / renouvellement / révocation / transfert (Ed25519)
-│   ├── sauvegardes.rs    dépôt et récupération de blobs chiffrés
-│   ├── avis.rs           avis et critiques des utilisateurs
-│   ├── mises_a_jour.rs   manifeste du plugin updater de Tauri
-│   └── admin/            API de la console : authentification + TOTP, entreprises, licences, audit
-├── web-admin/            console d'administration (React + TypeScript + Vite, design noir et blanc)
+│   ├── entreprises.rs    fiche entreprise, statuts, justificatifs (ADR 0009)
+│   ├── licences.rs       émission / renouvellement / transfert (Ed25519)
+│   └── (à venir) assistance.rs, annonces.rs, sauvegardes.rs, avis.rs,
+│       mises_a_jour.rs, admin/ (lots suivants)
+├── web-admin/            console d'administration (lot 7)
+├── tests/parcours.rs     tests d'intégration (PostgreSQL requis)
 ├── Dockerfile
 ├── docker-compose.yml    plateforme + postgres + caddy
+├── Caddyfile             HTTPS Let's Encrypt
 └── .env.exemple          variables (aucun secret réel)
 ```
 
-**La clé privée de signature des licences n'est jamais commitée** (`plateforme/secrets/` est ignoré par Git).
+**La clé privée de signature des licences n'est jamais commitée** (`plateforme/secrets/` et
+`.env` sont ignorés par Git) : elle est lue dans une variable d'environnement ou un fichier
+hors dépôt. La clé publique est affichée au démarrage du service.
+
+Documentation complète : `docs/modules/plateforme.md` (API, déploiement, rotation des clés).
