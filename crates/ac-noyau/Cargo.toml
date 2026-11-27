@@ -20,4 +20,9 @@ thiserror.workspace = true
 toml.workspace = true
 
 [dev-dependencies]
+# Tests de propriété exigés par l'issue n° 9 (a + b − b == a ; répartition conserve le total).
+# Licence MIT / Apache-2.0, très maintenue, uniquement en développement : n'entre pas dans le
+# binaire final. Déclarée ici (et non dans le Cargo.toml racine, hors périmètre A1) ; à remonter
+# dans [workspace.dependencies] si le chef de projet le souhaite.
+proptest = "1"
 serde_json.workspace = true
