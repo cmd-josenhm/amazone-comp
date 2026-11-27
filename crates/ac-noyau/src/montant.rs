@@ -403,5 +403,4 @@ mod tests {
         assert!(serde_json::from_str::<Montant>("1000000000000001").is_err());
         assert!(serde_json::from_str::<Montant>("12.5").is_err());
     }
-
 }
