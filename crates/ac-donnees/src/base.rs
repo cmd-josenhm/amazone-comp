@@ -4,8 +4,11 @@ use std::collections::BTreeMap;
 use std::path::Path;
 
 use rusqlite::Connection;
+use zeroize::Zeroizing;
 
-use crate::{ErreurDonnees, Resultat, Transaction};
+use crate::{CleBase, ErreurDonnees, Resultat, Transaction};
+
+const HEXADECIMAL: &[u8; 16] = b"0123456789abcdef";
 
 /// Migration SQL d'une crate. Les numéros sont réservés par plage (voir `docs/architecture.md` §4) :
 /// 0001–0999 ac-donnees, 1000–1999 ac-compta, 2000 ac-ventes, 3000 ac-achats, 4000 ac-tresorerie,
@@ -37,11 +40,16 @@ pub struct Base {
 }
 
 impl Base {
-    /// Ouvre (ou crée) le fichier du dossier.
+    /// Ouvre (ou crée) le fichier chiffré du dossier avec sa clé brute.
     ///
-    /// TODO(A2) : chiffrement SQLCipher (`PRAGMA key`), clé enveloppée par Argon2id (ADR 0005).
-    pub fn ouvrir(chemin: &Path) -> Resultat<Self> {
+    /// Applique la clé SQLCipher sous forme hexadécimale brute puis lit immédiatement
+    /// `sqlite_master`. Les valeurs de compatibilité ne sont pas remplacées : SQLCipher applique
+    /// ses paramètres par défaut de version 4. Une clé incorrecte est détectée avant toute
+    /// configuration susceptible d'écrire dans le fichier.
+    pub fn ouvrir(chemin: &Path, cle: &CleBase) -> Resultat<Self> {
         let conn = Connection::open(chemin)?;
+        appliquer_cle(&conn, cle)?;
+        verifier_cle(&conn)?;
         Self::configurer(conn)
     }
 
@@ -113,9 +121,66 @@ impl Base {
     }
 }
 
+fn appliquer_cle(conn: &Connection, cle: &CleBase) -> Resultat<()> {
+    let mut hex = Zeroizing::new(String::with_capacity(64));
+    for octet in cle.octets() {
+        hex.push(char::from(HEXADECIMAL[usize::from(*octet >> 4)]));
+        hex.push(char::from(HEXADECIMAL[usize::from(*octet & 0x0f)]));
+    }
+
+    // Ne jamais retourner l'erreur SQLite brute : SqlInputError peut inclure le SQL fourni,
+    // qui contient ici la clé. Les deux buffers intermédiaires sont effacés à leur destruction.
+    let pragma = Zeroizing::new(format!("PRAGMA key = \"x'{}'\";", hex.as_str()));
+    conn.execute_batch(pragma.as_str())
+        .map_err(|_| ErreurDonnees::ChiffrementIndisponible)
+}
+
+fn verifier_cle(conn: &Connection) -> Resultat<()> {
+    conn.query_row("SELECT count(*) FROM sqlite_master", [], |ligne| {
+        ligne.get::<_, i64>(0)
+    })
+    .map(|_| ())
+    .map_err(|_| ErreurDonnees::MotDePasseIncorrect)
+}
+
 #[cfg(test)]
 mod tests {
+    use std::fs;
+    use std::path::PathBuf;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
     use super::*;
+
+    struct FichierTemporaire(PathBuf);
+
+    impl FichierTemporaire {
+        fn nouveau() -> Self {
+            static SEQUENCE: AtomicUsize = AtomicUsize::new(0);
+            let numero = SEQUENCE.fetch_add(1, Ordering::Relaxed);
+            let chemin = std::env::temp_dir().join(format!(
+                "Amazone Comp Sèna SQLCipher {} {numero}.acdb",
+                std::process::id()
+            ));
+            let fichier = Self(chemin);
+            fichier.supprimer();
+            fichier
+        }
+
+        fn supprimer(&self) {
+            let _ = fs::remove_file(&self.0);
+            for suffixe in ["-wal", "-shm"] {
+                let mut chemin = self.0.as_os_str().to_os_string();
+                chemin.push(suffixe);
+                let _ = fs::remove_file(PathBuf::from(chemin));
+            }
+        }
+    }
+
+    impl Drop for FichierTemporaire {
+        fn drop(&mut self) {
+            self.supprimer();
+        }
+    }
 
     #[test]
     fn migrations_idempotentes() {
@@ -151,5 +216,47 @@ mod tests {
         assert_eq!(c.execute(INSERER_ENTREPRISE, ["3201912345678"]).unwrap(), 1);
         // un seul dossier par base
         assert!(c.execute(INSERER_ENTREPRISE, ["3201912345678"]).is_err());
+    }
+
+    #[test]
+    fn fichier_sur_disque_est_chiffre() {
+        let fichier = FichierTemporaire::nouveau();
+        let cle = CleBase::depuis_octets([0x42; 32]);
+        {
+            let mut base = Base::ouvrir(&fichier.0, &cle).unwrap();
+            assert_eq!(base.migrer(&[migrations()]).unwrap(), 1);
+        }
+
+        let contenu = fs::read(&fichier.0).unwrap();
+        assert!(contenu.len() >= 16);
+        assert_ne!(&contenu[..16], b"SQLite format 3\0");
+
+        let base = Base::ouvrir(&fichier.0, &cle).unwrap();
+        let migrations_enregistrees: i64 = base
+            .connexion()
+            .query_row("SELECT count(*) FROM donnees_migration", [], |ligne| {
+                ligne.get(0)
+            })
+            .unwrap();
+        assert_eq!(migrations_enregistrees, 1);
+    }
+
+    #[test]
+    fn mauvaise_cle_refusee_sans_modifier_le_fichier() {
+        let fichier = FichierTemporaire::nouveau();
+        let bonne_cle = CleBase::depuis_octets([0x42; 32]);
+        {
+            let mut base = Base::ouvrir(&fichier.0, &bonne_cle).unwrap();
+            base.migrer(&[migrations()]).unwrap();
+        }
+        let contenu_avant = fs::read(&fichier.0).unwrap();
+
+        assert!(matches!(
+            Base::ouvrir(&fichier.0, &CleBase::depuis_octets([0x24; 32])),
+            Err(ErreurDonnees::MotDePasseIncorrect)
+        ));
+
+        let contenu_apres = fs::read(&fichier.0).unwrap();
+        assert_eq!(contenu_apres, contenu_avant);
     }
 }
