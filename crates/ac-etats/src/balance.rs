@@ -10,7 +10,7 @@ use ac_compta::NumeroCompte;
 use ac_noyau::{Montant, Periode};
 use serde::{Deserialize, Serialize};
 
-use crate::{ErreurEtats, Resultat};
+use crate::erreur::{ErreurEtats, Resultat};
 
 /// Sens du solde net d'un compte.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -218,18 +218,15 @@ mod tests {
 
     #[test]
     fn refus_montant_negatif_et_doublon() {
-        assert!(matches!(
-            LigneBalance::new(c("521"), "Banque", m(-1), Montant::ZERO),
-            Err(ErreurEtats::MontantNegatifBalance { .. })
-        ));
+        let neg = LigneBalance::new(c("521"), "Banque", m(-1), Montant::ZERO);
+        assert!(matches!(neg, Err(ErreurEtats::MontantNegatifBalance { .. })));
+
         let b = Balance::exercice(vec![
             LigneBalance::solde_debiteur(c("521"), "Banque 1", m(100)).unwrap(),
             LigneBalance::solde_debiteur(c("521"), "Banque 2", m(200)).unwrap(),
         ]);
-        assert!(matches!(
-            b.valider(),
-            Err(ErreurEtats::DoublonCompteBalance { exercice: "N", .. })
-        ));
+        let err = b.valider().unwrap_err();
+        assert!(matches!(err, ErreurEtats::DoublonCompteBalance { exercice: "N", .. }));
     }
 
     #[test]

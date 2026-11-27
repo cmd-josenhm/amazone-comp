@@ -13,10 +13,7 @@ pub enum ErreurEtats {
         compte: String,
     },
     /// Total Actif ≠ Total Passif (aucun poste fourre-tout n'est créé pour masquer un écart).
-    #[error(
-        "Le bilan de l'exercice {exercice} n'est pas équilibré : total actif {actif}, \
-         total passif {passif} (écart de {ecart})"
-    )]
+    #[error("Bilan {exercice} déséquilibré : actif {actif}, passif {passif} (écart {ecart})")]
     BilanDesequilibre {
         /// Exercice concerné (`"N"` ou `"N-1"`).
         exercice: &'static str,
@@ -28,10 +25,7 @@ pub enum ErreurEtats {
         ecart: Montant,
     },
     /// Le résultat net calculé au bilan diffère de celui du compte de résultat.
-    #[error(
-        "Incohérence sur l'exercice {exercice} : résultat du bilan ({bilan}) différent du \
-         résultat net du compte de résultat ({compte_resultat}), écart de {ecart}"
-    )]
+    #[error("Incohérence {exercice} : bilan {bilan} ≠ compte résultat {compte_resultat} ({ecart})")]
     ResultatsIncoherents {
         /// Exercice concerné (`"N"` ou `"N-1"`).
         exercice: &'static str,
@@ -51,10 +45,7 @@ pub enum ErreurEtats {
         exercice: &'static str,
     },
     /// Une ligne de balance contient un montant négatif sur un total débit ou crédit.
-    #[error(
-        "Montant négatif interdit sur le compte {compte} : les totaux débit et crédit doivent \
-         être positifs ou nuls"
-    )]
+    #[error("Montant négatif interdit sur {compte} (débit et crédit doivent être >= 0)")]
     MontantNegatifBalance {
         /// Numéro du compte concerné.
         compte: String,

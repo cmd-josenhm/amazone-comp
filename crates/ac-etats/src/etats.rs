@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::balance::{Balance, LigneBalance};
 use crate::correspondances::{ColonneBilan, Correspondances, EtatFinancier, SigneRubrique};
-use crate::{ErreurEtats, Resultat};
+use crate::erreur::{ErreurEtats, Resultat};
 
 /// Nature hiérarchique d'une ligne d'état financier.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -193,15 +193,30 @@ impl CompteResultat {
 
 pub(crate) fn rubrique_detail_existe(etat: EtatFinancier, reference: &str) -> bool {
     match etat {
-        EtatFinancier::BilanActif => STRUCTURE_ACTIF
-            .iter()
-            .any(|s| s.reference == reference && s.type_ligne == TypeLigne::Detail),
-        EtatFinancier::BilanPassif => STRUCTURE_PASSIF
-            .iter()
-            .any(|s| s.reference == reference && s.type_ligne == TypeLigne::Detail),
-        EtatFinancier::CompteResultat => STRUCTURE_RESULTAT
-            .iter()
-            .any(|s| s.reference == reference && s.type_ligne == TypeLigne::Detail),
+        EtatFinancier::BilanActif => {
+            for s in STRUCTURE_ACTIF {
+                if s.reference == reference && s.type_ligne == TypeLigne::Detail {
+                    return true;
+                }
+            }
+            false
+        }
+        EtatFinancier::BilanPassif => {
+            for s in STRUCTURE_PASSIF {
+                if s.reference == reference && s.type_ligne == TypeLigne::Detail {
+                    return true;
+                }
+            }
+            false
+        }
+        EtatFinancier::CompteResultat => {
+            for s in STRUCTURE_RESULTAT {
+                if s.reference == reference && s.type_ligne == TypeLigne::Detail {
+                    return true;
+                }
+            }
+            false
+        }
     }
 }
 
@@ -611,7 +626,7 @@ const STRUCTURE_ACTIF: &[ActifSpec] = &[
 ];
 
 fn construire_actif(n: &CumulExercice, n1: &CumulExercice) -> Resultat<Vec<LigneBilanActif>> {
-    let mut valeurs: BTreeMap<&'static str, (Montant, Montant, Montant, Montant)> = BTreeMap::new();
+    let mut valeurs: BTreeMap<&'static str, _> = BTreeMap::new();
 
     for spec in STRUCTURE_ACTIF {
         if spec.type_ligne == TypeLigne::Detail {
@@ -1420,18 +1435,14 @@ mod tests {
             d("521", "Banque", 1_000_001),
         ]);
         let err_bilan = bilan(&desequilibree).unwrap_err();
-        assert!(matches!(
-            err_bilan,
-            ErreurEtats::BilanDesequilibre { exercice: "N", .. }
-        ));
+        assert!(matches!(err_bilan, ErreurEtats::BilanDesequilibre { exercice: "N", .. }));
 
         // Compte non rattaché (message exact).
         let inconnue = Balance::exercice(vec![d("9011", "Engagement hors bilan", 100_000)]);
         let err_9011 = bilan(&inconnue).unwrap_err();
         assert_eq!(err_9011.to_string(), "Le compte 9011 n'est rattaché à aucune rubrique");
 
-        let csv = "compte_ou_plage;etat;colonne_bilan;rubrique;libelle_rubrique;sens_solde;signe\n\
-                   101;BILAN_PASSIF;PASSIF;CA;Capital;M;+\n";
+        let csv = "101;BILAN_PASSIF;PASSIF;CA;Capital;M;+\n";
         let corr_partielle = Correspondances::depuis_csv(csv).unwrap();
         let avec_4711 = Balance::exercice(vec![d("4711", "Compte d'attente", 50_000)]);
         let err_4711 = bilan_avec_correspondances(&avec_4711, &corr_partielle).unwrap_err();
@@ -1450,10 +1461,8 @@ mod tests {
             cr_ligne("701", "Ventes", 500_000),
         ]);
         let cr2 = compte_resultat(&bal2).unwrap();
-        assert!(matches!(
-            verifier_coherence(&b1, &cr2),
-            Err(ErreurEtats::ResultatsIncoherents { exercice: "N", .. })
-        ));
+        let err_inc = verifier_coherence(&b1, &cr2).unwrap_err();
+        assert!(matches!(err_inc, ErreurEtats::ResultatsIncoherents { exercice: "N", .. }));
 
         // Déséquilibre sur N-1 et incohérence sur N-1 détectés également.
         let n1_desequilibre = Balance::avec_comparatif(
@@ -1468,33 +1477,25 @@ mod tests {
                 d("521", "Banque", 999_999),
             ],
         );
-        assert!(matches!(
-            bilan(&n1_desequilibre),
-            Err(ErreurEtats::BilanDesequilibre { exercice: "N-1", .. })
-        ));
+        let err_n1 = bilan(&n1_desequilibre).unwrap_err();
+        assert!(matches!(err_n1, ErreurEtats::BilanDesequilibre { exercice: "N-1", .. }));
 
         let mut b_faux = b1.clone();
         b_faux.total_actif_n = m(999_999);
-        assert!(matches!(
-            verifier_coherence(&b_faux, &cr2),
-            Err(ErreurEtats::BilanDesequilibre { exercice: "N", .. })
-        ));
+        let err_faux_n = verifier_coherence(&b_faux, &cr2).unwrap_err();
+        assert!(matches!(err_faux_n, ErreurEtats::BilanDesequilibre { exercice: "N", .. }));
 
         let mut b_faux_n1 = b1.clone();
         b_faux_n1.possede_comparatif = true;
         b_faux_n1.total_actif_n1 = m(500);
-        assert!(matches!(
-            verifier_coherence(&b_faux_n1, &cr2),
-            Err(ErreurEtats::BilanDesequilibre { exercice: "N-1", .. })
-        ));
+        let err_faux_n1 = verifier_coherence(&b_faux_n1, &cr2).unwrap_err();
+        assert!(matches!(err_faux_n1, ErreurEtats::BilanDesequilibre { exercice: "N-1", .. }));
 
         b_faux_n1.total_actif_n1 = Montant::ZERO;
         b_faux_n1.resultat_net_n1 = m(100);
         let cr_ok_n = compte_resultat(&bal1).unwrap();
-        assert!(matches!(
-            verifier_coherence(&b_faux_n1, &cr_ok_n),
-            Err(ErreurEtats::ResultatsIncoherents { exercice: "N-1", .. })
-        ));
+        let err_inc_n1 = verifier_coherence(&b_faux_n1, &cr_ok_n).unwrap_err();
+        assert!(matches!(err_inc_n1, ErreurEtats::ResultatsIncoherents { exercice: "N-1", .. }));
     }
 
     #[test]

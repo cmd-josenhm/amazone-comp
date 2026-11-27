@@ -7,7 +7,7 @@ use ac_compta::NumeroCompte;
 use serde::{Deserialize, Serialize};
 
 use crate::balance::SensSolde;
-use crate::{ErreurEtats, Resultat};
+use crate::erreur::{ErreurEtats, Resultat};
 
 const CSV_SYSCOHADA: &str = include_str!("../donnees/correspondances_syscohada.csv");
 
@@ -169,22 +169,26 @@ impl Correspondances {
         compte: &NumeroCompte,
         sens: SensSolde,
     ) -> Resultat<&RegleCorrespondance> {
-        let candidates: Vec<&RegleCorrespondance> = self
-            .regles
-            .iter()
-            .filter(|r| r.motif.correspond(compte))
-            .collect();
-
-        let Some(max_longueur) = candidates.iter().map(|r| r.motif.longueur()).max() else {
+        let mut candidates = Vec::new();
+        let mut max_longueur = 0;
+        for r in &self.regles {
+            if r.motif.correspond(compte) {
+                max_longueur = max_longueur.max(r.motif.longueur());
+                candidates.push(r);
+            }
+        }
+        if candidates.is_empty() {
             return Err(ErreurEtats::CompteNonRattache {
                 compte: compte.to_string(),
             });
-        };
+        }
 
-        let specifiques: Vec<&RegleCorrespondance> = candidates
-            .into_iter()
-            .filter(|r| r.motif.longueur() == max_longueur)
-            .collect();
+        let mut specifiques = Vec::new();
+        for r in candidates {
+            if r.motif.longueur() == max_longueur {
+                specifiques.push(r);
+            }
+        }
 
         if let Some(regle) = choisir_par_sens(&specifiques, sens) {
             return Ok(regle);
@@ -228,10 +232,12 @@ fn trouver_sens<'a>(
     specifiques: &[&'a RegleCorrespondance],
     attendu: SensAttendu,
 ) -> Option<&'a RegleCorrespondance> {
-    specifiques
-        .iter()
-        .copied()
-        .find(|r| r.sens_solde == attendu)
+    for &r in specifiques {
+        if r.sens_solde == attendu {
+            return Some(r);
+        }
+    }
+    None
 }
 
 fn analyser_ligne_csv(ligne: &str, num_ligne: usize) -> Resultat<RegleCorrespondance> {
@@ -330,12 +336,13 @@ fn analyser_colonne(texte: &str, etat: EtatFinancier, ligne: usize) -> Resultat<
             });
         }
     };
-    let compatible = matches!(
-        (etat, col),
-        (EtatFinancier::BilanActif, ColonneBilan::Brut | ColonneBilan::AmortDeprec)
-            | (EtatFinancier::BilanPassif, ColonneBilan::Passif)
-            | (EtatFinancier::CompteResultat, ColonneBilan::Resultat)
-    );
+    let compatible = match (etat, col) {
+        (EtatFinancier::BilanActif, ColonneBilan::Brut) => true,
+        (EtatFinancier::BilanActif, ColonneBilan::AmortDeprec) => true,
+        (EtatFinancier::BilanPassif, ColonneBilan::Passif) => true,
+        (EtatFinancier::CompteResultat, ColonneBilan::Resultat) => true,
+        _ => false,
+    };
     if !compatible {
         return Err(ErreurEtats::CorrespondanceInvalide {
             ligne,
@@ -423,8 +430,7 @@ mod tests {
         );
 
         // Table personnalisée sans le compte 4711 → message exact exigé par le cahier des charges.
-        let csv = "compte_ou_plage;etat;colonne_bilan;rubrique;libelle_rubrique;sens_solde;signe\n\
-                   101;BILAN_PASSIF;PASSIF;CA;Capital;M;+\n";
+        let csv = "101;BILAN_PASSIF;PASSIF;CA;Capital;M;+\n";
         let partielle = Correspondances::depuis_csv(csv).unwrap();
         let res_4711 = partielle.resoudre(&c("4711"), SensSolde::Debiteur);
         assert_eq!(
