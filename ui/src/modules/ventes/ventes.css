@@ -1,0 +1,45 @@
+/* Module Ventes — Propriétaire : A4. Jetons CSS uniquement (aucune couleur en dur). */
+
+.tableau-clients {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableau-clients th,
+.tableau-clients td {
+  text-align: left;
+  padding: var(--espace-2) var(--espace-3);
+  border-bottom: 1px solid var(--bordure);
+  vertical-align: top;
+}
+
+.tableau-clients th {
+  font-weight: 500;
+  color: var(--texte-secondaire);
+}
+
+.case {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-2);
+  margin-bottom: var(--espace-3);
+}
+
+.actions-ligne {
+  display: flex;
+  gap: var(--espace-2);
+  flex-wrap: wrap;
+}
+
+.barre-recherche {
+  display: flex;
+  gap: var(--espace-3);
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: var(--espace-4);
+}
+
+.barre-recherche .champ {
+  flex: 1 1 220px;
+  margin-bottom: 0;
+}

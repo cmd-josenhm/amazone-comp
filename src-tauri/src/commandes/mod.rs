@@ -6,7 +6,7 @@
 
 pub mod systeme;
 // A1 : pub mod compta;
-// A4 : pub mod ventes;
+pub mod ventes;
 // A5 : pub mod achats;
 // A6 : pub mod tresorerie;
 // A7 : pub mod paie;
@@ -24,6 +24,12 @@ macro_rules! gestionnaire_commandes {
             crate::commandes::systeme::systeme_infos,
             // --- A1 : comptabilité ---
             // --- A4 : ventes ---
+            crate::commandes::ventes::ventes_client_creer,
+            crate::commandes::ventes::ventes_client_modifier,
+            crate::commandes::ventes::ventes_client_obtenir,
+            crate::commandes::ventes::ventes_clients_rechercher,
+            crate::commandes::ventes::ventes_client_desactiver,
+            crate::commandes::ventes::ventes_client_reactiver,
             // --- A5 : achats et stocks ---
             // --- A6 : trésorerie ---
             // --- A7 : paie ---

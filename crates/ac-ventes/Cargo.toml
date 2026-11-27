@@ -17,4 +17,6 @@ ac-noyau.workspace = true
 ac-donnees.workspace = true
 chrono.workspace = true
 serde.workspace = true
+# Déjà utilisée par ac-compta et src-tauri : détails d'audit JSON sans injection de guillemets.
+serde_json.workspace = true
 thiserror.workspace = true
