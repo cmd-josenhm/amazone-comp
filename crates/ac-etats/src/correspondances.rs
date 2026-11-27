@@ -186,26 +186,52 @@ impl Correspondances {
             .filter(|r| r.motif.longueur() == max_longueur)
             .collect();
 
-        let choisie = match sens {
-            SensSolde::Debiteur => specifiques
-                .iter()
-                .find(|r| r.sens_solde == SensAttendu::Debiteur)
-                .or_else(|| specifiques.iter().find(|r| r.sens_solde == SensAttendu::Mixte)),
-            SensSolde::Crediteur => specifiques
-                .iter()
-                .find(|r| r.sens_solde == SensAttendu::Crediteur)
-                .or_else(|| specifiques.iter().find(|r| r.sens_solde == SensAttendu::Mixte)),
-            SensSolde::Nul => specifiques
-                .iter()
-                .find(|r| r.sens_solde == SensAttendu::Mixte)
-                .or_else(|| specifiques.iter().find(|r| r.sens_solde == SensAttendu::Debiteur))
-                .or_else(|| specifiques.iter().find(|r| r.sens_solde == SensAttendu::Crediteur)),
-        };
-
-        choisie.copied().ok_or_else(|| ErreurEtats::CompteNonRattache {
+        if let Some(regle) = choisir_par_sens(&specifiques, sens) {
+            return Ok(regle);
+        }
+        Err(ErreurEtats::CompteNonRattache {
             compte: compte.to_string(),
         })
     }
+}
+
+fn choisir_par_sens<'a>(
+    specifiques: &[&'a RegleCorrespondance],
+    sens: SensSolde,
+) -> Option<&'a RegleCorrespondance> {
+    match sens {
+        SensSolde::Debiteur => {
+            if let Some(r) = trouver_sens(specifiques, SensAttendu::Debiteur) {
+                return Some(r);
+            }
+            trouver_sens(specifiques, SensAttendu::Mixte)
+        }
+        SensSolde::Crediteur => {
+            if let Some(r) = trouver_sens(specifiques, SensAttendu::Crediteur) {
+                return Some(r);
+            }
+            trouver_sens(specifiques, SensAttendu::Mixte)
+        }
+        SensSolde::Nul => {
+            if let Some(r) = trouver_sens(specifiques, SensAttendu::Mixte) {
+                return Some(r);
+            }
+            if let Some(r) = trouver_sens(specifiques, SensAttendu::Debiteur) {
+                return Some(r);
+            }
+            trouver_sens(specifiques, SensAttendu::Crediteur)
+        }
+    }
+}
+
+fn trouver_sens<'a>(
+    specifiques: &[&'a RegleCorrespondance],
+    attendu: SensAttendu,
+) -> Option<&'a RegleCorrespondance> {
+    specifiques
+        .iter()
+        .copied()
+        .find(|r| r.sens_solde == attendu)
 }
 
 fn analyser_ligne_csv(ligne: &str, num_ligne: usize) -> Resultat<RegleCorrespondance> {
@@ -366,8 +392,10 @@ mod tests {
         let corr = Correspondances::syscohada().unwrap();
 
         // 245 (transport) prime sur 24 (autres matériels).
-        assert_eq!(corr.resoudre(&c("2451"), SensSolde::Debiteur).unwrap().rubrique, "AN");
-        assert_eq!(corr.resoudre(&c("2441"), SensSolde::Debiteur).unwrap().rubrique, "AM");
+        let r_2451 = corr.resoudre(&c("2451"), SensSolde::Debiteur).unwrap();
+        assert_eq!(r_2451.rubrique, "AN");
+        let r_2441 = corr.resoudre(&c("2441"), SensSolde::Debiteur).unwrap();
+        assert_eq!(r_2441.rubrique, "AM");
 
         // 521 débiteur → BS (Trésorerie-Actif) ; 521 créditeur → DR (Trésorerie-Passif).
         let bq_d = corr.resoudre(&c("5211"), SensSolde::Debiteur).unwrap();
@@ -379,24 +407,30 @@ mod tests {
         assert_eq!(bq_c.rubrique, "DR");
 
         // 411 créditeur → DI (Clients avances) ; 401 débiteur → BH (Fournisseurs avances).
-        assert_eq!(corr.resoudre(&c("4111"), SensSolde::Crediteur).unwrap().rubrique, "DI");
-        assert_eq!(corr.resoudre(&c("4011"), SensSolde::Debiteur).unwrap().rubrique, "BH");
+        let r_4111 = corr.resoudre(&c("4111"), SensSolde::Crediteur).unwrap();
+        assert_eq!(r_4111.rubrique, "DI");
+        let r_4011 = corr.resoudre(&c("4011"), SensSolde::Debiteur).unwrap();
+        assert_eq!(r_4011.rubrique, "BH");
     }
 
     #[test]
     fn compte_non_rattache_message_explicite() {
         let corr = Correspondances::syscohada().unwrap();
-        let err = corr.resoudre(&c("9011"), SensSolde::Debiteur).unwrap_err();
-        assert_eq!(err.to_string(), "Le compte 9011 n'est rattaché à aucune rubrique");
+        let res_9011 = corr.resoudre(&c("9011"), SensSolde::Debiteur);
+        assert_eq!(
+            res_9011.unwrap_err().to_string(),
+            "Le compte 9011 n'est rattaché à aucune rubrique"
+        );
 
         // Table personnalisée sans le compte 4711 → message exact exigé par le cahier des charges.
-        let partielle = Correspondances::depuis_csv(
-            "compte_ou_plage;etat;colonne_bilan;rubrique;libelle_rubrique;sens_solde;signe\n\
-             101;BILAN_PASSIF;PASSIF;CA;Capital;M;+\n",
-        )
-        .unwrap();
-        let err_4711 = partielle.resoudre(&c("4711"), SensSolde::Debiteur).unwrap_err();
-        assert_eq!(err_4711.to_string(), "Le compte 4711 n'est rattaché à aucune rubrique");
+        let csv = "compte_ou_plage;etat;colonne_bilan;rubrique;libelle_rubrique;sens_solde;signe\n\
+                   101;BILAN_PASSIF;PASSIF;CA;Capital;M;+\n";
+        let partielle = Correspondances::depuis_csv(csv).unwrap();
+        let res_4711 = partielle.resoudre(&c("4711"), SensSolde::Debiteur);
+        assert_eq!(
+            res_4711.unwrap_err().to_string(),
+            "Le compte 4711 n'est rattaché à aucune rubrique"
+        );
     }
 
     #[test]
@@ -414,13 +448,9 @@ mod tests {
             "101;BILAN_PASSIF;PASSIF;CA;Capital;X;+",
             "101;BILAN_PASSIF;PASSIF;CA;Capital;M;*",
         ] {
-            assert!(
-                matches!(
-                    Correspondances::depuis_csv(cas),
-                    Err(ErreurEtats::CorrespondanceInvalide { .. })
-                ),
-                "cas invalide accepté : {cas}"
-            );
+            let res = Correspondances::depuis_csv(cas);
+            let est_invalide = matches!(res, Err(ErreurEtats::CorrespondanceInvalide { .. }));
+            assert!(est_invalide, "cas invalide accepté : {cas}");
         }
     }
 

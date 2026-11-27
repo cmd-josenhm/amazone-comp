@@ -332,7 +332,7 @@ pub fn verifier_coherence(bilan: &Bilan, resultat: &CompteResultat) -> Resultat<
             exercice: "N",
             actif: bilan.total_actif_n,
             passif: bilan.total_passif_n,
-            ecart: bilan.total_actif_n.soustraire(bilan.total_passif_n)?.abs(),
+            ecart: ecart(bilan.total_actif_n, bilan.total_passif_n)?,
         });
     }
     if bilan.resultat_net_n != resultat.resultat_net_n {
@@ -340,7 +340,7 @@ pub fn verifier_coherence(bilan: &Bilan, resultat: &CompteResultat) -> Resultat<
             exercice: "N",
             bilan: bilan.resultat_net_n,
             compte_resultat: resultat.resultat_net_n,
-            ecart: bilan.resultat_net_n.soustraire(resultat.resultat_net_n)?.abs(),
+            ecart: ecart(bilan.resultat_net_n, resultat.resultat_net_n)?,
         });
     }
     if bilan.possede_comparatif || resultat.possede_comparatif {
@@ -349,7 +349,7 @@ pub fn verifier_coherence(bilan: &Bilan, resultat: &CompteResultat) -> Resultat<
                 exercice: "N-1",
                 actif: bilan.total_actif_n1,
                 passif: bilan.total_passif_n1,
-                ecart: bilan.total_actif_n1.soustraire(bilan.total_passif_n1)?.abs(),
+                ecart: ecart(bilan.total_actif_n1, bilan.total_passif_n1)?,
             });
         }
         if bilan.resultat_net_n1 != resultat.resultat_net_n1 {
@@ -357,11 +357,15 @@ pub fn verifier_coherence(bilan: &Bilan, resultat: &CompteResultat) -> Resultat<
                 exercice: "N-1",
                 bilan: bilan.resultat_net_n1,
                 compte_resultat: resultat.resultat_net_n1,
-                ecart: bilan.resultat_net_n1.soustraire(resultat.resultat_net_n1)?.abs(),
+                ecart: ecart(bilan.resultat_net_n1, resultat.resultat_net_n1)?,
             });
         }
     }
     Ok(())
+}
+
+fn ecart(a: Montant, b: Montant) -> Resultat<Montant> {
+    Ok(a.soustraire(b)?.abs())
 }
 
 /// Produit le bilan et le compte de résultat puis vérifie leur cohérence d'ensemble.
@@ -614,8 +618,9 @@ fn construire_actif(n: &CumulExercice, n1: &CumulExercice) -> Resultat<Vec<Ligne
             let brut_n = lire(&n.brut, spec.reference);
             let amort_n = lire(&n.amort_deprec, spec.reference);
             let net_n = brut_n.soustraire(amort_n)?;
-            let net_n1 = lire(&n1.brut, spec.reference)
-                .soustraire(lire(&n1.amort_deprec, spec.reference))?;
+            let brut_n1 = lire(&n1.brut, spec.reference);
+            let amort_n1 = lire(&n1.amort_deprec, spec.reference);
+            let net_n1 = brut_n1.soustraire(amort_n1)?;
             valeurs.insert(spec.reference, (brut_n, amort_n, net_n, net_n1));
         }
     }
@@ -640,10 +645,10 @@ fn construire_actif(n: &CumulExercice, n1: &CumulExercice) -> Resultat<Vec<Ligne
 
     let mut lignes = Vec::with_capacity(STRUCTURE_ACTIF.len());
     for spec in STRUCTURE_ACTIF {
-        let (brut_n, amort_deprec_n, net_n, net_n1) = valeurs
-            .get(spec.reference)
-            .copied()
-            .unwrap_or((Montant::ZERO, Montant::ZERO, Montant::ZERO, Montant::ZERO));
+        let (brut_n, amort_deprec_n, net_n, net_n1) = match valeurs.get(spec.reference) {
+            Some(v) => *v,
+            None => (Montant::ZERO, Montant::ZERO, Montant::ZERO, Montant::ZERO),
+        };
         lignes.push(LigneBilanActif {
             reference: spec.reference.to_owned(),
             libelle: spec.libelle.to_owned(),
@@ -728,7 +733,10 @@ const STRUCTURE_PASSIF: &[PassifSpec] = &[
     PassifSpec {
         reference: "CP",
         libelle: "TOTAL CAPITAUX PROPRES ET RESSOURCES ASSIMILÉES",
-        enfants: &["CA", "CB", "CD", "CE", "CF", "CG", "CH", "CJ", "CL", "CM"],
+        enfants: &[
+            "CA", "CB", "CD", "CE", "CF", // capital, primes, réserves indisponibles
+            "CG", "CH", "CJ", "CL", "CM", // réserves libres, report, résultat, subventions, prov.
+        ],
         type_ligne: TypeLigne::SousTotal,
     },
     PassifSpec {
@@ -866,10 +874,10 @@ fn construire_passif(n: &CumulExercice, n1: &CumulExercice) -> Resultat<Vec<Lign
 
     let mut lignes = Vec::with_capacity(STRUCTURE_PASSIF.len());
     for spec in STRUCTURE_PASSIF {
-        let (net_n, net_n1) = valeurs
-            .get(spec.reference)
-            .copied()
-            .unwrap_or((Montant::ZERO, Montant::ZERO));
+        let (net_n, net_n1) = match valeurs.get(spec.reference) {
+            Some(v) => *v,
+            None => (Montant::ZERO, Montant::ZERO),
+        };
         lignes.push(LigneBilanPassif {
             reference: spec.reference.to_owned(),
             libelle: spec.libelle.to_owned(),
@@ -894,22 +902,21 @@ struct SoldesResultat {
 }
 
 fn calculer_soldes_resultat(impacts: &BTreeMap<String, Montant>) -> Resultat<SoldesResultat> {
+    const PROD_XB: &[&str] = &["TB", "TC", "TD", "TE", "TF", "TG", "TH", "TI"];
+    const CHG_XB: &[&str] = &["RC", "RD", "RE", "RF", "RG", "RH", "RI", "RJ"];
+
     let ca = somme_refs(impacts, &["TA", "TB", "TC", "TD"])?;
     let xa = somme_refs(impacts, &["TA", "RA", "RB"])?;
-    let reste_xb = somme_refs(
-        impacts,
-        &[
-            "TB", "TC", "TD", "TE", "TF", "TG", "TH", "TI", "RC", "RD", "RE", "RF", "RG", "RH",
-            "RI", "RJ",
-        ],
-    )?;
-    let xb = xa.ajouter(reste_xb)?;
+    let prod_xb = somme_refs(impacts, PROD_XB)?;
+    let chg_xb = somme_refs(impacts, CHG_XB)?;
+    let xb = xa.ajouter(prod_xb)?.ajouter(chg_xb)?;
     let xc = xb.ajouter(lire(impacts, "RK"))?;
     let xd = xc.ajouter(somme_refs(impacts, &["TJ", "RL"])?)?;
     let xe = somme_refs(impacts, &["TK", "TL", "TM", "RM", "RN"])?;
     let xf = xd.ajouter(xe)?;
     let xg = somme_refs(impacts, &["TN", "TO", "RO", "RP"])?;
-    let xi = xf.ajouter(xg)?.ajouter(somme_refs(impacts, &["RQ", "RS"])?)?;
+    let impots_et_part = somme_refs(impacts, &["RQ", "RS"])?;
+    let xi = xf.ajouter(xg)?.ajouter(impots_et_part)?;
 
     Ok(SoldesResultat {
         ca,
@@ -1282,13 +1289,13 @@ mod tests {
             cr_ligne("1011", "Capital social", 5_000_000),
             cr_ligne("111", "Réserve légale", 500_000),
             d("129", "Report à nouveau débiteur", 200_000),
-            cr_ligne("162", "Emprunts auprès des établissements", 2_000_000),
+            cr_ligne("162", "Emprunts", 2_000_000),
             d("213", "Logiciels", 600_000),
             cr_ligne("2813", "Amortissements logiciels", 200_000),
             d("231", "Bâtiments", 4_000_000),
             cr_ligne("2831", "Amortissements bâtiments", 400_000),
             d("245", "Matériel de transport", 3_000_000),
-            cr_ligne("2845", "Amortissements matériel transport", 1_000_000),
+            cr_ligne("2845", "Amort. matériel transport", 1_000_000),
             d("31", "Stocks de marchandises", 1_500_000),
             cr_ligne("391", "Dépréciations des stocks", 100_000),
             cr_ligne("4011", "Fournisseurs", 1_200_000),
@@ -1314,7 +1321,7 @@ mod tests {
             cr_ligne("791", "Reprises d'amortissements", 50_000),
             d("671", "Intérêts des emprunts", 200_000),
             cr_ligne("771", "Intérêts reçus", 50_000),
-            cr_ligne("822", "Produits de cessions d'immobilisations", 400_000),
+            cr_ligne("822", "Produits cessions immo.", 400_000),
             d("812", "Valeurs comptables des cessions", 300_000),
             d("891", "Impôts sur les bénéfices", 750_000),
         ];
@@ -1423,28 +1430,26 @@ mod tests {
         let err_9011 = bilan(&inconnue).unwrap_err();
         assert_eq!(err_9011.to_string(), "Le compte 9011 n'est rattaché à aucune rubrique");
 
-        let corr_partielle = Correspondances::depuis_csv(
-            "compte_ou_plage;etat;colonne_bilan;rubrique;libelle_rubrique;sens_solde;signe\n\
-             101;BILAN_PASSIF;PASSIF;CA;Capital;M;+\n",
-        )
-        .unwrap();
+        let csv = "compte_ou_plage;etat;colonne_bilan;rubrique;libelle_rubrique;sens_solde;signe\n\
+                   101;BILAN_PASSIF;PASSIF;CA;Capital;M;+\n";
+        let corr_partielle = Correspondances::depuis_csv(csv).unwrap();
         let avec_4711 = Balance::exercice(vec![d("4711", "Compte d'attente", 50_000)]);
         let err_4711 = bilan_avec_correspondances(&avec_4711, &corr_partielle).unwrap_err();
         assert_eq!(err_4711.to_string(), "Le compte 4711 n'est rattaché à aucune rubrique");
 
         // Incohérence entre un bilan et un compte de résultat d'exercices distincts.
-        let b1 = bilan(&Balance::exercice(vec![
+        let bal1 = Balance::exercice(vec![
             cr_ligne("101", "Capital", 1_000_000),
             d("521", "Banque", 1_200_000),
             cr_ligne("701", "Ventes", 200_000),
-        ]))
-        .unwrap();
-        let cr2 = compte_resultat(&Balance::exercice(vec![
+        ]);
+        let b1 = bilan(&bal1).unwrap();
+        let bal2 = Balance::exercice(vec![
             cr_ligne("101", "Capital", 1_000_000),
             d("521", "Banque", 1_500_000),
             cr_ligne("701", "Ventes", 500_000),
-        ]))
-        .unwrap();
+        ]);
+        let cr2 = compte_resultat(&bal2).unwrap();
         assert!(matches!(
             verifier_coherence(&b1, &cr2),
             Err(ErreurEtats::ResultatsIncoherents { exercice: "N", .. })
@@ -1485,12 +1490,7 @@ mod tests {
 
         b_faux_n1.total_actif_n1 = Montant::ZERO;
         b_faux_n1.resultat_net_n1 = m(100);
-        let cr_ok_n = compte_resultat(&Balance::exercice(vec![
-            cr_ligne("101", "Capital", 1_000_000),
-            d("521", "Banque", 1_200_000),
-            cr_ligne("701", "Ventes", 200_000),
-        ]))
-        .unwrap();
+        let cr_ok_n = compte_resultat(&bal1).unwrap();
         assert!(matches!(
             verifier_coherence(&b_faux_n1, &cr_ok_n),
             Err(ErreurEtats::ResultatsIncoherents { exercice: "N-1", .. })
