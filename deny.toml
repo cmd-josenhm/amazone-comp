@@ -3,6 +3,12 @@
 [advisories]
 version = 2
 yanked = "deny"
+# Exceptions : chacune justifiée, datée et suivie par une issue. À revoir à chaque version.
+ignore = [
+    # chrono déclaré « non maintenu » (pas une faille : aucune vulnérabilité connue, aucune version corrigée).
+    # Utilisé par tout le projet via ac_noyau::Date. Remplacement (jiff ou time) à décider par ADR — 2026-11-27.
+    { id = "RUSTSEC-2026-0543", reason = "chrono non maintenu, sans faille connue ; migration à décider par ADR" },
+]
 
 [licenses]
 version = 2
