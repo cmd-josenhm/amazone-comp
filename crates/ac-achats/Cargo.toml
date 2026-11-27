@@ -14,6 +14,8 @@ workspace = true
 
 [dependencies]
 ac-donnees.workspace = true
+ac-noyau.workspace = true
 chrono.workspace = true
 serde.workspace = true
+serde_json.workspace = true
 thiserror.workspace = true
