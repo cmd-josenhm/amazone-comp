@@ -109,7 +109,14 @@ struct EntreprisePossedee {
 
 /// Ligne brute lue en base : identifiant, IFU, statut, motif,
 /// date de changement de statut, compte propriétaire.
-type LigneEntreprise = (i64, String, String, Option<String>, Option<DateTime<Utc>>, i64);
+type LigneEntreprise = (
+    i64,
+    String,
+    String,
+    Option<String>,
+    Option<DateTime<Utc>>,
+    i64,
+);
 
 async fn entreprise_possedee(
     etat: &Etat,
