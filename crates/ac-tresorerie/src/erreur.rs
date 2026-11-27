@@ -9,7 +9,7 @@ pub enum ErreurTresorerie {
     #[error("type de compte invalide : « {0} » (attendu : BANQUE, CAISSE ou MOBILE_MONEY)")]
     TypeCompteInvalide(String),
     /// Module Mobile Money désactivé dans la configuration du dossier.
-    #[error("le module Mobile Money est désactivé ; activez-le dans la configuration de trésorerie")]
+    #[error("Mobile Money est désactivé ; réactivez-le dans les paramètres de trésorerie")]
     MobileMoneyDesactive,
     /// Libellé obligatoire.
     #[error("le libellé du compte est obligatoire")]
@@ -60,7 +60,7 @@ pub enum ErreurTresorerie {
     #[error("ce numéro est déjà utilisé pour cette banque ou cet opérateur")]
     NumeroDejaUtilise,
     /// Compte comptable racine ayant déjà des écritures.
-    #[error("le compte comptable {0} contient déjà des écritures ; aucun sous-compte ne peut y être ajouté")]
+    #[error("le compte comptable {0} a des écritures ; impossible d'y ajouter un sous-compte")]
     CompteRacineAvecMouvements(String),
     /// Aucun numéro de sous-compte disponible dans la limite de la longueur du plan comptable.
     #[error("aucun numéro de sous-compte disponible sous le compte {0}")]
