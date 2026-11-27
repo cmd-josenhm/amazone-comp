@@ -5,6 +5,8 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versions :
 ## [Non publié]
 
 ### Ajouté
+- A2 — ouverture de la base locale avec SQLCipher et paramètres de chiffrement par défaut SQLCipher 4 ;
+  `Base::en_memoire()` reste disponible.
 - Base du projet : architecture, règles, ADR, contrats entre modules, paramètres fiscaux 2026 (non vérifiés),
   squelette Tauri 2 / Rust / React, CI, prompts des 10 agents.
 - Inscription obligatoire des entreprises (ADR 0009) : fiche légale `ac_noyau::entreprise::FicheEntreprise`
