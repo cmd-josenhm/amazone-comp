@@ -1,0 +1,181 @@
+# Table de correspondance des comptes aux rubriques des états financiers — Système normal SYSCOHADA révisé
+# Source officielle : Acte uniforme OHADA relatif au droit comptable et à l'information financière (AUDCIF),
+# adopté le 26 janvier 2017 à Brazzaville (JO OHADA spécial du 15 février 2017), Annexe — Modèle des états
+# financiers (Système normal) : Table de correspondance Postes / Comptes (Bilan et Compte de résultat).
+#
+# Colonnes :
+# - compte_ou_plage : préfixe numérique (ex. 601) ou plage inclusive de préfixes de même longueur (ex. 101-104)
+# - etat : BILAN_ACTIF | BILAN_PASSIF | COMPTE_RESULTAT
+# - colonne_bilan : BRUT | AMORT_DEPREC | PASSIF | RESULTAT
+# - rubrique : référence officielle SYSCOHADA (AD..BZ, CA..DZ, TA..RS)
+# - libelle_rubrique : libellé officiel de la rubrique
+# - sens_solde : D (solde débiteur) | C (solde créditeur) | M (mixte / tout solde)
+# - signe : + | - | +/-
+compte_ou_plage;etat;colonne_bilan;rubrique;libelle_rubrique;sens_solde;signe
+
+# --- Classe 1 : Ressources durables ---
+101-104;BILAN_PASSIF;PASSIF;CA;Capital;M;+
+105;BILAN_PASSIF;PASSIF;CD;Primes liées au capital social;M;+
+106;BILAN_PASSIF;PASSIF;CE;Écarts de réévaluation;M;+
+109;BILAN_PASSIF;PASSIF;CB;Apporteurs, capital non appelé (-);M;-
+111-113;BILAN_PASSIF;PASSIF;CF;Réserves indisponibles;M;+
+118;BILAN_PASSIF;PASSIF;CG;Réserves libres;M;+
+12;BILAN_PASSIF;PASSIF;CH;Report à nouveau (+ ou -);M;+/-
+13;BILAN_PASSIF;PASSIF;CJ;Résultat net de l'exercice (bénéfice + ou perte -);M;+/-
+130;BILAN_PASSIF;PASSIF;CH;Report à nouveau (+ ou -);M;+/-
+131-139;BILAN_PASSIF;PASSIF;CJ;Résultat net de l'exercice (bénéfice + ou perte -);M;+/-
+14;BILAN_PASSIF;PASSIF;CL;Subventions d'investissement;M;+
+15;BILAN_PASSIF;PASSIF;CM;Provisions réglementées;M;+
+16;BILAN_PASSIF;PASSIF;DA;Emprunts et dettes financières diverses;M;+
+17;BILAN_PASSIF;PASSIF;DB;Dettes de location-acquisition;M;+
+18;BILAN_PASSIF;PASSIF;DA;Emprunts et dettes financières diverses;M;+
+19;BILAN_PASSIF;PASSIF;DC;Provisions pour risques et charges;M;+
+
+# --- Classe 2 : Actif immobilisé (brut) ---
+211;BILAN_ACTIF;BRUT;AE;Frais de développement et de prospection;M;+
+212-214;BILAN_ACTIF;BRUT;AF;Brevets, licences, logiciels et droits similaires;M;+
+215-216;BILAN_ACTIF;BRUT;AG;Fonds commercial et droit au bail;M;+
+217-218;BILAN_ACTIF;BRUT;AH;Autres immobilisations incorporelles;M;+
+2181;BILAN_ACTIF;BRUT;AE;Frais de développement et de prospection;M;+
+2191;BILAN_ACTIF;BRUT;AE;Frais de développement et de prospection;M;+
+2193;BILAN_ACTIF;BRUT;AF;Brevets, licences, logiciels et droits similaires;M;+
+2198;BILAN_ACTIF;BRUT;AH;Autres immobilisations incorporelles;M;+
+22;BILAN_ACTIF;BRUT;AJ;Terrains;M;+
+231-233;BILAN_ACTIF;BRUT;AK;Bâtiments;M;+
+234-235;BILAN_ACTIF;BRUT;AL;Aménagements, agencements et installations;M;+
+237;BILAN_ACTIF;BRUT;AK;Bâtiments;M;+
+238;BILAN_ACTIF;BRUT;AL;Aménagements, agencements et installations;M;+
+2391-2393;BILAN_ACTIF;BRUT;AK;Bâtiments;M;+
+2394-2398;BILAN_ACTIF;BRUT;AL;Aménagements, agencements et installations;M;+
+24;BILAN_ACTIF;BRUT;AM;Matériel, mobilier et actifs biologiques;M;+
+245;BILAN_ACTIF;BRUT;AN;Matériel de transport;M;+
+2495;BILAN_ACTIF;BRUT;AN;Matériel de transport;M;+
+25;BILAN_ACTIF;BRUT;AP;Avances et acomptes versés sur immobilisations;M;+
+26;BILAN_ACTIF;BRUT;AR;Titres de participation;M;+
+27;BILAN_ACTIF;BRUT;AS;Autres immobilisations financières;M;+
+
+# --- Classe 2 : Amortissements (28) et dépréciations (29) ---
+2811;BILAN_ACTIF;AMORT_DEPREC;AE;Frais de développement et de prospection;M;-
+2812-2814;BILAN_ACTIF;AMORT_DEPREC;AF;Brevets, licences, logiciels et droits similaires;M;-
+2815-2816;BILAN_ACTIF;AMORT_DEPREC;AG;Fonds commercial et droit au bail;M;-
+2817-2818;BILAN_ACTIF;AMORT_DEPREC;AH;Autres immobilisations incorporelles;M;-
+282;BILAN_ACTIF;AMORT_DEPREC;AJ;Terrains;M;-
+2831-2833;BILAN_ACTIF;AMORT_DEPREC;AK;Bâtiments;M;-
+2834-2835;BILAN_ACTIF;AMORT_DEPREC;AL;Aménagements, agencements et installations;M;-
+2837;BILAN_ACTIF;AMORT_DEPREC;AK;Bâtiments;M;-
+2838;BILAN_ACTIF;AMORT_DEPREC;AL;Aménagements, agencements et installations;M;-
+284;BILAN_ACTIF;AMORT_DEPREC;AM;Matériel, mobilier et actifs biologiques;M;-
+2845;BILAN_ACTIF;AMORT_DEPREC;AN;Matériel de transport;M;-
+2911;BILAN_ACTIF;AMORT_DEPREC;AE;Frais de développement et de prospection;M;-
+2912-2914;BILAN_ACTIF;AMORT_DEPREC;AF;Brevets, licences, logiciels et droits similaires;M;-
+2915-2916;BILAN_ACTIF;AMORT_DEPREC;AG;Fonds commercial et droit au bail;M;-
+2917-2919;BILAN_ACTIF;AMORT_DEPREC;AH;Autres immobilisations incorporelles;M;-
+292;BILAN_ACTIF;AMORT_DEPREC;AJ;Terrains;M;-
+2931-2933;BILAN_ACTIF;AMORT_DEPREC;AK;Bâtiments;M;-
+2934-2935;BILAN_ACTIF;AMORT_DEPREC;AL;Aménagements, agencements et installations;M;-
+2937;BILAN_ACTIF;AMORT_DEPREC;AK;Bâtiments;M;-
+2938-2939;BILAN_ACTIF;AMORT_DEPREC;AL;Aménagements, agencements et installations;M;-
+294;BILAN_ACTIF;AMORT_DEPREC;AM;Matériel, mobilier et actifs biologiques;M;-
+2945;BILAN_ACTIF;AMORT_DEPREC;AN;Matériel de transport;M;-
+295;BILAN_ACTIF;AMORT_DEPREC;AP;Avances et acomptes versés sur immobilisations;M;-
+296;BILAN_ACTIF;AMORT_DEPREC;AR;Titres de participation;M;-
+297;BILAN_ACTIF;AMORT_DEPREC;AS;Autres immobilisations financières;M;-
+
+# --- Classe 3 : Stocks et encours ---
+31-38;BILAN_ACTIF;BRUT;BB;Stocks et encours;M;+
+39;BILAN_ACTIF;AMORT_DEPREC;BB;Stocks et encours;M;-
+
+# --- Classe 4 : Tiers (avec reclassement selon solde D / C) ---
+401-408;BILAN_ACTIF;BRUT;BH;Fournisseurs avances versées;D;+
+401-408;BILAN_PASSIF;PASSIF;DJ;Fournisseurs d'exploitation;C;+
+409;BILAN_ACTIF;BRUT;BH;Fournisseurs avances versées;D;+
+409;BILAN_PASSIF;PASSIF;DJ;Fournisseurs d'exploitation;C;+
+411-418;BILAN_ACTIF;BRUT;BI;Clients;D;+
+411-418;BILAN_PASSIF;PASSIF;DI;Clients, avances reçues;C;+
+419;BILAN_ACTIF;BRUT;BI;Clients;D;+
+419;BILAN_PASSIF;PASSIF;DI;Clients, avances reçues;C;+
+42-44;BILAN_ACTIF;BRUT;BJ;Autres créances;D;+
+42-44;BILAN_PASSIF;PASSIF;DK;Dettes fiscales et sociales;C;+
+45-46;BILAN_ACTIF;BRUT;BJ;Autres créances;D;+
+45-46;BILAN_PASSIF;PASSIF;DM;Autres dettes;C;+
+471-473;BILAN_ACTIF;BRUT;BJ;Autres créances;D;+
+471-473;BILAN_PASSIF;PASSIF;DM;Autres dettes;C;+
+475;BILAN_ACTIF;BRUT;BJ;Autres créances;D;+
+475;BILAN_PASSIF;PASSIF;DM;Autres dettes;C;+
+476;BILAN_ACTIF;BRUT;BJ;Autres créances;M;+
+477;BILAN_PASSIF;PASSIF;DM;Autres dettes;M;+
+478;BILAN_ACTIF;BRUT;BU;Écart de conversion - Actif;M;+
+479;BILAN_PASSIF;PASSIF;DV;Écart de conversion - Passif;M;+
+481-484;BILAN_PASSIF;PASSIF;DH;Dettes circulantes HAO;M;+
+485-488;BILAN_ACTIF;BRUT;BA;Actif circulant HAO;M;+
+490;BILAN_ACTIF;AMORT_DEPREC;BH;Fournisseurs avances versées;M;-
+491;BILAN_ACTIF;AMORT_DEPREC;BI;Clients;M;-
+492-497;BILAN_ACTIF;AMORT_DEPREC;BJ;Autres créances;M;-
+498;BILAN_ACTIF;AMORT_DEPREC;BA;Actif circulant HAO;M;-
+499;BILAN_PASSIF;PASSIF;DN;Provisions pour risques à court terme;M;+
+4998;BILAN_PASSIF;PASSIF;DH;Dettes circulantes HAO;M;+
+
+# --- Classe 5 : Trésorerie (avec reclassement des découverts en trésorerie-passif) ---
+50;BILAN_ACTIF;BRUT;BQ;Titres de placement;M;+
+51;BILAN_ACTIF;BRUT;BR;Valeurs à encaisser;M;+
+52-55;BILAN_ACTIF;BRUT;BS;Banques, chèques postaux, caisse et assimilés;D;+
+52-55;BILAN_PASSIF;PASSIF;DR;Banques, établissements financiers et crédits de trésorerie;C;+
+561;BILAN_PASSIF;PASSIF;DR;Banques, établissements financiers et crédits de trésorerie;M;+
+564-565;BILAN_PASSIF;PASSIF;DQ;Banques, crédits d'escompte;M;+
+566;BILAN_PASSIF;PASSIF;DR;Banques, établissements financiers et crédits de trésorerie;M;+
+57-58;BILAN_ACTIF;BRUT;BS;Banques, chèques postaux, caisse et assimilés;D;+
+57-58;BILAN_PASSIF;PASSIF;DR;Banques, établissements financiers et crédits de trésorerie;C;+
+590;BILAN_ACTIF;AMORT_DEPREC;BQ;Titres de placement;M;-
+591;BILAN_ACTIF;AMORT_DEPREC;BR;Valeurs à encaisser;M;-
+592-595;BILAN_ACTIF;AMORT_DEPREC;BS;Banques, chèques postaux, caisse et assimilés;M;-
+599;BILAN_PASSIF;PASSIF;DN;Provisions pour risques à court terme;M;+
+
+# --- Classe 6 : Charges des activités ordinaires ---
+601;COMPTE_RESULTAT;RESULTAT;RA;Achats de marchandises;M;-
+602;COMPTE_RESULTAT;RESULTAT;RC;Achats de matières premières et fournitures liées;M;-
+6031;COMPTE_RESULTAT;RESULTAT;RB;Variation de stocks de marchandises;M;+/-
+6032;COMPTE_RESULTAT;RESULTAT;RD;Variation de stocks de matières premières et fournitures liées;M;+/-
+6033;COMPTE_RESULTAT;RESULTAT;RF;Variation de stocks d'autres approvisionnements;M;+/-
+604-605;COMPTE_RESULTAT;RESULTAT;RE;Autres achats;M;-
+608;COMPTE_RESULTAT;RESULTAT;RE;Autres achats;M;-
+61;COMPTE_RESULTAT;RESULTAT;RG;Transports;M;-
+62-63;COMPTE_RESULTAT;RESULTAT;RH;Services extérieurs;M;-
+64;COMPTE_RESULTAT;RESULTAT;RI;Impôts et taxes;M;-
+65;COMPTE_RESULTAT;RESULTAT;RJ;Autres charges;M;-
+659;COMPTE_RESULTAT;RESULTAT;RL;Dotations aux amortissements, aux provisions et dépréciations;M;-
+66;COMPTE_RESULTAT;RESULTAT;RK;Charges de personnel;M;-
+67;COMPTE_RESULTAT;RESULTAT;RM;Frais financiers et charges assimilées;M;-
+679;COMPTE_RESULTAT;RESULTAT;RN;Dotations aux provisions et aux dépréciations financières;M;-
+681;COMPTE_RESULTAT;RESULTAT;RL;Dotations aux amortissements, aux provisions et dépréciations;M;-
+687;COMPTE_RESULTAT;RESULTAT;RN;Dotations aux provisions et aux dépréciations financières;M;-
+691;COMPTE_RESULTAT;RESULTAT;RL;Dotations aux amortissements, aux provisions et dépréciations;M;-
+697;COMPTE_RESULTAT;RESULTAT;RN;Dotations aux provisions et aux dépréciations financières;M;-
+
+# --- Classe 7 : Produits des activités ordinaires ---
+701;COMPTE_RESULTAT;RESULTAT;TA;Ventes de marchandises;M;+
+702-704;COMPTE_RESULTAT;RESULTAT;TB;Ventes de produits fabriqués;M;+
+705-706;COMPTE_RESULTAT;RESULTAT;TC;Travaux, services vendus;M;+
+707;COMPTE_RESULTAT;RESULTAT;TD;Produits accessoires;M;+
+71;COMPTE_RESULTAT;RESULTAT;TG;Subventions d'exploitation;M;+
+72;COMPTE_RESULTAT;RESULTAT;TF;Production immobilisée;M;+
+73;COMPTE_RESULTAT;RESULTAT;TE;Production stockée (ou déstockage);M;+/-
+75;COMPTE_RESULTAT;RESULTAT;TH;Autres produits;M;+
+759;COMPTE_RESULTAT;RESULTAT;TJ;Reprises d'amortissements, provisions et dépréciations;M;+
+77;COMPTE_RESULTAT;RESULTAT;TK;Revenus financiers et assimilés;M;+
+779;COMPTE_RESULTAT;RESULTAT;TL;Reprises de provisions et dépréciations financières;M;+
+781;COMPTE_RESULTAT;RESULTAT;TI;Transferts de charges d'exploitation;M;+
+787;COMPTE_RESULTAT;RESULTAT;TM;Transferts de charges financières;M;+
+791;COMPTE_RESULTAT;RESULTAT;TJ;Reprises d'amortissements, provisions et dépréciations;M;+
+797;COMPTE_RESULTAT;RESULTAT;TL;Reprises de provisions et dépréciations financières;M;+
+798-799;COMPTE_RESULTAT;RESULTAT;TJ;Reprises d'amortissements, provisions et dépréciations;M;+
+
+# --- Classe 8 : Autres charges et autres produits (HAO, participation, impôt sur le résultat) ---
+81;COMPTE_RESULTAT;RESULTAT;RO;Valeurs comptables des cessions d'immobilisations;M;-
+82;COMPTE_RESULTAT;RESULTAT;TN;Produits des cessions d'immobilisations;M;+
+83;COMPTE_RESULTAT;RESULTAT;RP;Autres charges HAO;M;-
+84;COMPTE_RESULTAT;RESULTAT;TO;Autres produits HAO;M;+
+85;COMPTE_RESULTAT;RESULTAT;RP;Autres charges HAO;M;-
+86;COMPTE_RESULTAT;RESULTAT;TO;Autres produits HAO;M;+
+87;COMPTE_RESULTAT;RESULTAT;RQ;Participation des travailleurs;M;-
+88;COMPTE_RESULTAT;RESULTAT;TO;Autres produits HAO;M;+
+89;COMPTE_RESULTAT;RESULTAT;RS;Impôts sur le résultat;M;-

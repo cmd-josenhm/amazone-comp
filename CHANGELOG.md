@@ -10,3 +10,4 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versions :
 - Inscription obligatoire des entreprises (ADR 0009) : fiche légale `ac_noyau::entreprise::FicheEntreprise`
   (IFU, RCCM, forme juridique, adresse, responsable…) avec validation partagée application / plateforme.
 - Console d'administration web et messagerie ASSISTANCE (ADR 0010) : spécification, module provisoire « Assistance ».
+- États financiers (`ac-etats`, A9 Lot 1) : table de correspondances SYSCOHADA révisé (`correspondances_syscohada.csv`), calcul pur du bilan et du compte de résultat (colonnes N et N-1, reclassement des soldes inversés) et contrôles de cohérence.
