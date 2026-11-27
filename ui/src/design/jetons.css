@@ -7,15 +7,22 @@
   --fond: #ffffff;
   --fond-doux: #f8f9fa;
   --survol: #f1f3f4;
+  --fond-info: #e8f0fe;
+  --fond-succes: #e6f4ea;
+  --fond-alerte: #fef7e0;
+  --fond-erreur: #fce8e6;
   --texte: #202124;
   --texte-secondaire: #5f6368;
   --bordure: #dadce0;
   --accent: #000000;
+  --accent-survol: #333333;
   --accent-texte: #ffffff;
   --focus: #1a1a1a;
   --erreur: #b3261e;
   --succes: #137333;
   --alerte: #8a5a00;
+  --voile: rgba(32, 33, 36, 0.45);
+  --transparent: transparent;
 
   --police: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
   --police-chiffres: "Segoe UI", system-ui, sans-serif;
@@ -23,6 +30,7 @@
   --rayon: 8px;
   --rayon-pilule: 999px;
   --ombre: 0 1px 2px rgba(60, 64, 67, 0.15), 0 1px 3px 1px rgba(60, 64, 67, 0.1);
+  --ombre-dialogue: 0 8px 32px rgba(32, 33, 36, 0.24);
   --espace-1: 4px;
   --espace-2: 8px;
   --espace-3: 12px;

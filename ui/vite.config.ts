@@ -6,7 +6,7 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   clearScreen: false,
-  server: { port: 1420, strictPort: true },
+  server: { host: "0.0.0.0", port: 1420, strictPort: true, allowedHosts: true },
   build: { target: "chrome105", outDir: "dist", sourcemap: false },
   test: {
     globals: true,
