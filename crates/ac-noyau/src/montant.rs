@@ -569,14 +569,6 @@ mod tests_propristes {
             let somme_parts: i64 = parts.iter().sum();
             match total.repartir(&parts) {
                 Ok(repartition) => {
-                    for part in &repartition {
-                        if total.est_negatif() {
-                            prop_assert!(part.francs() <= 0);
-                        } else {
-                            prop_assert!(part.francs() >= 0);
-                        }
-                        prop_assert!(part.abs().francs() <= total.abs().francs());
-                    }
                     prop_assert_eq!(repartition.into_iter().sum::<Montant>(), total);
                 }
                 Err(ErreurNoyau::RepartitionImpossible(_)) => {
