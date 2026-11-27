@@ -295,7 +295,8 @@ pub fn desactiver(tx: &Transaction<'_>, session: &Session, id: i64) -> Resultat<
             objet_id: &client.code,
             details: &details_audit(&client.code, &client.nom),
         },
-    )
+    )?;
+    Ok(())
 }
 
 /// Réactive un client précédemment désactivé.
@@ -320,7 +321,8 @@ pub fn reactiver(tx: &Transaction<'_>, session: &Session, id: i64) -> Resultat<(
             objet_id: &client.code,
             details: &details_audit(&client.code, &client.nom),
         },
-    )
+    )?;
+    Ok(())
 }
 
 /// Lit un client par son identifiant interne (`None` s'il n'existe pas).
