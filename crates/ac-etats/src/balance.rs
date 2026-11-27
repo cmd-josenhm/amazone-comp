@@ -219,9 +219,7 @@ mod tests {
     #[test]
     fn refus_montant_negatif_et_doublon() {
         let neg = LigneBalance::new(c("521"), "Banque", m(-1), Montant::ZERO);
-        if !matches!(neg, Err(ErreurEtats::MontantNegatifBalance { .. })) {
-            panic!("MontantNegatifBalance attendu");
-        }
+        assert!(matches!(neg, Err(ErreurEtats::MontantNegatifBalance { .. })));
 
         let b = Balance::exercice(vec![
             LigneBalance::solde_debiteur(c("521"), "Banque 1", m(100)).unwrap(),

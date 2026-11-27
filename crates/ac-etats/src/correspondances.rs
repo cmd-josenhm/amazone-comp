@@ -242,33 +242,34 @@ fn trouver_sens<'a>(
 
 fn analyser_ligne_csv(ligne: &str, num_ligne: usize) -> Resultat<RegleCorrespondance> {
     let champs: Vec<&str> = ligne.split(';').collect();
-    let [c_motif, c_etat, c_col, c_rub, c_lib, c_sens, c_signe] = champs.as_slice() else {
+    if champs.len() != 7 {
         let nb = champs.len();
         return Err(ErreurEtats::CorrespondanceInvalide {
             ligne: num_ligne,
             detail: format!("7 colonnes attendues, {nb} trouvée(s)"),
         });
-    };
+    }
 
-    let motif = analyser_motif(c_motif.trim(), num_ligne)?;
-    let etat = analyser_etat(c_etat.trim(), num_ligne)?;
-    let colonne = analyser_colonne(c_col.trim(), etat, num_ligne)?;
-    let rubrique = c_rub.trim();
+    let motif = analyser_motif(champs[0].trim(), num_ligne)?;
+    let etat = analyser_etat(champs[1].trim(), num_ligne)?;
+    let colonne = analyser_colonne(champs[2].trim(), etat, num_ligne)?;
+    let rubrique = champs[3].trim();
     if rubrique.is_empty() || !rubrique_detail_valide(etat, rubrique) {
+        let c_etat = champs[1];
         return Err(ErreurEtats::CorrespondanceInvalide {
             ligne: num_ligne,
             detail: format!("rubrique « {rubrique} » inconnue pour {c_etat}"),
         });
     }
-    let libelle_rubrique = c_lib.trim();
+    let libelle_rubrique = champs[4].trim();
     if libelle_rubrique.is_empty() {
         return Err(ErreurEtats::CorrespondanceInvalide {
             ligne: num_ligne,
             detail: "libellé de rubrique vide".to_owned(),
         });
     }
-    let sens_solde = analyser_sens(c_sens.trim(), num_ligne)?;
-    let signe = analyser_signe(c_signe.trim(), num_ligne)?;
+    let sens_solde = analyser_sens(champs[5].trim(), num_ligne)?;
+    let signe = analyser_signe(champs[6].trim(), num_ligne)?;
 
     Ok(RegleCorrespondance {
         motif,
@@ -424,38 +425,37 @@ mod tests {
     fn compte_non_rattache_message_explicite() {
         let corr = Correspondances::syscohada().unwrap();
         let res_9011 = corr.resoudre(&c("9011"), SensSolde::Debiteur);
-        assert_eq!(
-            res_9011.unwrap_err().to_string(),
-            "Le compte 9011 n'est rattaché à aucune rubrique"
-        );
+        let msg_9011 = "Le compte 9011 n'est rattaché à aucune rubrique";
+        assert_eq!(res_9011.unwrap_err().to_string(), msg_9011);
 
         // Table personnalisée sans le compte 4711 → message exact exigé par le cahier des charges.
         let csv = "101;BILAN_PASSIF;PASSIF;CA;Capital;M;+\n";
         let partielle = Correspondances::depuis_csv(csv).unwrap();
         let res_4711 = partielle.resoudre(&c("4711"), SensSolde::Debiteur);
-        assert_eq!(
-            res_4711.unwrap_err().to_string(),
-            "Le compte 4711 n'est rattaché à aucune rubrique"
-        );
+        let msg_4711 = "Le compte 4711 n'est rattaché à aucune rubrique";
+        assert_eq!(res_4711.unwrap_err().to_string(), msg_4711);
+    }
+
+    fn refuser_csv(cas: &str) {
+        match Correspondances::depuis_csv(cas) {
+            Err(ErreurEtats::CorrespondanceInvalide { .. }) => {}
+            autre => panic!("CorrespondanceInvalide attendu pour {cas} : {autre:?}"),
+        }
     }
 
     #[test]
     fn csv_invalide_refuse() {
-        let refuser = |cas: &str| match Correspondances::depuis_csv(cas) {
-            Err(ErreurEtats::CorrespondanceInvalide { .. }) => {}
-            autre => panic!("invalide attendu pour {cas} : {autre:?}"),
-        };
-        refuser("");
-        refuser("101;BILAN_PASSIF;PASSIF;CA;Capital;M");
-        refuser("01;BILAN_PASSIF;PASSIF;CA;Capital;M;+");
-        refuser("105-101;BILAN_PASSIF;PASSIF;CA;Capital;M;+");
-        refuser("101;INCONNU;PASSIF;CA;Capital;M;+");
-        refuser("101;BILAN_PASSIF;INCONNUE;CA;Capital;M;+");
-        refuser("101;BILAN_ACTIF;PASSIF;CA;Capital;M;+");
-        refuser("101;BILAN_PASSIF;PASSIF;ZZ;Capital;M;+");
-        refuser("101;BILAN_PASSIF;PASSIF;CA;;M;+");
-        refuser("101;BILAN_PASSIF;PASSIF;CA;Capital;X;+");
-        refuser("101;BILAN_PASSIF;PASSIF;CA;Capital;M;*");
+        refuser_csv("");
+        refuser_csv("101;BILAN_PASSIF;PASSIF;CA;Capital;M");
+        refuser_csv("01;BILAN_PASSIF;PASSIF;CA;Capital;M;+");
+        refuser_csv("105-101;BILAN_PASSIF;PASSIF;CA;Capital;M;+");
+        refuser_csv("101;INCONNU;PASSIF;CA;Capital;M;+");
+        refuser_csv("101;BILAN_PASSIF;INCONNUE;CA;Capital;M;+");
+        refuser_csv("101;BILAN_ACTIF;PASSIF;CA;Capital;M;+");
+        refuser_csv("101;BILAN_PASSIF;PASSIF;ZZ;Capital;M;+");
+        refuser_csv("101;BILAN_PASSIF;PASSIF;CA;;M;+");
+        refuser_csv("101;BILAN_PASSIF;PASSIF;CA;Capital;X;+");
+        refuser_csv("101;BILAN_PASSIF;PASSIF;CA;Capital;M;*");
     }
 
     #[test]

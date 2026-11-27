@@ -238,18 +238,20 @@ pub fn bilan_avec_correspondances(
     let actif = construire_actif(&cumuls_n, &cumuls_n1)?;
     let passif = construire_passif(&cumuls_n, &cumuls_n1)?;
 
-    let (total_actif_brut_n, total_amort_deprec_n, total_actif_n, total_actif_n1) =
-        match actif.iter().find(|l| l.reference == "BZ") {
-            Some(l) => (l.brut_n, l.amort_deprec_n, l.net_n, l.net_n1),
-            None => (Montant::ZERO, Montant::ZERO, Montant::ZERO, Montant::ZERO),
-        };
+    let bz = actif.iter().find(|l| l.reference == "BZ");
+    let (total_actif_brut_n, total_amort_deprec_n, total_actif_n, total_actif_n1) = match bz {
+        Some(l) => (l.brut_n, l.amort_deprec_n, l.net_n, l.net_n1),
+        None => (Montant::ZERO, Montant::ZERO, Montant::ZERO, Montant::ZERO),
+    };
 
-    let (total_passif_n, total_passif_n1) = match passif.iter().find(|l| l.reference == "DZ") {
+    let dz = passif.iter().find(|l| l.reference == "DZ");
+    let (total_passif_n, total_passif_n1) = match dz {
         Some(l) => (l.net_n, l.net_n1),
         None => (Montant::ZERO, Montant::ZERO),
     };
 
-    let (resultat_net_n, resultat_net_n1) = match passif.iter().find(|l| l.reference == "CJ") {
+    let cj = passif.iter().find(|l| l.reference == "CJ");
+    let (resultat_net_n, resultat_net_n1) = match cj {
         Some(l) => (l.net_n, l.net_n1),
         None => (Montant::ZERO, Montant::ZERO),
     };

@@ -25,7 +25,7 @@ pub enum ErreurEtats {
         ecart: Montant,
     },
     /// Le résultat net calculé au bilan diffère de celui du compte de résultat.
-    #[error("Incohérence {exercice} : bilan {bilan} ≠ compte résultat {compte_resultat} ({ecart})")]
+    #[error("Résultat {exercice} incohérent : {bilan} ≠ {compte_resultat} ({ecart})")]
     ResultatsIncoherents {
         /// Exercice concerné (`"N"` ou `"N-1"`).
         exercice: &'static str,
