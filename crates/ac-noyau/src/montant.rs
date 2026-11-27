@@ -530,3 +530,34 @@ mod tests {
         );
     }
 }
+
+#[cfg(test)]
+mod tests_propristes {
+    use super::*;
+    use proptest::prelude::*;
+
+    fn strategie_montant() -> impl Strategy<Value = Montant> {
+        (-Montant::MAX..=Montant::MAX).prop_map(|v| Montant::new(v).unwrap())
+    }
+
+    fn strategie_montant_moyen() -> impl Strategy<Value = Montant> {
+        // |a| + |b| ≤ Montant::MAX : les méthodes contrôlées ne peuvent pas échouer aux bornes.
+        (-Montant::MAX / 2..=Montant::MAX / 2).prop_map(|v| Montant::new(v).unwrap())
+    }
+
+    proptest! {
+        /// a + b − b == a, avec les opérateurs (les bornes rendent ces calculs exacts en i64).
+        #[test]
+        fn addition_et_soustraction_s_inversent(a in strategie_montant(), b in strategie_montant()) {
+            prop_assert_eq!(a + b - b, a);
+            prop_assert_eq!(b - a + a, b);
+        }
+
+        /// Idem avec les méthodes contrôlées, pour des montants restant dans les bornes.
+        #[test]
+        fn ajouter_soustraire_s_inversent(a in strategie_montant_moyen(), b in strategie_montant_moyen()) {
+            prop_assert_eq!(a.ajouter(b).unwrap().soustraire(b).unwrap(), a);
+            prop_assert_eq!(a.soustraire(b).unwrap().ajouter(b).unwrap(), a);
+        }
+    }
+}
