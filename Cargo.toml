@@ -61,7 +61,7 @@ rust_decimal = { version = "1", features = ["serde-str"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
-toml = "0.8"
+toml = "1.2"
 rusqlite = { version = "0.43", features = ["bundled"] }
 sha2 = "0.10"
 
