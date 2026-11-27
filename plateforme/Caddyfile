@@ -1,0 +1,15 @@
+# Reverse proxy HTTPS (Caddy, certificat Let's Encrypt gratuit).
+# Remplacez « amazone.votre-domaine.bj » par le domaine du VPS (DNS pointant vers le serveur).
+{
+	email votre-adresse@exemple.bj
+}
+
+amazone.votre-domaine.bj {
+	encode zstd gzip
+	reverse_proxy plateforme:8080
+}
+
+# La console d'administration (lot 7) sera servie sur admin.votre-domaine.bj :
+# admin.votre-domaine.bj {
+# 	reverse_proxy plateforme:8080
+# }

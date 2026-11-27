@@ -1,0 +1,78 @@
+# Plateforme en ligne AMAZONE COMP — crate binaire SÉPARÉ du workspace de l'application
+# (le workspace racine exclut « plateforme/ », voir Cargo.toml racine).
+# Dépend de ac-noyau et ac-licence par chemin : une seule fiche, une seule validation,
+# un seul format de jeton de licence (ADR 0004, 0008, 0009).
+[package]
+name = "amazone-plateforme"
+description = "Plateforme en ligne AMAZONE COMP : comptes, inscription des entreprises, CGU, licences signées."
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.89"
+license = "AGPL-3.0-only"
+publish = false
+
+[workspace]
+# Racine de son propre workspace (hors workspace de l'application).
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+float_arithmetic = "deny"
+todo = "deny"
+unimplemented = "deny"
+dbg_macro = "deny"
+
+[lib]
+name = "amazone_plateforme"
+path = "src/lib.rs"
+
+[[bin]]
+name = "amazone-plateforme"
+path = "src/main.rs"
+
+# --- Dépendances (chacune justifiée dans la PR, règle R12) ---
+[dependencies]
+# Contrats internes : fiche entreprise et validation unique (C11), payload de licence.
+ac-licence = { path = "../crates/ac-licence" }
+ac-noyau = { path = "../crates/ac-noyau" }
+# Mots de passe en Argon2id (règle de sécurité de l'ADR 0008).
+argon2 = { version = "0.5", features = ["std", "password-hash"] }
+# Serveur HTTP (imposé par l'ADR 0008).
+axum = "0.8"
+# Format du jeton de licence : base64url (ADR 0004).
+base64 = "0.22"
+# Dates et horodatages (déjà présent via ac-noyau).
+chrono = { version = "0.4", features = ["serde"] }
+# Signature Ed25519 des jetons de licence (ADR 0004).
+ed25519-dalek = "2"
+# Génération aléatoire cryptographique (codes à 6 chiffres, jetons de session, sel Argon2id).
+rand = "0.8"
+# Sérialisation JSON des API.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Empreintes SHA-256 des jetons et codes stockés (jamais la valeur en clair).
+sha2 = "0.10"
+# Accès PostgreSQL (imposé par l'ADR 0008) + migrations.
+sqlx = { version = "0.8", default-features = false, features = [
+    "runtime-tokio-rustls",
+    "postgres",
+    "chrono",
+    "migrate",
+    "macros",
+    "json",
+] }
+# Erreurs typées (règle R8).
+thiserror = "2"
+# Exécution asynchrone du serveur.
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "signal", "time"] }
+# Limitation de débit (imposée par l'issue n° 12).
+tower = "0.5"
+
+[dev-dependencies]
+# Construction de requêtes HTTP dans les tests d'intégration (oneshot).
+tower = { version = "0.5", features = ["util"] }

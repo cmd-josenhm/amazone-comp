@@ -1,0 +1,48 @@
+# Déploiement de la plateforme : service + PostgreSQL + Caddy (HTTPS Let's Encrypt).
+# Usage : copiez .env.exemple en .env, remplissez-le, puis « docker compose up -d ».
+# Voir docs/modules/plateforme.md pour le guide complet de déploiement sur un VPS.
+services:
+  plateforme:
+    build:
+      context: ..
+      dockerfile: plateforme/Dockerfile
+    env_file: .env
+    environment:
+      PLATEFORME_BDD_URL: postgres://amazone:${BDD_MOT_DE_PASSE}@bdd:5432/amazone
+    depends_on:
+      bdd:
+        condition: service_healthy
+    restart: unless-stopped
+
+  bdd:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: amazone
+      POSTGRES_PASSWORD: ${BDD_MOT_DE_PASSE}
+      POSTGRES_DB: amazone
+    volumes:
+      - donnees_bdd:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U amazone -d amazone"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - plateforme
+    restart: unless-stopped
+
+volumes:
+  donnees_bdd:
+  caddy_data:
+  caddy_config:
