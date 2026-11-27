@@ -537,13 +537,11 @@ mod tests_propristes {
     use proptest::prelude::*;
 
     fn strategie_montant() -> impl Strategy<Value = Montant> {
-        (-Montant::MAX..=Montant::MAX)
-            .prop_map(|v| Montant::new(v).unwrap())
+        (-Montant::MAX..=Montant::MAX).prop_map(|v| Montant::new(v).unwrap())
     }
 
     fn strategie_montant_moyen() -> impl Strategy<Value = Montant> {
         // |a| + |b| ≤ Montant::MAX : les méthodes contrôlées ne peuvent pas échouer aux bornes.
-        (-Montant::MAX / 2..=Montant::MAX / 2)
-            .prop_map(|v| Montant::new(v).unwrap())
+        (-Montant::MAX / 2..=Montant::MAX / 2).prop_map(|v| Montant::new(v).unwrap())
     }
 }
