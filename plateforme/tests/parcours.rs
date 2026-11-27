@@ -11,6 +11,7 @@ use axum::{
     http::{Request, StatusCode},
     Router,
 };
+use base64::Engine;
 use chrono::Months;
 use serde_json::{json, Value};
 use sqlx::postgres::PgPool;
