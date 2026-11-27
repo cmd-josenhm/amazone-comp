@@ -193,30 +193,15 @@ impl CompteResultat {
 
 pub(crate) fn rubrique_detail_existe(etat: EtatFinancier, reference: &str) -> bool {
     match etat {
-        EtatFinancier::BilanActif => {
-            for s in STRUCTURE_ACTIF {
-                if s.reference == reference && s.type_ligne == TypeLigne::Detail {
-                    return true;
-                }
-            }
-            false
-        }
-        EtatFinancier::BilanPassif => {
-            for s in STRUCTURE_PASSIF {
-                if s.reference == reference && s.type_ligne == TypeLigne::Detail {
-                    return true;
-                }
-            }
-            false
-        }
-        EtatFinancier::CompteResultat => {
-            for s in STRUCTURE_RESULTAT {
-                if s.reference == reference && s.type_ligne == TypeLigne::Detail {
-                    return true;
-                }
-            }
-            false
-        }
+        EtatFinancier::BilanActif => STRUCTURE_ACTIF
+            .iter()
+            .any(|s| s.reference == reference && s.type_ligne == TypeLigne::Detail),
+        EtatFinancier::BilanPassif => STRUCTURE_PASSIF
+            .iter()
+            .any(|s| s.reference == reference && s.type_ligne == TypeLigne::Detail),
+        EtatFinancier::CompteResultat => STRUCTURE_RESULTAT
+            .iter()
+            .any(|s| s.reference == reference && s.type_ligne == TypeLigne::Detail),
     }
 }
 
@@ -1433,27 +1418,24 @@ mod tests {
     }
 
     fn assert_bilan_deseq(res: Resultat<Bilan>, attendu: &str) {
-        if let Err(ErreurEtats::BilanDesequilibre { exercice, .. }) = res {
-            assert_eq!(exercice, attendu);
-        } else {
-            panic!("BilanDesequilibre({attendu}) attendu");
-        }
+        assert!(matches!(
+            res,
+            Err(ErreurEtats::BilanDesequilibre { exercice, .. }) if exercice == attendu
+        ));
     }
 
     fn assert_coherence_deseq(res: Resultat<()>, attendu: &str) {
-        if let Err(ErreurEtats::BilanDesequilibre { exercice, .. }) = res {
-            assert_eq!(exercice, attendu);
-        } else {
-            panic!("BilanDesequilibre({attendu}) attendu");
-        }
+        assert!(matches!(
+            res,
+            Err(ErreurEtats::BilanDesequilibre { exercice, .. }) if exercice == attendu
+        ));
     }
 
     fn assert_coherence_inc(res: Resultat<()>, attendu: &str) {
-        if let Err(ErreurEtats::ResultatsIncoherents { exercice, .. }) = res {
-            assert_eq!(exercice, attendu);
-        } else {
-            panic!("ResultatsIncoherents({attendu}) attendu");
-        }
+        assert!(matches!(
+            res,
+            Err(ErreurEtats::ResultatsIncoherents { exercice, .. }) if exercice == attendu
+        ));
     }
 
     #[test]

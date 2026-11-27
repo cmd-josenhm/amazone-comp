@@ -228,11 +228,10 @@ mod tests {
             LigneBalance::solde_debiteur(c("521"), "Banque 1", m(100)).unwrap(),
             LigneBalance::solde_debiteur(c("521"), "Banque 2", m(200)).unwrap(),
         ]);
-        if let Err(ErreurEtats::DoublonCompteBalance { exercice, .. }) = b.valider() {
-            assert_eq!(exercice, "N");
-        } else {
-            panic!("DoublonCompteBalance attendu");
-        }
+        assert!(matches!(
+            b.valider(),
+            Err(ErreurEtats::DoublonCompteBalance { exercice: "N", .. })
+        ));
     }
 
     #[test]

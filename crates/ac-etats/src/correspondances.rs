@@ -89,7 +89,7 @@ impl MotifCompte {
                 let Some(prefixe) = num.get(..debut.len()) else {
                     return false;
                 };
-                prefixe >= debut.as_str() && prefixe <= fin.as_str()
+                (debut.as_str()..=fin.as_str()).contains(&prefixe)
             }
         }
     }
@@ -183,17 +183,12 @@ impl Correspondances {
             });
         }
 
-        let mut specifiques = Vec::new();
-        for r in candidates {
-            if r.motif.longueur() == max_longueur {
-                specifiques.push(r);
-            }
-        }
+        let specifiques: Vec<&RegleCorrespondance> = candidates
+            .into_iter()
+            .filter(|r| r.motif.longueur() == max_longueur)
+            .collect();
 
-        if let Some(regle) = choisir_par_sens(&specifiques, sens) {
-            return Ok(regle);
-        }
-        Err(ErreurEtats::CompteNonRattache {
+        choisir_par_sens(&specifiques, sens).ok_or_else(|| ErreurEtats::CompteNonRattache {
             compte: compte.to_string(),
         })
     }
@@ -204,27 +199,13 @@ fn choisir_par_sens<'a>(
     sens: SensSolde,
 ) -> Option<&'a RegleCorrespondance> {
     match sens {
-        SensSolde::Debiteur => {
-            if let Some(r) = trouver_sens(specifiques, SensAttendu::Debiteur) {
-                return Some(r);
-            }
-            trouver_sens(specifiques, SensAttendu::Mixte)
-        }
-        SensSolde::Crediteur => {
-            if let Some(r) = trouver_sens(specifiques, SensAttendu::Crediteur) {
-                return Some(r);
-            }
-            trouver_sens(specifiques, SensAttendu::Mixte)
-        }
-        SensSolde::Nul => {
-            if let Some(r) = trouver_sens(specifiques, SensAttendu::Mixte) {
-                return Some(r);
-            }
-            if let Some(r) = trouver_sens(specifiques, SensAttendu::Debiteur) {
-                return Some(r);
-            }
-            trouver_sens(specifiques, SensAttendu::Crediteur)
-        }
+        SensSolde::Debiteur => trouver_sens(specifiques, SensAttendu::Debiteur)
+            .or_else(|| trouver_sens(specifiques, SensAttendu::Mixte)),
+        SensSolde::Crediteur => trouver_sens(specifiques, SensAttendu::Crediteur)
+            .or_else(|| trouver_sens(specifiques, SensAttendu::Mixte)),
+        SensSolde::Nul => trouver_sens(specifiques, SensAttendu::Mixte)
+            .or_else(|| trouver_sens(specifiques, SensAttendu::Debiteur))
+            .or_else(|| trouver_sens(specifiques, SensAttendu::Crediteur)),
     }
 }
 
@@ -232,12 +213,10 @@ fn trouver_sens<'a>(
     specifiques: &[&'a RegleCorrespondance],
     attendu: SensAttendu,
 ) -> Option<&'a RegleCorrespondance> {
-    for &r in specifiques {
-        if r.sens_solde == attendu {
-            return Some(r);
-        }
-    }
-    None
+    specifiques
+        .iter()
+        .copied()
+        .find(|r| r.sens_solde == attendu)
 }
 
 fn analyser_ligne_csv(ligne: &str, num_ligne: usize) -> Resultat<RegleCorrespondance> {
@@ -438,10 +417,13 @@ mod tests {
     }
 
     fn refuser_csv(cas: &str) {
-        match Correspondances::depuis_csv(cas) {
-            Err(ErreurEtats::CorrespondanceInvalide { .. }) => {}
-            autre => panic!("CorrespondanceInvalide attendu pour {cas} : {autre:?}"),
-        }
+        assert!(
+            matches!(
+                Correspondances::depuis_csv(cas),
+                Err(ErreurEtats::CorrespondanceInvalide { .. })
+            ),
+            "CorrespondanceInvalide attendu pour {cas}"
+        );
     }
 
     #[test]
