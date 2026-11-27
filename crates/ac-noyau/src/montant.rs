@@ -154,35 +154,7 @@ impl Montant {
         Self::depuis_decimal(brut, arrondi)
     }
 
-    /// Répartit le montant en parts proportionnelles, **sans perdre un seul franc**.
-    ///
-    /// Chaque part reçoit sa proportion du total (arrondie au franc le plus proche, 0,5
-    /// s'éloignant de zéro) ; la différence d'arrondi restante est absorbée par la part la plus
-    /// grande (à parts égales, la première fournie). La somme des parts renvoyées est toujours
-    /// exactement égale au montant réparti. Exemple : 100 FCFA en 3 parts égales → 34 / 33 / 33.
-    ///
-    /// Si absorber l'écart rendrait la plus grande part négative (total très petit devant le
-    /// nombre de parts), l'excédent est reporté sur les parts suivantes, toujours de la plus
-    /// grande à la plus petite : aucune part ne devient négative pour un total positif. Un
-    /// montant négatif (avoir) est réparti selon la même règle sur sa valeur absolue puis rendu
-    /// négatif : −100 en 3 parts égales donne −34 / −33 / −33.
-    ///
-    /// Répartir zéro renvoie toujours des parts nulles, même si les parts sont nulles.
-    ///
-    /// # Erreurs
-    ///
-    /// - parts vides ou contenant une valeur négative ;
-    /// - somme des parts nulle alors que le montant n'est pas nul.
-    ///
-    /// # Exemple
-    ///
-    /// ```
-    /// use ac_noyau::Montant;
-    ///
-    /// let parts = Montant::new(100).unwrap().repartir(&[1, 1, 1]).unwrap();
-    /// let francs: Vec<i64> = parts.iter().map(|m| m.francs()).collect();
-    /// assert_eq!(francs, vec![34, 33, 33]);
-    /// ```
+    /// Répartit le montant en parts proportionnelles, sans perte.
     pub fn repartir(self, parts: &[i64]) -> Resultat<Vec<Self>> {
         if parts.is_empty() {
             return Err(ErreurNoyau::RepartitionImpossible(
