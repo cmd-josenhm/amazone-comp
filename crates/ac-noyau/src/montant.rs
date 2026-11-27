@@ -264,7 +264,7 @@ impl Montant {
                 ));
             }
         }
-        let signe = if total < 0 { -1i128 } else { 1i128 };
+        let signe = 1i128;
         // La somme des parts vaut le total et chaque part est positive : aucune part ne peut
         // dépasser le montant réparti, donc rester hors des bornes de `Montant`.
         let mut resultats = Vec::with_capacity(parts_calculees.len());
