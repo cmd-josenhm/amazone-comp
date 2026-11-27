@@ -587,5 +587,34 @@ mod tests_propristes {
                 }
             }
         }
+
+        /// Multiplier par une unité exacte ne change rien ; multiplier par zéro annule tout.
+        #[test]
+        fn multiplier_quantite_cas_triviaux(a in strategie_montant()) {
+            for arrondi in [Arrondi::PlusProche, Arrondi::Inferieur, Arrondi::Superieur] {
+                prop_assert_eq!(a.multiplier_quantite(Quantite::UN, arrondi).unwrap(), a);
+                prop_assert_eq!(
+                    a.multiplier_quantite(Quantite::ZERO, arrondi).unwrap(),
+                    Montant::ZERO
+                );
+            }
+        }
+
+        /// La multiplication par une quantité positive conserve l'ordre, quel que soit l'arrondi.
+        /// Quantité ≤ 1 unité : le résultat reste dans les bornes de `Montant`.
+        #[test]
+        fn multiplier_quantite_monotone(
+            a in strategie_montant(),
+            b in strategie_montant(),
+            milliemes in 0i64..=1_000,
+        ) {
+            let q = Quantite::depuis_milliemes(milliemes).unwrap();
+            for arrondi in [Arrondi::PlusProche, Arrondi::Inferieur, Arrondi::Superieur] {
+                let pa = a.multiplier_quantite(q, arrondi).unwrap();
+                let pb = b.multiplier_quantite(q, arrondi).unwrap();
+                prop_assert_eq!(a <= b, pa <= pb);
+            }
+        }
+
     }
 }
