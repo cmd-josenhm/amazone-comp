@@ -21,6 +21,9 @@ const SOCIAL_2026: &str = include_str!("../../../parametres-fiscaux/2026/social.
 /// Clé TOML de la redevance audiovisuelle (utilisée dans les messages d'erreur).
 const CLE_REDEVANCE: &str = "its_redevance_audiovisuelle";
 
+/// Clé TOML des risques professionnels (utilisée dans les messages d'erreur).
+const CLE_RISQUES: &str = "cnss_risques_professionnels_min";
+
 /// Contenu embarqué de `social.toml` pour une année, s'il existe.
 fn fichier_embarque(annee: i32) -> Option<&'static str> {
     match annee {
@@ -209,7 +212,7 @@ impl ParametresSociaux {
         let min = self.cnss_risques_professionnels_min.valeur;
         let max = self.cnss_risques_professionnels_max.valeur;
         if min > max {
-            return Err(incoherent("cnss_risques_professionnels_min", "au-dessus du max"));
+            return Err(incoherent(CLE_RISQUES, "au-dessus du max"));
         }
         let smig = self.smig_mensuel.valeur.francs();
         if smig <= 0 {
