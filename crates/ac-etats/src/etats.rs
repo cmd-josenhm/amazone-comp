@@ -748,10 +748,8 @@ const STRUCTURE_PASSIF: &[PassifSpec] = &[
     PassifSpec {
         reference: "CP",
         libelle: "TOTAL CAPITAUX PROPRES ET RESSOURCES ASSIMILÉES",
-        enfants: &[
-            "CA", "CB", "CD", "CE", "CF", // capital, primes, réserves indisponibles
-            "CG", "CH", "CJ", "CL", "CM", // réserves libres, report, résultat, subventions, prov.
-        ],
+        // Complété dans `construire_passif` par `CG`, `CH`, `CJ`, `CL`, `CM`.
+        enfants: &["CA", "CB", "CD", "CE", "CF"],
         type_ligne: TypeLigne::SousTotal,
     },
     PassifSpec {
@@ -873,6 +871,7 @@ fn construire_passif(n: &CumulExercice, n1: &CumulExercice) -> Resultat<Vec<Lign
         }
     }
 
+    const CP_AUTRES: &[&str] = &["CG", "CH", "CJ", "CL", "CM"];
     for spec in STRUCTURE_PASSIF {
         if spec.type_ligne != TypeLigne::Detail {
             let mut sum_n = Montant::ZERO;
@@ -881,6 +880,14 @@ fn construire_passif(n: &CumulExercice, n1: &CumulExercice) -> Resultat<Vec<Lign
                 if let Some(&(en, en1)) = valeurs.get(enfant) {
                     sum_n = sum_n.ajouter(en)?;
                     sum_n1 = sum_n1.ajouter(en1)?;
+                }
+            }
+            if spec.reference == "CP" {
+                for enfant in CP_AUTRES {
+                    if let Some(&(en, en1)) = valeurs.get(enfant) {
+                        sum_n = sum_n.ajouter(en)?;
+                        sum_n1 = sum_n1.ajouter(en1)?;
+                    }
                 }
             }
             valeurs.insert(spec.reference, (sum_n, sum_n1));

@@ -441,23 +441,21 @@ mod tests {
 
     #[test]
     fn csv_invalide_refuse() {
-        for cas in [
-            "",
-            "101;BILAN_PASSIF;PASSIF;CA;Capital;M",
-            "01;BILAN_PASSIF;PASSIF;CA;Capital;M;+",
-            "105-101;BILAN_PASSIF;PASSIF;CA;Capital;M;+",
-            "101;INCONNU;PASSIF;CA;Capital;M;+",
-            "101;BILAN_PASSIF;INCONNUE;CA;Capital;M;+",
-            "101;BILAN_ACTIF;PASSIF;CA;Capital;M;+",
-            "101;BILAN_PASSIF;PASSIF;ZZ;Capital;M;+",
-            "101;BILAN_PASSIF;PASSIF;CA;;M;+",
-            "101;BILAN_PASSIF;PASSIF;CA;Capital;X;+",
-            "101;BILAN_PASSIF;PASSIF;CA;Capital;M;*",
-        ] {
+        let refuser = |cas: &str| {
             let res = Correspondances::depuis_csv(cas);
-            let est_invalide = matches!(res, Err(ErreurEtats::CorrespondanceInvalide { .. }));
-            assert!(est_invalide, "cas invalide accepté : {cas}");
-        }
+            assert!(matches!(res, Err(ErreurEtats::CorrespondanceInvalide { .. })), "{cas}");
+        };
+        refuser("");
+        refuser("101;BILAN_PASSIF;PASSIF;CA;Capital;M");
+        refuser("01;BILAN_PASSIF;PASSIF;CA;Capital;M;+");
+        refuser("105-101;BILAN_PASSIF;PASSIF;CA;Capital;M;+");
+        refuser("101;INCONNU;PASSIF;CA;Capital;M;+");
+        refuser("101;BILAN_PASSIF;INCONNUE;CA;Capital;M;+");
+        refuser("101;BILAN_ACTIF;PASSIF;CA;Capital;M;+");
+        refuser("101;BILAN_PASSIF;PASSIF;ZZ;Capital;M;+");
+        refuser("101;BILAN_PASSIF;PASSIF;CA;;M;+");
+        refuser("101;BILAN_PASSIF;PASSIF;CA;Capital;X;+");
+        refuser("101;BILAN_PASSIF;PASSIF;CA;Capital;M;*");
     }
 
     #[test]
