@@ -1,63 +1,72 @@
 # TVA — Bénin — année 2026. Propriétaire : A8. AUCUNE valeur vérifiée (verifie = false).
+# Sources vérifiées le 2026-11-27 sur le texte du CGI 2026 (loi n° 2021-15 du 23 décembre 2021,
+# mise à jour par la loi n° 2025-22 du 8 décembre 2025 portant loi de finances pour la gestion 2026).
+# Chaque `source` cite l'article ; les incertitudes restantes sont dans `note` (issues #24, #31, #32,
+# #35, #39, #40, #51).
 
 [en_tete]
 annee = 2026
 textes = [
-  "Code général des impôts du Bénin, édition 2026 (livre TVA, art. 223 à 262 — articles précis à vérifier)",
-  "Loi de finances pour la gestion 2026 (adoptée le 4 décembre 2025 — numéro à vérifier : loi n° 2025-22 ?)",
+  "Code général des impôts du Bénin, édition 2026 — loi n° 2021-15 du 23 décembre 2021, livre 2 (impôts indirects), titre 1, chapitre 1 : taxe sur la valeur ajoutée (art. 223 et suivants)",
+  "Loi n° 2025-22 du 8 décembre 2025 portant loi de finances pour la gestion 2026",
 ]
 mis_a_jour_le = "2026-11-27"
 
 [taux_normal]
 valeur = "0.18"
-source = "CGI 2026, livre TVA — taux unique de 18 %"
+source = "CGI 2026, art. 241 — « Le taux de la taxe sur la valeur ajoutée est fixé à 18 % »"
 verifie = false
+note = "Taux unique vérifié dans le texte : un seul taux de droit commun, aucune version réduite."
 
 [taux_exportation]
 valeur = "0"
-source = "CGI 2026, livre TVA — exportations et opérations assimilées"
+source = "CGI 2026, art. 241 (taux de droit commun) et art. 229 (opérations exonérées) — exportations taxables au taux zéro"
 verifie = false
+note = "Le paragraphe exact fixant le taux zéro des exportations n'a pas été identifié avec certitude (art. 241 ou liste de l'art. 229) : issue #51. Aucun calcul d'exportation ne doit s'appuyer sur cette valeur avant confirmation."
 
 [seuil_assujettissement_ca_ht]
 valeur = 50000000
-source = "CGI 2026 — seuil du régime réel / limite de la TPS, fixé par arrêté du ministre des Finances"
+source = "CGI 2026, art. 228 — le seuil d'assujettissement est fixé par arrêté du ministre chargé des finances (arrêté 2026 non obtenu)"
 verifie = false
-note = "En dessous du seuil : TPS (pas de TVA facturée), option possible pour le réel."
+note = "50 000 000 FCFA est une valeur provisoire : elle doit être justifiée par l'arrêté en vigueur, pas par un article du CGI. En dessous du seuil : TPS (pas de TVA facturée), option possible pour le réel. Issue #39."
 
 [jour_limite_declaration]
 valeur = 10
-source = "CGI 2026 — déclaration et paiement au plus tard le 10 du mois suivant"
+source = "CGI 2026, art. 259, 1) — déclaration souscrite auprès du service des impôts au plus tard le 10 de chaque mois, au titre du mois précédent"
 verifie = false
 
 [limite_deduction_btp_industrie]
 valeur = "0.90"
-source = "LF 2026 — déduction limitée à 90 % de la TVA supportée pour les entreprises du BTP et les industries"
+source = "CGI 2026, art. 247, 2) (modifié par la loi n° 2025-22 du 8 décembre 2025) — pour les entreprises des BTP, la déduction de la TVA sur les produits pétroliers, le gaz, le gasoil, les huiles et graisses est limitée à 90 % de la TVA supportée figurant sur la facture d'achat"
 verifie = false
-note = "Mesure rapportée par la presse (Banouto, Daabaaru). Champ exact (quels achats ?) à confirmer sur le texte."
+note = "Le texte ne vise explicitement que les entreprises des BTP ; l'extension aux industries (et à la logistique, la manutention, les déchets) vient de la presse et d'un séminaire DGI. Une copie du CGI place le même paragraphe sous l'art. 224 : numéro à trancher. Issue #32."
 
 [deduction_carburant_autorisee]
 valeur = true
-source = "LF 2026 — TVA d'amont sur carburant déductible si utilisé pour l'objet social"
+source = "CGI 2026, art. 247, 2) (modifié par la loi n° 2025-22 du 8 décembre 2025) — TVA d'amont déductible sur les produits pétroliers pour cuves, le gaz combustible des usines, le gasoil, les huiles et graisses utilisés par les entreprises industrielles et du BTP pour leurs engins"
 verifie = false
+note = "Les frais de carburant des véhicules ne sont pas déductibles, sauf véhicules affectés exclusivement au transport public de personnes ou de marchandises assujetti à la TVA ; les produits destinés aux véhicules de tourisme et au transport des personnes sont exclus. Plafond de 90 % pour les BTP : issue #32."
 
 [retenue_tva_sur_fournisseur_tps]
 valeur = "1"
-source = "CGI 2026 — retenue de TVA par les structures désignées : 100 % lorsque le fournisseur relève de la TPS"
+source = "CGI 2026, art. 263 — retenue de TVA à la source par les structures désignées : 100 % de la TVA lorsque le fournisseur relève de la TPS"
 verifie = false
-note = "Concerne l'État, les collectivités, les sociétés publiques et les entreprises désignées par la DGI."
+note = "Concerne l'État, les collectivités, les sociétés publiques et les entreprises désignées par la DGI. Taux et champ reposent sur une source secondaire : issue #35."
 
 [retenue_tva_sur_fournisseur_reel]
 valeur = "0.40"
-source = "CGI 2026 — retenue de TVA par les structures désignées : 40 % pour les autres fournisseurs"
+source = "CGI 2026, art. 263 — retenue de TVA de 40 % de la TVA facturée sur les fournitures et livraisons à l'État et aux collectivités (doctrine fiscale DGI, arrêté n° 044/MDCB-MDEF du 24 janvier 2007)"
 verifie = false
+note = "Champ exact des structures désignées et articulation avec le taux de 100 % du fournisseur à la TPS : issue #35."
 
 [retenue_tva_non_resident]
 valeur = "1"
-source = "CGI 2026 — retenue de 100 % sur les prestataires étrangers non domiciliés"
+source = "CGI 2026, art. 263 — retenue de 100 % de la TVA sur les prestations des fournisseurs étrangers non domiciliés au Bénin"
 verifie = false
+note = "À recouper avec l'art. 141 (retenue sur les rémunérations des prestataires non-résidents) pour éviter une double retenue : issue #35."
 
 [services_numeriques_etrangers_taxables]
 valeur = true
-source = "LF 2026 — extension de la TVA aux services numériques fournis par des opérateurs étrangers"
+source = "CGI 2026, art. 224, 9) — les ventes de biens et les prestations de services effectuées sur le territoire béninois ou à travers des plateformes de commerce électronique étrangères ou locales sont imposables"
 verifie = false
-note = "Une seule source secondaire (cabinet). Impact faible pour une PME."
+note = "L'article rend l'opération imposable mais ne dit pas qui est redevable ni si le client béninois doit autoliquiduler. L'extension annoncée par la LF 2026 n'a pas été retrouvée dans le texte. Impact faible pour une PME. Issue #40."

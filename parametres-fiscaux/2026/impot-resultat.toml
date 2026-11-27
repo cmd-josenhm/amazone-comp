@@ -1,69 +1,92 @@
 # IS / IBA — 2026. Propriétaire : A8. AUCUNE valeur vérifiée.
+# Sources vérifiées le 2026-11-27 sur le CGI 2026 (loi n° 2021-15 modifiée par la loi n° 2025-22 du
+# 8 décembre 2025 portant loi de finances pour la gestion 2026).
+# Incertitudes restantes : issues #25 (IBA), #33 (taux industriel), #34 (acomptes), #52 (portée de la
+# réduction « entreprises nouvelles », art. 146), #55 (redevance ORTB).
 
 [en_tete]
 annee = 2026
-textes = ["CGI 2026 (IS : art. 3 et s. ; minimum de perception : art. 156 — à vérifier)"]
+textes = [
+  "Code général des impôts du Bénin, édition 2026 — loi n° 2021-15 du 23 décembre 2021, livre 1, titre 1 : IS (art. 2 à 53) et IBA (art. 54 à 68)",
+  "Loi n° 2025-22 du 8 décembre 2025 portant loi de finances pour la gestion 2026 (art. 64 modifié pour le plancher de l'IBA)",
+]
 mis_a_jour_le = "2026-11-27"
 
 [is_taux_general]
 valeur = "0.30"
-source = "CGI 2026 — IS : 30 % pour les personnes morales"
+source = "CGI 2026, art. 46, 1) b) — 30 % du bénéfice imposable pour les personnes morales autres que les industries et les écoles privées"
 verifie = false
 
 [is_taux_industrie_ecoles]
 valeur = "0.25"
-source = "CGI 2026 — IS : 25 % pour les activités industrielles (hors extractives) et les établissements privés d'enseignement"
+source = "CGI 2026, art. 46, 1) a) — 25 % du bénéfice imposable pour les personnes morales ayant une activité industrielle (à l'exception des industries extractives) et les écoles privées d'enseignement scolaire, universitaire, technique et professionnel"
 verifie = false
+note = "Le taux industriel de 25 % est bien dans le texte de 2026 (art. 46, 1) a)) ; il ne figurait pas dans les versions antérieures du CGI que nous avons lues : la date d'entrée en vigueur est à établir. Issue #33."
 
 [iba_taux_general]
 valeur = "0.30"
-source = "CGI 2026 — IBA (personnes physiques au réel)"
+source = "CGI 2026, art. 63, 1) — « L'impôt est calculé par application à la base d'imposition du taux de 30 % »"
 verifie = false
-note = "Taux non confirmé par une source lisible : À VÉRIFIER EN PRIORITÉ."
+note = "Taux confirmé dans le texte. L'art. 63, 2) réduit le taux à 25 % pour les établissements privés d'enseignement : aucun paramètre dédié n'existe encore. Issue #25."
 
 [minimum_taux_is]
 valeur = "0.01"
-source = "CGI 2026, art. 156 (à vérifier) — minimum de perception : 1 % du produit encaissable (IS)"
+source = "CGI 2026, art. 47, 1) — minimum de perception de 1 % des produits encaissables dans tous les autres cas (IS)"
 verifie = false
 
 [minimum_taux_iba]
 valeur = "0.015"
-source = "CGI 2026 — minimum de perception : 1,5 % du produit encaissable (IBA)"
+source = "CGI 2026, art. 64, 1) (modifié par les lois de finances pour 2024 et 2026) — minimum de perception égal à 1,5 % des produits encaissables définis à l'art. 47 (IBA)"
 verifie = false
+note = "Les 1,5 % sont assis sur les produits encaissables de l'art. 47 (produits d'exploitation, financiers et hors activité ordinaire, à l'exclusion de la production immobilisée et stockée, des transferts de charges et des reprises de provisions et d'amortissements). Issue #25."
 
 [minimum_taux_btp]
 valeur = "0.03"
-source = "CGI 2026 — minimum de perception : 3 % pour le BTP"
+source = "CGI 2026, art. 47, 1) (IS) et art. 64, 2) a) (IBA) — minimum de perception de 3 % des produits encaissables pour les entreprises du secteur du bâtiment et des travaux publics"
 verifie = false
 
 [minimum_taux_immobilier]
 valeur = "0.10"
-source = "CGI 2026 — minimum de perception : 10 % pour les entreprises à prépondérance immobilière"
+source = "CGI 2026, art. 47, 1) (IS) et art. 64, 2) b) (IBA) — minimum de perception de 10 % des produits encaissables pour les entreprises à prépondérance immobilière au sens de l'art. 101, paragraphe 2"
 verifie = false
 
 [minimum_plancher_is]
 valeur = 250000
-source = "CGI 2026 — minimum « en tout état de cause » : 250 000 FCFA (IS)"
+source = "CGI 2026, art. 47, 3) — « dans tous les cas, l'impôt ne peut être inférieur à deux cent cinquante mille (250 000) francs CFA » (IS)"
 verifie = false
+note = "Le plancher de l'IS est de 250 000 FCFA ; il n'y a pas de plancher distinct portant le même intitulé pour l'IBA (voir minimum_plancher_iba). L'art. 47, 5) prévoit en outre un minimum alternatif pour les stations-service (montant à confirmer) : non paramétré en V1."
 
 [minimum_plancher_iba]
-valeur = 500000
-source = "CGI 2026 — minimum « en tout état de cause » : 500 000 FCFA (IBA)"
+valeur = 250000
+source = "CGI 2026, art. 64, 3) a) (modifié par la loi de finances pour 2026) — « l'impôt ne peut en aucun cas être inférieur à deux cent cinquante mille (250 000) francs CFA » (IBA)"
 verifie = false
+note = "CORRECTION DU 2026-11-27 : le fichier portait 500 000 FCFA, montant prévu par l'ancienne version de l'art. 64, 3) a). La loi de finances pour la gestion 2026 a ramené le plancher de l'IBA à 250 000 FCFA. Issue #25 : à confirmer sur le texte officiel avant tout calcul de minimum."
 
 [reduction_entreprises_nouvelles]
 valeur = ["0.25", "0.25", "0.50"]
-source = "CGI 2026 — réduction pour les 3 premières années d'activité"
+source = "CGI 2026, art. 146, 1) (modifié par la loi de finances pour 2023) — « l'impôt sur les sociétés ou l'impôt sur les bénéfices d'affaires dû par les sociétés nouvelles régulièrement créées est réduit de 25 % au titre du premier exercice, 25 % au titre du second exercice et 50 % au titre du troisième exercice »"
 verifie = false
-note = "Sens exact (réduction de l'impôt ou du minimum ? ordre des années) à confirmer."
+note = "La réduction ne s'applique pas en cas de rappel de droits suite à une procédure de contrôle fiscal (art. 146, 2) a)). Le texte vise les sociétés nouvelles régulièrement créées : l'IBA due par une personne physique nouvelle relève d'autres dispositions, de même que la réduction s'entend par « exercices » et non par années d'activité. Portée exacte à confirmer : issue #52."
 
 [acomptes_dates]
 valeur = ["03-10", "06-10", "09-10", "12-10"]
-source = "CGI 2026 — 4 acomptes au plus tard les 10 mars, 10 juin, 10 septembre, 10 décembre"
+source = "CGI 2026, art. 51, 1) — quatre acomptes, payés au plus tard le 10 des mois de mars, juin, septembre et décembre"
 verifie = false
+
+[acomptes_quotite]
+valeur = "0.25"
+source = "CGI 2026, art. 51, 2) — chaque acompte est égal au quart de l'impôt dû l'année précédente ; le premier acompte (10 mars) est calculé sur l'avant-dernier exercice si la déclaration n'est pas déposée, avec régularisation au deuxième acompte"
+verifie = false
+note = "Règle de calcul ajoutée au Lot 1 (elle manquait) : quart de l'impôt N-1, régularisé au 2e acompte. La demande en réduction d'acomptes (art. 51, 4) et 5)) n'est pas gérée en V1. Issue #34."
+
+[redevance_ortb_is]
+valeur = 4000
+source = "CGI 2026, art. 47, 6) — le montant de l'impôt sur les sociétés est majoré d'une redevance de 4 000 FCFA au profit de l'office de radiodiffusion et télévision du Bénin, payable lors du versement de l'acompte du 10 mars prévu à l'art. 51"
+verifie = false
+note = "Ajouté au Lot 1 : la redevance ORTB de l'IS manquait alors qu'elle est due chaque année avec le premier acompte. Issue #55 (interaction avec la redevance de la TPS)."
 
 [solde_date_limite]
 valeur = "04-30"
-source = "CGI 2026 — déclaration de résultat et solde au plus tard le 30 avril N+1"
+source = "CGI 2026, art. 49, 1) — déclaration de résultat souscrite au plus tard le 30 avril de chaque année ; art. 51, 3) — le solde est acquitté le jour du dépôt de la déclaration annuelle"
 verifie = false
-note = "Une source indique « avant le 1er mai » : équivalent au 30 avril."
+note = "Une source secondaire écrit « avant le 1er mai » : même échéance, formulation différente."

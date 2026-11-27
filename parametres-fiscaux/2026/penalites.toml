@@ -1,37 +1,48 @@
 # Pénalités — 2026. Propriétaire : A8. AUCUNE valeur vérifiée.
 # Utilisé pour les ALERTES et les simulations de retard (pas pour les déclarations).
+# Vérification du 2026-11-27 : les numéros d'articles du livre 4, titre 2 (sanctions) n'ont pas pu être
+# lus dans le texte ; la source reste donc provisoire et l'issue #38 est ouverte.
 
 [en_tete]
 annee = 2026
-textes = ["CGI 2026, art. 484 à 502 (à vérifier)"]
+textes = [
+  "Code général des impôts du Bénin, édition 2026 — loi n° 2021-15 du 23 décembre 2021, livre 4, titre 2 : sanctions (numéros d'articles à confirmer)",
+  "Loi n° 2025-22 du 8 décembre 2025 portant loi de finances pour la gestion 2026",
+]
 mis_a_jour_le = "2026-11-27"
 
 [retard_declaration]
 valeur = "0.20"
-source = "CGI 2026, art. 485 — défaut ou retard de déclaration : 20 %"
+source = "CGI 2026, art. 485 — défaut ou retard de déclaration : 20 % des droits dus"
 verifie = false
+note = "Numéro d'article non confirmé sur le texte au 2026-11-27 (issue #38). L'art. 259, 1) fixe l'échéance de la déclaration mensuelle de TVA."
 
 [retard_declaration_apres_mise_en_demeure]
 valeur = "0.40"
-source = "CGI 2026, art. 485 — 40 % après mise en demeure restée sans effet 30 jours"
+source = "CGI 2026, art. 485 — 40 % lorsque la déclaration n'est pas déposée dans les 30 jours d'une mise en demeure restée sans effet"
 verifie = false
+note = "Issue #38."
 
 [retard_paiement]
 valeur = "0.10"
-source = "CGI 2026, art. 487-488 — retard de paiement : 10 %"
+source = "CGI 2026, art. 487-488 — retard de paiement des droits ou acomptes : majoration de 10 %"
 verifie = false
+note = "Issue #38."
 
 [interet_retard_mensuel]
 valeur = "0.0025"
-source = "CGI 2026, art. 487-488 — intérêt de 0,25 % par mois, plafonné au principal"
+source = "CGI 2026, art. 487-488 — intérêt de retard de 0,25 % par mois, toute fraction de mois comptée pour un mois entier"
 verifie = false
+note = "Plafonnement éventuel au principal (mention du fichier d'origine) non confirmé. Issue #38."
 
 [retenue_non_reversee]
 valeur = "0.20"
-source = "CGI 2026, art. 491 — 20 %, puis 40 % au-delà de 2 mois"
+source = "CGI 2026, art. 491 — retenue à la source non reversée : 20 %, portée à 40 % au-delà de deux mois"
 verifie = false
+note = "Vise les retenues des art. 106, 132 et 141. Issue #38."
 
 [comptabilite_irreguliere]
 valeur = 1000000
-source = "CGI 2026, art. 500 — 1 000 000 FCFA par exercice (2 000 000 en récidive)"
+source = "CGI 2026, art. 500 — défaut de comptabilité régulière : 1 000 000 FCFA par exercice (2 000 000 en récidive)"
 verifie = false
+note = "Issue #38."

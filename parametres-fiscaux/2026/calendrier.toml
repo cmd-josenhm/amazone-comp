@@ -1,9 +1,15 @@
 # Calendrier des échéances — 2026. Propriétaire : A8 (échéances sociales : A7). AUCUNE valeur vérifiée.
 # jour = jour limite ; mois = mois concernés (liste vide = chaque mois, pour la période du mois précédent).
+# Sources vérifiées le 2026-11-27 sur le CGI 2026 (loi n° 2021-15 modifiée par la loi n° 2025-22).
+# Incertitudes restantes : issues #27 (CNSS), #28 (réel simplifié), #34 (acomptes), #53 (patente).
 
 [en_tete]
 annee = 2026
-textes = ["CGI 2026", "Code de sécurité sociale (CNSS)"]
+textes = [
+  "Code général des impôts du Bénin, édition 2026 — loi n° 2021-15 du 23 décembre 2021, livre 4, titre 1, chapitre 2 : obligations déclaratives",
+  "Loi n° 2025-22 du 8 décembre 2025 portant loi de finances pour la gestion 2026",
+  "Code de sécurité sociale du Bénin (CNSS)",
+]
 mis_a_jour_le = "2026-11-27"
 
 [[echeance]]
@@ -12,8 +18,9 @@ libelle = "Déclaration et paiement de la TVA du mois précédent"
 regimes = ["REEL_NORMAL", "REEL_SIMPLIFIE"]
 jour = 10
 mois = []
-source = "CGI 2026 — TVA"
+source = "CGI 2026, art. 259, 1) — déclaration souscrite au plus tard le 10 de chaque mois, au titre du mois précédent"
 verifie = false
+note = "Le rattachement de l'opération au mois dépend de l'exigibilité (art. 236) : à la livraison pour les biens, à l'encaissement pour les services, les travaux immobiliers et les marchés publics de l'État (issue #30). Le régime « réel simplifié » n'est pas attesté dans le CGI 2026 (issue #28)."
 
 [[echeance]]
 code = "AIB_MENSUEL"
@@ -21,8 +28,9 @@ libelle = "Déclaration et reversement de l'AIB prélevé le mois précédent"
 regimes = ["REEL_NORMAL", "REEL_SIMPLIFIE"]
 jour = 10
 mois = []
-source = "CGI 2026 — AIB"
+source = "CGI 2026, art. 133, 3) — déclaration et versement au plus tard le 10 du mois suivant la facturation ou le prélèvement"
 verifie = false
+note = "Déclaration obligatoire même en l'absence de retenue ou de prélèvement au titre d'un mois."
 
 [[echeance]]
 code = "ITS_VPS_MENSUEL"
@@ -30,26 +38,29 @@ libelle = "Déclaration et paiement de l'ITS et du VPS des salaires du mois pré
 regimes = ["REEL_NORMAL", "REEL_SIMPLIFIE", "TPS"]
 jour = 10
 mois = []
-source = "CGI 2026 — ITS / VPS (VPS non dû par les entreprises à la TPS)"
+source = "CGI 2026, chapitre 6 du titre 1 du livre 1 (ITS, art. 119 à 129) et chapitre 2 du titre 3 (VPS, art. 191 à 201) — déclaration et paiement au plus tard le 10 du mois suivant le paiement du salaire"
 verifie = false
+note = "Le VPS n'est pas dû par les contribuables assujettis à la TPS (art. 192 et art. 178, qui rend la TPS libératoire du VPS) : l'échéance reste affichée pour l'ITS. Barème de l'ITS : propriété de A7 (social.toml)."
 
 [[echeance]]
 code = "RETENUES_MENSUEL"
-libelle = "Reversement des retenues à la source (loyers, non-résidents)"
+libelle = "Reversement des retenues à la source (loyers, non-résidents, IRCM)"
 regimes = ["REEL_NORMAL", "REEL_SIMPLIFIE", "TPS"]
 jour = 10
 mois = []
-source = "CGI 2026 — retenues"
+source = "CGI 2026, art. 106, 4) (loyers) et art. 90 (retenue sur les revenus des capitaux mobiliers) — reversement au plus tard le 10 du mois suivant"
 verifie = false
+note = "La retenue de 20 % sur les prestataires non-résidents (art. 141-142) suit la même échéance mensuelle (issue #37)."
 
 [[echeance]]
 code = "IS_ACOMPTE"
-libelle = "Acompte d'impôt sur les sociétés / IBA"
+libelle = "Acompte d'impôt sur les sociétés / IBA (quart de l'impôt de l'année précédente)"
 regimes = ["REEL_NORMAL", "REEL_SIMPLIFIE"]
 jour = 10
 mois = [3, 6, 9, 12]
-source = "CGI 2026 — acomptes IS"
+source = "CGI 2026, art. 51, 1) et 2) — quatre acomptes au plus tard le 10 des mois de mars, juin, septembre et décembre, égaux au quart de l'impôt de l'année précédente (art. 51, 3), solde au dépôt de la déclaration)"
 verifie = false
+note = "La redevance ORTB de 4 000 FCFA est due avec l'acompte du 10 mars (art. 47, 6)). Issue #34."
 
 [[echeance]]
 code = "IS_SOLDE_DSF"
@@ -57,16 +68,17 @@ libelle = "Déclaration de résultat, états financiers (DSF) et solde de l'IS /
 regimes = ["REEL_NORMAL", "REEL_SIMPLIFIE"]
 jour = 30
 mois = [4]
-source = "CGI 2026 — solde au 30 avril N+1"
+source = "CGI 2026, art. 49, 1) — déclaration de résultat au plus tard le 30 avril ; art. 51, 3) — solde acquitté le jour du dépôt"
 verifie = false
+note = "La DSF (états financiers et annexes) est déposée à l'appui de la déclaration (art. 50)."
 
 [[echeance]]
 code = "TPS_ACOMPTE"
-libelle = "Acompte de TPS"
+libelle = "Acompte de TPS (calculé sur l'impôt de l'année précédente)"
 regimes = ["TPS"]
 jour = 10
 mois = [2, 6]
-source = "CGI 2026 — TPS"
+source = "CGI 2026, art. 185, 1) — deux acomptes provisionnels payables dans les dix premiers jours des mois de février et de juin"
 verifie = false
 
 [[echeance]]
@@ -75,8 +87,9 @@ libelle = "Déclaration annuelle et solde de la TPS"
 regimes = ["TPS"]
 jour = 30
 mois = [4]
-source = "CGI 2026 — TPS"
+source = "CGI 2026, art. 184, 1) — déclaration au plus tard le 30 avril ; art. 185, 3) — imputation des acomptes et des retenues d'AIB sur la déclaration de résultat"
 verifie = false
+note = "La TPS est due par commune et par établissement (art. 183, 4)) : une déclaration par établissement. Issue #39."
 
 [[echeance]]
 code = "PATENTE"
@@ -84,9 +97,9 @@ libelle = "Patente : acompte (10 février) puis solde (30 avril)"
 regimes = ["REEL_NORMAL", "REEL_SIMPLIFIE"]
 jour = 10
 mois = [2]
-source = "CGI 2026 — patente"
+source = "CGI 2026, art. 198 — « les entreprises nouvelles régulièrement créées sont exonérées de la contribution des patentes sur les douze (12) premiers mois d'activité » ; l'acompte de 50 % au plus tard le 10 février et le solde au 30 avril relèvent d'articles non identifiés au 2026-11-27"
 verifie = false
-note = "Taux et base de la patente non paramétrés en V1 : rappel uniquement."
+note = "Taux et base de la patente non paramétrés en V1 : rappel uniquement. Seul l'article de l'exonération (art. 198) est identifié ; l'article de l'acompte (10 février) et celui du solde (30 avril) restent à confirmer. Issue #53."
 
 [[echeance]]
 code = "CNSS"
@@ -94,5 +107,6 @@ libelle = "Déclaration et paiement des cotisations CNSS"
 regimes = ["REEL_NORMAL", "REEL_SIMPLIFIE", "TPS"]
 jour = 15
 mois = []
-source = "Code de sécurité sociale — date et périodicité (mensuelle ou trimestrielle selon l'effectif) À VÉRIFIER"
+source = "Code de sécurité sociale du Bénin — date et périodicité (mensuelle ou trimestrielle selon l'effectif) à confirmer : le CGI 2026 ne traite pas de la CNSS"
 verifie = false
+note = "Valeur provisoire (jour 15). Source officielle non obtenue au 2026-11-27 : issue #27. Paramètre partagé avec A7 (social.toml)."

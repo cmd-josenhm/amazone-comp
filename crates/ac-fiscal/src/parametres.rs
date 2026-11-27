@@ -134,6 +134,30 @@ impl ParametresAnnee {
 mod tests {
     use super::*;
 
+    /// Tables de paramètres d'un fichier TOML (hors en-tête) : `(clé, table)`.
+    ///
+    /// Un fichier contient soit une table par paramètre, soit un tableau de tables
+    /// (échéances du calendrier).
+    fn tables_parametres(nom: &str, contenu: &str) -> Vec<(String, toml::Table)> {
+        let table: toml::Table =
+            toml::from_str(contenu).unwrap_or_else(|e| panic!("{nom} illisible : {e}"));
+        let mut resultat = Vec::new();
+        for (cle, valeur) in &table {
+            if cle == "en_tete" {
+                continue;
+            }
+            let elements: Vec<&toml::Table> = match valeur {
+                toml::Value::Table(t) => vec![t],
+                toml::Value::Array(a) => a.iter().filter_map(|v| v.as_table()).collect(),
+                _ => panic!("{nom} : « {cle} » doit être une table {{ valeur, source, verifie }}"),
+            };
+            for element in elements {
+                resultat.push((cle.clone(), element.clone()));
+            }
+        }
+        resultat
+    }
+
     /// Chaque table (hors `en_tete`) et chaque élément de tableau de tables doit porter
     /// `source` (texte non vide) et `verifie` (booléen) : règle R2.
     #[test]
@@ -146,25 +170,66 @@ mod tests {
                 Some(2026),
                 "{nom} : en_tete.annee"
             );
-            for (cle, val) in &table {
-                if cle == "en_tete" {
+            for (cle, t) in tables_parametres(nom, contenu) {
+                let source = t.get("source").and_then(|s| s.as_str()).unwrap_or("");
+                assert!(!source.trim().is_empty(), "{nom} : « {cle} » sans source");
+                assert!(
+                    t.get("verifie").and_then(|v| v.as_bool()).is_some(),
+                    "{nom} : « {cle} » sans indicateur verifie"
+                );
+            }
+        }
+    }
+
+    /// Chaque `source` cite un texte légal identifiable (règle R14) : le CGI, une loi de finances,
+    /// un arrêté, un décret, le code de la sécurité sociale ou une spécification officielle.
+    #[test]
+    fn toutes_les_sources_citent_un_texte_legal() {
+        const TEXTES_LEGAUX: [&str; 10] = [
+            "CGI",
+            "Code général des impôts",
+            "loi n°",
+            "Code de sécurité sociale",
+            "CNSS",
+            "Décret",
+            "arrêté",
+            "Arrêté",
+            "e-MECeF",
+            "Spécification",
+        ];
+        for (nom, contenu) in fichiers_embarques(2026).unwrap() {
+            for (cle, t) in tables_parametres(nom, contenu) {
+                let source = t.get("source").and_then(|s| s.as_str()).unwrap_or("");
+                assert!(
+                    TEXTES_LEGAUX.iter().any(|m| source.contains(*m)),
+                    "{nom} : « {cle} » — source sans texte légal identifiable : {source}"
+                );
+            }
+        }
+    }
+
+    /// Une valeur marquée vérifiée ne peut pas conserver une source provisoire (règle R14) :
+    /// `verifie = true` suppose un article identifié, pas une source « à vérifier ».
+    #[test]
+    fn une_valeur_verifiee_exige_une_source_definitive() {
+        const SOURCES_PROVISOIRES: [&str; 6] = [
+            "à vérifier",
+            "à obtenir",
+            "à confirmer",
+            "provisoire",
+            "non obtenu",
+            "aucune référence",
+        ];
+        for (nom, contenu) in fichiers_embarques(2026).unwrap() {
+            for (cle, t) in tables_parametres(nom, contenu) {
+                if t.get("verifie").and_then(|v| v.as_bool()) != Some(true) {
                     continue;
                 }
-                let elements: Vec<&toml::Table> = match val {
-                    toml::Value::Table(t) => vec![t],
-                    toml::Value::Array(a) => a.iter().filter_map(|v| v.as_table()).collect(),
-                    _ => panic!(
-                        "{nom} : « {cle} » doit être une table {{ valeur, source, verifie }}"
-                    ),
-                };
-                for t in elements {
-                    let source = t.get("source").and_then(|s| s.as_str()).unwrap_or("");
-                    assert!(!source.trim().is_empty(), "{nom} : « {cle} » sans source");
-                    assert!(
-                        t.get("verifie").and_then(|v| v.as_bool()).is_some(),
-                        "{nom} : « {cle} » sans indicateur verifie"
-                    );
-                }
+                let source = t.get("source").and_then(|s| s.as_str()).unwrap_or("");
+                assert!(
+                    !SOURCES_PROVISOIRES.iter().any(|m| source.contains(*m)),
+                    "{nom} : « {cle} » est vérifiée mais sa source est provisoire : {source}"
+                );
             }
         }
     }

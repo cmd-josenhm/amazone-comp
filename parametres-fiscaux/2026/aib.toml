@@ -1,43 +1,60 @@
 # AIB — Acompte sur impôt assis sur les bénéfices — 2026. Propriétaire : A8. AUCUNE valeur vérifiée.
+# Sources vérifiées le 2026-11-27 sur le CGI 2026 (art. 130 à 136 : chapitre 7 du titre 1 du livre 1).
+# Incertitudes restantes : issues #24 (code e-MECeF du taux de 3 %), #59 (article des exonérations d'AIB).
+# Rappel : les loyers d'immeubles ne relèvent pas de l'AIB mais de la retenue de l'art. 106 (voir
+# retenues.toml, issue #36).
 
 [en_tete]
 annee = 2026
-textes = ["CGI 2026 (art. 130 à 136 — à vérifier)", "Communiqués DGI 2026 sur le recouvrement de l'AIB"]
+textes = [
+  "Code général des impôts du Bénin, édition 2026 — loi n° 2021-15 du 23 décembre 2021, livre 1, titre 1, chapitre 7 : retenues à la source (art. 130 à 136 pour l'AIB)",
+  "Loi n° 2025-22 du 8 décembre 2025 portant loi de finances pour la gestion 2026",
+  "Communiqués DGI de 2026 sur le recouvrement de l'AIB (5 % pour les contribuables dont l'IFU est désactivé, à compter du 7 septembre 2026)",
+]
 mis_a_jour_le = "2026-11-27"
 
 [taux_ifu_biens]
 valeur = "0.01"
-source = "CGI 2026 — 1 % : importations, achats commerciaux, fournitures par des personnes immatriculées à l'IFU"
+source = "CGI 2026, art. 132, 2) a) — 1 % pour les importations de marchandises et les achats commerciaux et fournitures de travaux réalisés par les entreprises immatriculées à l'identifiant fiscal unique"
 verifie = false
 
 [taux_marches_publics]
 valeur = "0.01"
-source = "CGI 2026 — 1 % : fournitures de travaux, biens et services à l'État et aux collectivités"
+source = "CGI 2026, art. 132, 2) a) — 1 % pour les fournitures de travaux, de biens et de services à l'État, aux collectivités locales et aux entreprises publiques et semi-publiques"
 verifie = false
 
 [taux_ifu_services]
 valeur = "0.03"
-source = "CGI 2026 — 3 % : prestations de services par des personnes immatriculées à l'IFU"
+source = "CGI 2026, art. 132, 2) b) — 3 % pour les prestations de services réalisées par les personnes immatriculées à l'identifiant fiscal unique"
 verifie = false
-note = "Certaines sources ne citent que 1 % et 5 %. À confirmer."
+note = "Taux confirmé dans le texte, mais aucune correspondance de code AIB e-MECeF connue pour 3 % (codes connus : A = 1 %, B = 5 %) : issue #24. La frontière entre « fournitures de travaux » (1 %) et « prestations de services » (3 %) est une source de contentieux signalée par le secteur privé."
 
 [taux_sans_ifu]
 valeur = "0.05"
-source = "CGI 2026 — 5 % : opérations avec des personnes non immatriculées à l'IFU"
+source = "CGI 2026, art. 132, 2) c) — 5 % pour les achats commerciaux, les fournitures de travaux, de biens et de services à l'État et aux collectivités, aux entreprises publiques, et les prestations de services des personnes non immatriculées à l'identifiant fiscal unique"
 verifie = false
-note = "Depuis le 7 septembre 2026 (communiqué DGI rapporté par la presse), 5 % aussi pour les personnes morales dont l'IFU est désactivé pour non-conformité."
+note = "5 % également pour les personnes définies aux art. 135 et 256 à l'occasion de la délivrance des factures normalisées (art. 132, 2) d)) : depuis le 7 septembre 2026, cela vise aussi les personnes morales dont l'IFU est désactivé dans CFISC pour non-respect de leurs obligations fiscales (communiqué DGI du 3 septembre 2026, confirmé par une foire aux questions)."
 
 [jour_limite_reversement]
 valeur = 10
-source = "CGI 2026 — déclaration et reversement au plus tard le 10 du mois suivant"
+source = "CGI 2026, art. 133, 3) — l'acompte facturé ou retenu à la source doit être déclaré et versé au receveur des impôts au plus tard le 10 du mois suivant celui de sa facturation ou de son prélèvement"
 verifie = false
+note = "La déclaration est obligatoire même en l'absence de retenue ou de prélèvement au titre d'un mois, sous peine des sanctions de l'art. 485."
 
 [base_hors_tva]
 valeur = true
-source = "CGI 2026 — base : prix toutes taxes comprises, hors TVA"
+source = "CGI 2026, art. 132 — l'acompte porte sur le prix hors TVA de la facture (à l'importation : valeur en douane majorée des droits et taxes exigibles, à l'exception de la TVA)"
 verifie = false
+note = "Formulation précédente (« prix toutes taxes comprises, hors TVA ») ambiguë : il s'agit du montant toutes taxes sauf la TVA. Base de l'importation à confirmer par la doctrine DGI."
+
+[exoneration_entreprises_nouvelles]
+valeur = 12
+source = "CGI 2026, art. 110 — « Sont exemptés de la taxe : … 4) les entreprises nouvelles justifiant qu'elles relèvent de la taxe professionnelle synthétique, au titre de leurs douze (12) premiers mois d'activités ; 5) les personnes physiques ou morales justifiant d'une exonération de l'impôt sur le revenu ou de la taxe professionnelle synthétique »"
+verifie = false
+note = "Ajouté au Lot 1 : une entreprise nouvelle relevant de la TPS est dispensée d'AIB pendant douze mois. L'insertion exacte de l'art. 110 (exonérations d'AIB) et la liste complète des exonérés restent à confirmer au 2026-11-27 : issue #59. Exonérations jumelles : TPS art. 180, 3), patentes art. 198."
 
 [imputable]
 valeur = true
-source = "CGI 2026 — l'AIB supporté est imputable sur l'IS, l'IBA ou la TPS dû"
+source = "CGI 2026, art. 133, 4) et 5) — les acomptes non imputés au 31 décembre sont imputables sur l'IBA ou l'IS de l'exercice ; pour les contribuables relevant de la TPS, les acomptes payés sont déductibles du solde de la TPS affectée au budget national"
 verifie = false
+note = "L'AIB non imputable au titre du mois de prélèvement peut être mentionné sur les déclarations déposées au plus tard le 30 avril ; le crédit restant est imputé sur la déclaration de mai."
