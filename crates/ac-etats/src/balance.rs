@@ -219,14 +219,19 @@ mod tests {
     #[test]
     fn refus_montant_negatif_et_doublon() {
         let neg = LigneBalance::new(c("521"), "Banque", m(-1), Montant::ZERO);
-        assert!(matches!(neg, Err(ErreurEtats::MontantNegatifBalance { .. })));
+        if !matches!(neg, Err(ErreurEtats::MontantNegatifBalance { .. })) {
+            panic!("MontantNegatifBalance attendu");
+        }
 
         let b = Balance::exercice(vec![
             LigneBalance::solde_debiteur(c("521"), "Banque 1", m(100)).unwrap(),
             LigneBalance::solde_debiteur(c("521"), "Banque 2", m(200)).unwrap(),
         ]);
-        let err = b.valider().unwrap_err();
-        assert!(matches!(err, ErreurEtats::DoublonCompteBalance { exercice: "N", .. }));
+        if let Err(ErreurEtats::DoublonCompteBalance { exercice, .. }) = b.valider() {
+            assert_eq!(exercice, "N");
+        } else {
+            panic!("DoublonCompteBalance attendu");
+        }
     }
 
     #[test]

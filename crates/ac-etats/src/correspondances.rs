@@ -441,9 +441,9 @@ mod tests {
 
     #[test]
     fn csv_invalide_refuse() {
-        let refuser = |cas: &str| {
-            let res = Correspondances::depuis_csv(cas);
-            assert!(matches!(res, Err(ErreurEtats::CorrespondanceInvalide { .. })), "{cas}");
+        let refuser = |cas: &str| match Correspondances::depuis_csv(cas) {
+            Err(ErreurEtats::CorrespondanceInvalide { .. }) => {}
+            autre => panic!("invalide attendu pour {cas} : {autre:?}"),
         };
         refuser("");
         refuser("101;BILAN_PASSIF;PASSIF;CA;Capital;M");

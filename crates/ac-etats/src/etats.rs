@@ -431,9 +431,9 @@ fn cumuler_exercice(
     Ok(cumul)
 }
 
-fn accumuler(map: &mut BTreeMap<String, Montant>, cle: &str, delta: Montant) -> Resultat<()> {
-    let courant = map.get(cle).copied().unwrap_or(Montant::ZERO);
-    map.insert(cle.to_owned(), courant.ajouter(delta)?);
+fn accumuler(m: &mut BTreeMap<String, Montant>, cle: &str, d: Montant) -> Resultat<()> {
+    let courant = m.get(cle).copied().unwrap_or(Montant::ZERO);
+    m.insert(cle.to_owned(), courant.ajouter(d)?);
     Ok(())
 }
 
@@ -1257,9 +1257,8 @@ fn construire_lignes_resultat(
 
 #[cfg(test)]
 mod tests {
-    use ac_compta::NumeroCompte;
-
     use super::*;
+    use ac_compta::NumeroCompte;
 
     fn c(n: &str) -> NumeroCompte {
         NumeroCompte::new(n).unwrap()
@@ -1435,25 +1434,50 @@ mod tests {
         assert_eq!(b.resultat_net_n, m(300_000));
     }
 
+    fn assert_bilan_deseq(res: Resultat<Bilan>, attendu: &str) {
+        if let Err(ErreurEtats::BilanDesequilibre { exercice, .. }) = res {
+            assert_eq!(exercice, attendu);
+        } else {
+            panic!("BilanDesequilibre({attendu}) attendu");
+        }
+    }
+
+    fn assert_coherence_deseq(res: Resultat<()>, attendu: &str) {
+        if let Err(ErreurEtats::BilanDesequilibre { exercice, .. }) = res {
+            assert_eq!(exercice, attendu);
+        } else {
+            panic!("BilanDesequilibre({attendu}) attendu");
+        }
+    }
+
+    fn assert_coherence_inc(res: Resultat<()>, attendu: &str) {
+        if let Err(ErreurEtats::ResultatsIncoherents { exercice, .. }) = res {
+            assert_eq!(exercice, attendu);
+        } else {
+            panic!("ResultatsIncoherents({attendu}) attendu");
+        }
+    }
+
     #[test]
     fn erreurs_desequilibre_compte_non_rattache_et_coherence() {
         let desequilibree = Balance::exercice(vec![
             cr_ligne("101", "Capital", 1_000_000),
             d("521", "Banque", 1_000_001),
         ]);
-        let err_bilan = bilan(&desequilibree).unwrap_err();
-        assert!(matches!(err_bilan, ErreurEtats::BilanDesequilibre { exercice: "N", .. }));
+        assert_bilan_deseq(bilan(&desequilibree), "N");
 
         // Compte non rattaché (message exact).
         let inconnue = Balance::exercice(vec![d("9011", "Engagement hors bilan", 100_000)]);
         let err_9011 = bilan(&inconnue).unwrap_err();
-        assert_eq!(err_9011.to_string(), "Le compte 9011 n'est rattaché à aucune rubrique");
+        let attendu_9011 = "Le compte 9011 n'est rattaché à aucune rubrique";
+        assert_eq!(err_9011.to_string(), attendu_9011);
 
         let csv = "101;BILAN_PASSIF;PASSIF;CA;Capital;M;+\n";
         let corr_partielle = Correspondances::depuis_csv(csv).unwrap();
         let avec_4711 = Balance::exercice(vec![d("4711", "Compte d'attente", 50_000)]);
         let err_4711 = bilan_avec_correspondances(&avec_4711, &corr_partielle).unwrap_err();
-        assert_eq!(err_4711.to_string(), "Le compte 4711 n'est rattaché à aucune rubrique");
+        let attendu_4711 = "Le compte 4711 n'est rattaché à aucune rubrique";
+        assert_eq!(err_4711.to_string(), attendu_4711);
 
         // Incohérence entre un bilan et un compte de résultat d'exercices distincts.
         let bal1 = Balance::exercice(vec![
@@ -1468,8 +1492,7 @@ mod tests {
             cr_ligne("701", "Ventes", 500_000),
         ]);
         let cr2 = compte_resultat(&bal2).unwrap();
-        let err_inc = verifier_coherence(&b1, &cr2).unwrap_err();
-        assert!(matches!(err_inc, ErreurEtats::ResultatsIncoherents { exercice: "N", .. }));
+        assert_coherence_inc(verifier_coherence(&b1, &cr2), "N");
 
         // Déséquilibre sur N-1 et incohérence sur N-1 détectés également.
         let n1_desequilibre = Balance::avec_comparatif(
@@ -1484,25 +1507,21 @@ mod tests {
                 d("521", "Banque", 999_999),
             ],
         );
-        let err_n1 = bilan(&n1_desequilibre).unwrap_err();
-        assert!(matches!(err_n1, ErreurEtats::BilanDesequilibre { exercice: "N-1", .. }));
+        assert_bilan_deseq(bilan(&n1_desequilibre), "N-1");
 
         let mut b_faux = b1.clone();
         b_faux.total_actif_n = m(999_999);
-        let err_faux_n = verifier_coherence(&b_faux, &cr2).unwrap_err();
-        assert!(matches!(err_faux_n, ErreurEtats::BilanDesequilibre { exercice: "N", .. }));
+        assert_coherence_deseq(verifier_coherence(&b_faux, &cr2), "N");
 
         let mut b_faux_n1 = b1.clone();
         b_faux_n1.possede_comparatif = true;
         b_faux_n1.total_actif_n1 = m(500);
-        let err_faux_n1 = verifier_coherence(&b_faux_n1, &cr2).unwrap_err();
-        assert!(matches!(err_faux_n1, ErreurEtats::BilanDesequilibre { exercice: "N-1", .. }));
+        assert_coherence_deseq(verifier_coherence(&b_faux_n1, &cr2), "N-1");
 
         b_faux_n1.total_actif_n1 = Montant::ZERO;
         b_faux_n1.resultat_net_n1 = m(100);
         let cr_ok_n = compte_resultat(&bal1).unwrap();
-        let err_inc_n1 = verifier_coherence(&b_faux_n1, &cr_ok_n).unwrap_err();
-        assert!(matches!(err_inc_n1, ErreurEtats::ResultatsIncoherents { exercice: "N-1", .. }));
+        assert_coherence_inc(verifier_coherence(&b_faux_n1, &cr_ok_n), "N-1");
     }
 
     #[test]
