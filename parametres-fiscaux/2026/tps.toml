@@ -1,48 +1,65 @@
 # TPS — Taxe professionnelle synthétique — 2026. Propriétaire : A8. AUCUNE valeur vérifiée.
+# Sources vérifiées le 2026-11-27 sur le CGI 2026 (livre 1, titre 3, chapitre 1 : art. 178 à 190) et la
+# loi n° 2025-22 du 8 décembre 2025.
+# Incertitudes restantes : issues #39 (seuil par arrêté, champ de l'exonération, taxe par commune),
+# #55 (ORTB).
 
 [en_tete]
 annee = 2026
-textes = ["CGI 2026 (art. 178 à 185 — à vérifier)", "Arrêté fixant le seuil (50 000 000 FCFA)"]
+textes = [
+  "Code général des impôts du Bénin, édition 2026 — loi n° 2021-15 du 23 décembre 2021, livre 1, titre 3, chapitre 1 : taxe professionnelle synthétique (art. 178 à 190)",
+  "Arrêté du ministre chargé des finances fixant le seuil d'assujettissement à la TPS (non obtenu)",
+  "Loi n° 2025-22 du 8 décembre 2025 portant loi de finances pour la gestion 2026",
+]
 mis_a_jour_le = "2026-11-27"
 
 [taux]
 valeur = "0.05"
-source = "CGI 2026 — TPS : 5 % du chiffre d'affaires annuel"
+source = "CGI 2026, art. 183, 1) (modifié par la loi de finances pour 2024) — la TPS est déterminée par application au montant des recettes annuelles d'un taux de 5 %"
 verifie = false
-note = "Un ancien guide DGI cite 2 % : taux antérieur au CGI 2022. Retenir 5 % sous réserve de vérification."
+note = "Un ancien guide DGI cite 2 % : taux antérieur au CGI 2022. Le texte de 2026 fixe bien 5 %."
 
 [minimum]
 valeur = 10000
-source = "CGI 2026 — minimum de TPS : 10 000 FCFA"
+source = "CGI 2026, art. 183, 2) — le montant de l'impôt ne peut être inférieur à dix mille (10 000) francs CFA"
 verifie = false
 
 [seuil_ca_ht]
 valeur = 50000000
-source = "CGI 2026 + arrêté du ministre des Finances — CA ≤ 50 000 000 FCFA"
+source = "CGI 2026, art. 178 — les contribuables relevant de l'IBA dont le chiffre d'affaires est inférieur ou égal à un seuil fixé par arrêté du ministre chargé des finances sont soumis à la TPS (seuil provisoire : 50 000 000 FCFA)"
 verifie = false
+note = "Le CGI renvoie à un arrêté : 50 000 000 FCFA doit être justifié par l'arrêté en vigueur en 2026, non par un article. Le même seuil s'applique au montant des achats de biens, services et équipements et à celui des contrats signés : au-delà, le régime du réel s'applique dès le 1er jour du mois suivant. Un contribuable qui repasse sous le seuil n'est soumis à la TPS qu'après deux exercices consécutifs (art. 178, 5)). Issue #39."
 
 [redevance_audiovisuelle]
 valeur = 4000
-source = "CGI 2026 — redevance ORTB / SRTV due avec la TPS"
+source = "CGI 2026, art. 183, 3) — il est perçu en sus du montant de l'impôt une redevance de 4 000 FCFA au profit de la société nationale de radiodiffusion et de télévision"
 verifie = false
+note = "Issue #55 : ne pas confondre avec la redevance ORTB de l'IS (art. 47, 6)) ni avec la redevance audiovisuelle retenue sur salaires (social.toml, A7)."
 
 [acomptes_dates]
 valeur = ["02-10", "06-10"]
-source = "CGI 2026 — acomptes au plus tard les 10 février et 10 juin, calculés sur la TPS de N-1"
+source = "CGI 2026, art. 185, 1) — deux acomptes provisionnels calculés sur la base de l'impôt de l'année précédente, payables dans les dix premiers jours des mois de février et de juin"
 verifie = false
 
 [solde_date_limite]
 valeur = "04-30"
-source = "CGI 2026 — solde au plus tard le 30 avril N+1"
+source = "CGI 2026, art. 184, 1) — déclaration relative à l'exercice précédent souscrite au plus tard le 30 avril ; art. 185, 3) — les acomptes et retenues d'AIB sont imputés sur la déclaration de résultat"
 verifie = false
 
 [exoneration_premiers_mois]
 valeur = 12
-source = "CGI 2026 — exonération pendant les 12 premiers mois d'activité"
+source = "CGI 2026, art. 180, 3) — « les entreprises nouvelles régulièrement créées, au titre de leurs douze (12) premiers mois d'activité » sont exonérées de la TPS ; la taxe est due à partir du premier jour du mois suivant l'expiration de la période d'exonération, et les entreprises devenues imposables pour la première fois paient l'impôt minimum (art. 183, 2)) dans les dix (10) premiers jours du mois suivant"
 verifie = false
+note = "Exonération de la TPS : art. 180, 3) ; exonération de la contribution des patentes pour la même durée : art. 198. La qualification « entreprises nouvelles régulièrement créées » (conditions de création) et l'articulation avec la réduction d'IS (art. 146) restent à confirmer. Issue #39."
 
 [personnes_morales_exclues]
 valeur = ["SARL", "SA", "SAS"]
-source = "CGI 2026 — les sociétés de capitaux relèvent de l'IS quel que soit leur CA"
+source = "CGI 2026, art. 178 — la TPS est réservée aux contribuables relevant de l'impôt sur les bénéfices d'affaires (personnes physiques) ; les sociétés de capitaux relèvent de l'IS de plein droit (art. 3, 1))"
 verifie = false
-note = "À confirmer (formes juridiques exactement visées)."
+note = "La liste couvre les formes usuelles ; d'autres formes de sociétés commerciales (SCS, SNC ayant opté pour l'IS) doivent aussi être exclues. Le critère robuste est le régime (IS) et non la forme : à typer ainsi au Lot 2. Issue #39."
+
+[taxe_par_commune]
+valeur = true
+source = "CGI 2026, art. 183, 4) — « la taxe est due par commune et par établissement »"
+verifie = false
+note = "Ajouté au Lot 1 : conséquence pour un utilisateur ayant plusieurs établissements (une TPS par commune et par établissement) — la déclaration du Lot 6 devra en tenir compte."
