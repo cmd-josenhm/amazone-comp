@@ -1,10 +1,11 @@
-/* Composants de base — Propriétaire : A3. */
+/* Composants du design system — Propriétaire : A3. */
 
 .bouton {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--espace-2);
-  height: 36px;
+  min-height: 36px;
   padding: 0 var(--espace-4);
   border-radius: var(--rayon-pilule);
   border: 1px solid var(--bordure);
@@ -31,7 +32,7 @@
 }
 
 .bouton--principal:hover {
-  background: #333333;
+  background: var(--accent-survol);
 }
 
 .champ {
@@ -48,6 +49,7 @@
 .champ input,
 .champ textarea,
 .champ select {
+  width: 100%;
   font: inherit;
   color: var(--texte);
   background: var(--fond);
@@ -62,6 +64,14 @@
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 1px var(--accent);
+}
+
+.champ input:disabled,
+.champ textarea:disabled,
+.champ select:disabled {
+  background: var(--fond-doux);
+  color: var(--texte-secondaire);
+  cursor: not-allowed;
 }
 
 .champ__aide {
@@ -93,10 +103,513 @@
 
 .bandeau--alerte {
   border-left-color: var(--alerte);
+  background: var(--fond-alerte);
+}
+
+.bandeau--succes {
+  border-left-color: var(--succes);
+  background: var(--fond-succes);
+}
+
+.bandeau--erreur {
+  border-left-color: var(--erreur);
+  background: var(--fond-erreur);
 }
 
 .grille {
   display: grid;
   gap: var(--espace-4);
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+/* Tableau */
+.tableau {
+  min-width: 0;
+}
+
+.tableau__conteneur {
+  overflow-x: auto;
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+}
+
+.tableau__conteneur:focus-visible {
+  outline-offset: 4px;
+}
+
+.tableau table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 520px;
+}
+
+.tableau th,
+.tableau td {
+  padding: var(--espace-3) var(--espace-4);
+  border-bottom: 1px solid var(--bordure);
+  vertical-align: middle;
+}
+
+.tableau th {
+  background: var(--fond-doux);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tableau tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.tableau tbody tr:hover {
+  background: var(--survol);
+}
+
+.tableau__cellule--gauche {
+  text-align: left;
+}
+
+.tableau__cellule--centre {
+  text-align: center;
+}
+
+.tableau__cellule--droite {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tableau__tri {
+  display: inline-flex;
+  align-items: center;
+  justify-content: inherit;
+  gap: var(--espace-1);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: var(--transparent);
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+
+.tableau__indicateur-tri {
+  color: var(--texte-secondaire);
+}
+
+.tableau__ligne--cliquable {
+  cursor: pointer;
+}
+
+.tableau__ligne--cliquable:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+.tableau__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espace-4);
+  padding-top: var(--espace-3);
+}
+
+.tableau__pagination-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espace-2);
+}
+
+/* Champs spécialisés */
+.champ-montant__controle,
+.champ-date__controle {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-2);
+}
+
+.champ-montant__controle input {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.champ-montant__controle > span {
+  color: var(--texte-secondaire);
+  white-space: nowrap;
+}
+
+.champ-date__controle input {
+  min-width: 150px;
+}
+
+.champ-date__ouvrir {
+  flex: 0 0 auto;
+}
+
+.champ-date__calendrier {
+  width: min(100%, 320px);
+  padding: var(--espace-3);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  background: var(--fond);
+  box-shadow: var(--ombre);
+}
+
+.champ-date__entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espace-2);
+  margin-bottom: var(--espace-3);
+}
+
+.champ-date__entete strong {
+  text-transform: capitalize;
+}
+
+.champ-date__jours {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--espace-1);
+  text-align: center;
+}
+
+.champ-date__jours > span {
+  color: var(--texte-secondaire);
+  font-size: 12px;
+}
+
+.champ-date__jours > button {
+  min-width: 32px;
+  min-height: 32px;
+  border: 1px solid var(--fond);
+  border-radius: var(--rayon-pilule);
+  background: var(--fond);
+  color: var(--texte);
+  font: inherit;
+  cursor: pointer;
+}
+
+.champ-date__jours > button:hover,
+.champ-date__jours > button[aria-current="date"] {
+  border-color: var(--accent);
+  background: var(--survol);
+}
+
+.selecteur {
+  position: relative;
+}
+
+.selecteur__liste {
+  position: absolute;
+  z-index: 2;
+  top: calc(100% - var(--espace-4));
+  right: 0;
+  left: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--espace-1) 0;
+  list-style: none;
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  background: var(--fond);
+  box-shadow: var(--ombre);
+}
+
+.selecteur__liste li {
+  padding: var(--espace-2) var(--espace-3);
+}
+
+.selecteur__liste [role="option"] {
+  cursor: pointer;
+}
+
+.selecteur__liste [role="option"]:hover,
+.selecteur__option--active {
+  background: var(--survol);
+}
+
+.selecteur__vide {
+  color: var(--texte-secondaire);
+}
+
+.case-a-cocher {
+  margin-bottom: var(--espace-4);
+}
+
+.case-a-cocher__ligne {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--espace-2);
+}
+
+.case-a-cocher input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  margin: 2px 0 0;
+  accent-color: var(--accent);
+}
+
+.case-a-cocher label {
+  cursor: pointer;
+}
+
+/* Dialogue */
+.dialogue__fond {
+  position: fixed;
+  z-index: 10;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--espace-6);
+  background: var(--voile);
+}
+
+.dialogue {
+  width: min(100%, 560px);
+  max-height: min(90vh, 640px);
+  overflow-y: auto;
+  padding: var(--espace-6);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  background: var(--fond);
+  box-shadow: var(--ombre-dialogue);
+}
+
+.dialogue__entete,
+.dialogue__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espace-3);
+}
+
+.dialogue__entete h2 {
+  margin-bottom: 0;
+}
+
+.dialogue__contenu {
+  padding: var(--espace-6) 0;
+}
+
+.dialogue__actions {
+  justify-content: flex-end;
+}
+
+/* Assistant */
+.assistant {
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  background: var(--fond);
+}
+
+.assistant__etapes {
+  display: flex;
+  gap: var(--espace-2);
+  overflow-x: auto;
+  margin: 0;
+  padding: var(--espace-3);
+  list-style: none;
+  border-bottom: 1px solid var(--bordure);
+}
+
+.assistant__etapes button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espace-2);
+  min-height: 36px;
+  padding: 0 var(--espace-3);
+  border: 1px solid var(--transparent);
+  border-radius: var(--rayon-pilule);
+  background: var(--fond);
+  color: var(--texte);
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.assistant__etapes button:hover {
+  background: var(--survol);
+}
+
+.assistant__etapes button > span {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--rayon-pilule);
+  background: var(--survol);
+}
+
+.assistant__etapes button.assistant__etape--active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-texte);
+}
+
+.assistant__etapes button.assistant__etape--active > span {
+  background: var(--accent-texte);
+  color: var(--accent);
+}
+
+.assistant__corps {
+  padding: var(--espace-6);
+}
+
+.assistant__corps h2 {
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.assistant__resume {
+  margin-top: var(--espace-6);
+  padding: var(--espace-4);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon);
+  background: var(--fond-doux);
+}
+
+.assistant__resume h3 {
+  margin: 0 0 var(--espace-2);
+  font-size: 15px;
+}
+
+.assistant__actions {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espace-3);
+  padding: var(--espace-4) var(--espace-6);
+  border-top: 1px solid var(--bordure);
+}
+
+/* Onglets */
+.onglets__liste {
+  display: flex;
+  gap: var(--espace-2);
+  overflow-x: auto;
+  border-bottom: 1px solid var(--bordure);
+}
+
+.onglets__liste button {
+  padding: var(--espace-3) var(--espace-4);
+  border: 0;
+  border-bottom: 3px solid var(--transparent);
+  background: var(--fond);
+  color: var(--texte-secondaire);
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.onglets__liste button:hover,
+.onglets__liste button[aria-selected="true"] {
+  color: var(--texte);
+}
+
+.onglets__liste button[aria-selected="true"] {
+  border-bottom-color: var(--accent);
+}
+
+.onglets__panneau {
+  padding: var(--espace-4) 0;
+}
+
+/* Notifications, états et erreurs */
+.notification {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--espace-4);
+  padding: var(--espace-3) var(--espace-4);
+  border: 1px solid var(--bordure);
+  border-left-width: 4px;
+  border-radius: var(--rayon);
+  background: var(--fond-info);
+}
+
+.notification--succes {
+  border-left-color: var(--succes);
+  background: var(--fond-succes);
+}
+
+.notification--alerte {
+  border-left-color: var(--alerte);
+  background: var(--fond-alerte);
+}
+
+.notification--erreur {
+  border-left-color: var(--erreur);
+  background: var(--fond-erreur);
+}
+
+.notification__message {
+  flex: 1;
+}
+
+.etat-vide {
+  padding: var(--espace-8) var(--espace-6);
+  text-align: center;
+}
+
+.etat-vide h2 {
+  font-weight: 400;
+}
+
+.etat-vide p {
+  margin: 0 0 var(--espace-4);
+  color: var(--texte-secondaire);
+}
+
+.etat-vide__action {
+  display: flex;
+  justify-content: center;
+}
+
+.chargement {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espace-2);
+  color: var(--texte-secondaire);
+}
+
+.chargement__indicateur {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--bordure);
+  border-top-color: var(--accent);
+  border-radius: var(--rayon-pilule);
+}
+
+.message-erreur {
+  padding: var(--espace-4);
+  border: 1px solid var(--erreur);
+  border-left-width: 4px;
+  border-radius: var(--rayon);
+  background: var(--fond-erreur);
+}
+
+.message-erreur h2 {
+  color: var(--erreur);
+}
+
+.message-erreur__action {
+  margin-bottom: var(--espace-3);
+}
+
+@media (max-width: 720px) {
+  .tableau__pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dialogue__fond {
+    padding: var(--espace-3);
+  }
+
+  .dialogue {
+    padding: var(--espace-4);
+  }
 }

@@ -10,3 +10,4 @@ Format : [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — versions :
 - Inscription obligatoire des entreprises (ADR 0009) : fiche légale `ac_noyau::entreprise::FicheEntreprise`
   (IFU, RCCM, forme juridique, adresse, responsable…) avec validation partagée application / plateforme.
 - Console d'administration web et messagerie ASSISTANCE (ADR 0010) : spécification, module provisoire « Assistance ».
+- Design system complet : composants accessibles, page de démonstration interne et pagination contrôlée côté Rust.
