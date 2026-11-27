@@ -154,6 +154,127 @@ impl Montant {
         Self::depuis_decimal(brut, arrondi)
     }
 
+    /// Répartit le montant en parts proportionnelles, **sans perdre un seul franc**.
+    ///
+    /// Chaque part reçoit sa proportion du total (arrondie au franc le plus proche, 0,5
+    /// s'éloignant de zéro) ; la différence d'arrondi restante est absorbée par la part la plus
+    /// grande (à parts égales, la première fournie). La somme des parts renvoyées est toujours
+    /// exactement égale au montant réparti. Exemple : 100 FCFA en 3 parts égales → 34 / 33 / 33.
+    ///
+    /// Si absorber l'écart rendrait la plus grande part négative (total très petit devant le
+    /// nombre de parts), l'excédent est reporté sur les parts suivantes, toujours de la plus
+    /// grande à la plus petite : aucune part ne devient négative pour un total positif. Un
+    /// montant négatif (avoir) est réparti selon la même règle sur sa valeur absolue puis rendu
+    /// négatif : −100 en 3 parts égales donne −34 / −33 / −33.
+    ///
+    /// Répartir zéro renvoie toujours des parts nulles, même si les parts sont nulles.
+    ///
+    /// # Erreurs
+    ///
+    /// - parts vides ou contenant une valeur négative ;
+    /// - somme des parts nulle alors que le montant n'est pas nul.
+    ///
+    /// # Exemple
+    ///
+    /// ```
+    /// use ac_noyau::Montant;
+    ///
+    /// let parts = Montant::new(100).unwrap().repartir(&[1, 1, 1]).unwrap();
+    /// let francs: Vec<i64> = parts.iter().map(|m| m.francs()).collect();
+    /// assert_eq!(francs, vec![34, 33, 33]);
+    /// ```
+    pub fn repartir(self, parts: &[i64]) -> Resultat<Vec<Self>> {
+        if parts.is_empty() {
+            return Err(ErreurNoyau::RepartitionImpossible(
+                "aucune part fournie pour la répartition".to_owned(),
+            ));
+        }
+        for (position, &part) in parts.iter().enumerate() {
+            if part < 0 {
+                return Err(ErreurNoyau::RepartitionImpossible(
+                    format!("la part n°{} est négative : {}", position + 1, part),
+                ));
+            }
+        }
+        let total = self.0;
+        if total == 0 {
+            return Ok(vec![Montant::ZERO; parts.len()]);
+        }
+        // Somme des parts en i128 : avec des parts de i64, un débordement exigerait davantage de
+        // parts qu'il n'y a d'octets adressables, mais il reste contrôlé proprement.
+        let mut somme_parts = 0i128;
+        for &part in parts {
+            somme_parts = somme_parts
+                .checked_add(i128::from(part))
+                .ok_or(ErreurNoyau::Depassement)?;
+        }
+        if somme_parts == 0 {
+            return Err(ErreurNoyau::RepartitionImpossible(
+                format!("somme des parts nulle : répartition de {self} impossible"),
+            ));
+        }
+        let total_abs = i128::from(total).abs();
+        // Proportion de chaque part, arrondie au franc le plus proche (0,5 s'éloignant de zéro).
+        // Produit exact en i128 : total ≤ 10^15 et part ≤ 9,2 × 10^18 donnent un produit
+        // ≤ 9,2 × 10^33, en dessous du maximum de i128 ; le doublage du reste est contrôlé.
+        let mut parts_calculees: Vec<i128> = Vec::with_capacity(parts.len());
+        for &part in parts {
+            let produit = total_abs * i128::from(part);
+            let quotient = produit / somme_parts;
+            let reste = produit % somme_parts;
+            let double = reste.checked_mul(2).ok_or(ErreurNoyau::Depassement)?;
+            if double >= somme_parts {
+                parts_calculees.push(quotient + 1);
+            } else {
+                parts_calculees.push(quotient);
+            }
+        }
+        // Ordre décroissant des parts d'origine ; le tri stable conserve l'ordre fourni à parts
+        // égales, donc le premier indice est celui de la première part maximale.
+        let mut ordre: Vec<usize> = (0..parts.len()).collect();
+        ordre.sort_by(|&a, &b| parts[b].cmp(&parts[a]));
+        let mut somme_arrondie = 0i128;
+        for &part in &parts_calculees {
+            somme_arrondie = somme_arrondie
+                .checked_add(part)
+                .ok_or(ErreurNoyau::Depassement)?;
+        }
+        // |écart| < nombre de parts : chaque arrondi diffère de son quotient exact de moins d'un.
+        let mut ecart = total_abs - somme_arrondie;
+        if ecart > 0 {
+            // Toute la différence d'arrondi va à la plus grande part.
+            parts_calculees[ordre[0]] += ecart;
+        } else if ecart < 0 {
+            // Réduire en commençant par les plus grandes parts, sans descendre sous zéro.
+            for &indice in &ordre {
+                if ecart == 0 {
+                    break;
+                }
+                let absorbe = ecart.max(-parts_calculees[indice]);
+                parts_calculees[indice] += absorbe;
+                ecart -= absorbe;
+            }
+            if ecart != 0 {
+                // Inatteignable : un écart négatif implique que la somme arrondie dépasse le
+                // total, donc qu'au moins une part calculée est strictement positive.
+                return Err(ErreurNoyau::RepartitionImpossible(
+                    "écart d'arrondi impossible à absorber".to_owned(),
+                ));
+            }
+        }
+        let signe = if total < 0 { -1i128 } else { 1i128 };
+        // La somme des parts vaut le total et chaque part est positive : aucune part ne peut
+        // dépasser le montant réparti, donc rester hors des bornes de `Montant`.
+        let mut resultats = Vec::with_capacity(parts_calculees.len());
+        for &part in &parts_calculees {
+            let valeur = signe * part;
+            let francs = i64::try_from(valeur)
+                .map_err(|_| ErreurNoyau::MontantHorsLimites(valeur))?;
+            resultats.push(Montant::new(francs)?);
+        }
+        Ok(resultats)
+    }
+
     /// Convertit un décimal en montant selon la règle d'arrondi.
     pub fn depuis_decimal(valeur: Decimal, arrondi: Arrondi) -> Resultat<Self> {
         let strategie = match arrondi {
