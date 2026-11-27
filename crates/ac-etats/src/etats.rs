@@ -239,22 +239,18 @@ pub fn bilan_avec_correspondances(
     let passif = construire_passif(&cumuls_n, &cumuls_n1)?;
 
     let bz = actif.iter().find(|l| l.reference == "BZ");
-    let (total_actif_brut_n, total_amort_deprec_n, total_actif_n, total_actif_n1) = match bz {
-        Some(l) => (l.brut_n, l.amort_deprec_n, l.net_n, l.net_n1),
-        None => (Montant::ZERO, Montant::ZERO, Montant::ZERO, Montant::ZERO),
-    };
+    let (total_actif_brut_n, total_amort_deprec_n, total_actif_n, total_actif_n1) = bz.map_or(
+        (Montant::ZERO, Montant::ZERO, Montant::ZERO, Montant::ZERO),
+        |l| (l.brut_n, l.amort_deprec_n, l.net_n, l.net_n1),
+    );
 
     let dz = passif.iter().find(|l| l.reference == "DZ");
-    let (total_passif_n, total_passif_n1) = match dz {
-        Some(l) => (l.net_n, l.net_n1),
-        None => (Montant::ZERO, Montant::ZERO),
-    };
+    let (total_passif_n, total_passif_n1) =
+        dz.map_or((Montant::ZERO, Montant::ZERO), |l| (l.net_n, l.net_n1));
 
     let cj = passif.iter().find(|l| l.reference == "CJ");
-    let (resultat_net_n, resultat_net_n1) = match cj {
-        Some(l) => (l.net_n, l.net_n1),
-        None => (Montant::ZERO, Montant::ZERO),
-    };
+    let (resultat_net_n, resultat_net_n1) =
+        cj.map_or((Montant::ZERO, Montant::ZERO), |l| (l.net_n, l.net_n1));
 
     if total_actif_n != total_passif_n {
         return Err(ErreurEtats::BilanDesequilibre {
@@ -662,10 +658,10 @@ fn construire_actif(n: &CumulExercice, n1: &CumulExercice) -> Resultat<Vec<Ligne
 
     let mut lignes = Vec::with_capacity(STRUCTURE_ACTIF.len());
     for spec in STRUCTURE_ACTIF {
-        let (brut_n, amort_deprec_n, net_n, net_n1) = match valeurs.get(spec.reference) {
-            Some(v) => *v,
-            None => (Montant::ZERO, Montant::ZERO, Montant::ZERO, Montant::ZERO),
-        };
+        let (brut_n, amort_deprec_n, net_n, net_n1) = valeurs
+            .get(spec.reference)
+            .copied()
+            .unwrap_or((Montant::ZERO, Montant::ZERO, Montant::ZERO, Montant::ZERO));
         lignes.push(LigneBilanActif {
             reference: spec.reference.to_owned(),
             libelle: spec.libelle.to_owned(),
@@ -898,10 +894,10 @@ fn construire_passif(n: &CumulExercice, n1: &CumulExercice) -> Resultat<Vec<Lign
 
     let mut lignes = Vec::with_capacity(STRUCTURE_PASSIF.len());
     for spec in STRUCTURE_PASSIF {
-        let (net_n, net_n1) = match valeurs.get(spec.reference) {
-            Some(v) => *v,
-            None => (Montant::ZERO, Montant::ZERO),
-        };
+        let (net_n, net_n1) = valeurs
+            .get(spec.reference)
+            .copied()
+            .unwrap_or((Montant::ZERO, Montant::ZERO));
         lignes.push(LigneBilanPassif {
             reference: spec.reference.to_owned(),
             libelle: spec.libelle.to_owned(),

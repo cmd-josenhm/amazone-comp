@@ -29,3 +29,11 @@ pub use etats::{
 pub fn migrations() -> &'static [ac_donnees::Migration] {
     &[]
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn migrations_lot1_vides() {
+        assert!(super::migrations().is_empty());
+    }
+}

@@ -337,13 +337,14 @@ fn analyser_colonne(texte: &str, etat: EtatFinancier, ligne: usize) -> Resultat<
             });
         }
     };
-    let compatible = match (etat, col) {
-        (EtatFinancier::BilanActif, ColonneBilan::Brut) => true,
-        (EtatFinancier::BilanActif, ColonneBilan::AmortDeprec) => true,
-        (EtatFinancier::BilanPassif, ColonneBilan::Passif) => true,
-        (EtatFinancier::CompteResultat, ColonneBilan::Resultat) => true,
-        _ => false,
-    };
+    let compatible = matches!(
+        (etat, col),
+        (
+            EtatFinancier::BilanActif,
+            ColonneBilan::Brut | ColonneBilan::AmortDeprec
+        ) | (EtatFinancier::BilanPassif, ColonneBilan::Passif)
+            | (EtatFinancier::CompteResultat, ColonneBilan::Resultat)
+    );
     if !compatible {
         return Err(ErreurEtats::CorrespondanceInvalide {
             ligne,
@@ -463,5 +464,13 @@ mod tests {
         let corr = Correspondances::syscohada().unwrap();
         let r = corr.resoudre(&c("4111"), SensSolde::Nul).unwrap();
         assert_eq!(r.rubrique, "BI");
+        let r_bq = corr.resoudre(&c("5211"), SensSolde::Nul).unwrap();
+        assert_eq!(r_bq.rubrique, "BS");
+        let csv_c = "512;BILAN_PASSIF;PASSIF;DR;Banque;C;+\n";
+        let corr_c = Correspondances::depuis_csv(csv_c).unwrap();
+        assert_eq!(
+            corr_c.resoudre(&c("512"), SensSolde::Nul).unwrap().rubrique,
+            "DR"
+        );
     }
 }
