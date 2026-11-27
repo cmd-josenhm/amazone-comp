@@ -162,8 +162,8 @@ fn ligne_article(row: &rusqlite::Row<'_>) -> rusqlite::Result<Article> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::migrations;
     use ac_donnees::Base;
+    use crate::migrations;
 
     fn base_avec_articles() -> Base {
         let mut base = Base::en_memoire().expect("base en mémoire");

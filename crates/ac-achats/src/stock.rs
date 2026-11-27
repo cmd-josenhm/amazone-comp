@@ -492,9 +492,9 @@ fn journaliser_mouvement(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ac_donnees::{Base, Role};
     use crate::catalogue::article;
     use crate::migrations;
-    use ac_donnees::{Base, Role};
 
     fn base_et_article() -> (Base, Article, Session) {
         let mut base = Base::en_memoire().expect("base en mémoire");
