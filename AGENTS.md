@@ -48,6 +48,8 @@ Une règle de ce fichier ne se négocie pas dans une PR : pour la changer, ouvri
 ## 3. Workflow Git (strict)
 
 1. Branche par tâche, depuis `main` à jour : `aN/<type>-<sujet-court>` (ex. `a4/feat-facture-avoir`). N = ton numéro d'agent.
+   Exception : si la plateforme d'agents impose sa propre branche (`arena/<id>`), garde-la ; la ligne « Agent : **AN** »
+   du modèle de PR devient alors **obligatoire** (le contrôle de périmètre s'en sert pour t'identifier).
 2. Commits **Conventional Commits** en français : `feat(ventes): ajoute les avoirs`, `fix(fiscal): …`, `test(paie): …`, `docs: …`. Types : `feat fix test docs refactor perf chore ci build`.
 3. **Une PR = un sujet**, idéalement < 600 lignes modifiées (hors tests et fichiers générés). Remplir le modèle de PR en entier.
 4. Avant d'ouvrir la PR, en local, tout doit passer :

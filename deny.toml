@@ -29,6 +29,13 @@ allow = [
   "CDLA-Permissive-2.0",
   "AGPL-3.0-only",
 ]
+# Exceptions limitées à une seule crate, justifiées et datées.
+exceptions = [
+  # Sources SQLCipher/SQLite embarquées par rusqlite 0.43 (bundled-sqlcipher, ADR 0005) : « blessing » est la
+  # dédicace au domaine public de SQLite, « WTFPL » une licence libre permissive (compatible GPL selon la FSF).
+  # Aucune obligation incompatible avec l'AGPL-3.0. Issue #16 — 2026-11-27.
+  { allow = ["blessing", "WTFPL"], crate = "sqlcipher-src" },
+]
 
 [bans]
 multiple-versions = "allow"
