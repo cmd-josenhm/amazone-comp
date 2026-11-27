@@ -534,7 +534,7 @@ mod tests {
     fn politique_de_mot_de_passe() {
         assert!(mot_de_passe_valide("motdepasse10").is_ok());
         assert!(mot_de_passe_valide("0123456789").is_ok()); // 10 exactement
-        assert!(mot_de_passe_valide("tropcourt9").is_err()); // 9
+        assert!(mot_de_passe_valide("tropcourt").is_err()); // 9 caractères
         assert!(mot_de_passe_valide(&"a".repeat(201)).is_err());
         assert!(mot_de_passe_valide(&"a".repeat(200)).is_ok()); // limite exacte
     }
@@ -556,8 +556,8 @@ mod tests {
         assert_ne!(a, b, "le sel aléatoire rend chaque hachage unique");
     }
 
-    #[test]
-    fn verrouillage_apres_dix_echecs() {
+    #[tokio::test]
+    async fn verrouillage_apres_dix_echecs() {
         let etat = crate::etat_de_test();
         assert!(!connexion_verrouillee(&etat, "a@b.bj"));
         for _ in 0..SEUIL_VERROUILLAGE {
