@@ -559,5 +559,32 @@ mod tests_propristes {
             prop_assert_eq!(a.ajouter(b).unwrap().soustraire(b).unwrap(), a);
             prop_assert_eq!(a.soustraire(b).unwrap().ajouter(b).unwrap(), a);
         }
+        /// La répartition conserve toujours le total ; les parts gardent le signe du total et
+        /// restent dans ses bornes. Le seul refus possible : total non nul et somme de parts nulle.
+        #[test]
+        fn repartir_conserve_le_total(
+            total in strategie_montant(),
+            parts in proptest::collection::vec(0i64..=1_000, 1..=8),
+        ) {
+            let somme_parts: i64 = parts.iter().sum();
+            match total.repartir(&parts) {
+                Ok(repartition) => {
+                    for part in &repartition {
+                        if total.est_negatif() {
+                            prop_assert!(part.francs() <= 0);
+                        } else {
+                            prop_assert!(part.francs() >= 0);
+                        }
+                        prop_assert!(part.abs().francs() <= total.abs().francs());
+                    }
+                    prop_assert_eq!(repartition.into_iter().sum::<Montant>(), total);
+                }
+                Err(ErreurNoyau::RepartitionImpossible(_)) => {
+                    prop_assert!(!total.est_zero());
+                    prop_assert_eq!(somme_parts, 0);
+                }
+                Err(e) => prop_fail!("erreur inattendue : {e}"),
+            }
+        }
     }
 }
