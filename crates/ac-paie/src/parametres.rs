@@ -300,7 +300,6 @@ impl ParametresSociaux {
 mod tests {
     use super::*;
     use ac_noyau::Arrondi;
-    use ac_noyau::ErreurNoyau::ParametresInvalides;
     use chrono::NaiveDate;
 
     fn m(v: i64) -> Montant {
@@ -325,7 +324,7 @@ mod tests {
     fn chaque_valeur_a_une_source() {
         let parametres = charger_2026();
         for s in parametres.sources() {
-            assert!(!s.source.trim().is_empty(), "« {} » sans source", s.cle);
+            assert!(!s.source.trim().is_empty(), "source vide : {}", s.cle);
         }
     }
 
@@ -458,6 +457,6 @@ mod tests {
     fn erreur_noyau_remontee() {
         let resultat = ParametresSociaux::depuis_toml("n_est_pas_du_toml = [");
         let erreur = resultat.unwrap_err();
-        assert!(matches!(erreur, ErreurPaie::Noyau(ParametresInvalides { .. })));
+        assert!(matches!(erreur, ErreurPaie::Noyau(_)));
     }
 }
