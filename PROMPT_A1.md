@@ -47,6 +47,9 @@ produisent des écritures **par tes fonctions**, et les états financiers lisent
 ## 5. Ce qui existe déjà (à lire avant de coder)
 
 - `ac-noyau` : `Montant` (i64 borné, arrondis), `Taux` (décimal), `Periode`, `Ifu`, `parametres::Valeur`. Testé.
+- `ac_noyau::entreprise` (contrat C11, ADR 0009) : `FicheEntreprise` + `valider(aujourdhui)`, `Rccm`, `Telephone`, `courriel_valide`,
+  listes `Regime`, `FormeJuridique`, `Departement`, `SecteurActivite`. Testé. **Tu en es le gardien** : il est utilisé par A2 (stockage),
+  A3 (formulaire), A10 (plateforme) et `ac_fiscal::Regime` en est un ré-export. Toute modification de champ ou de règle = ADR + issue aux trois agents.
 - `ac-compta` : `NumeroCompte`, `CodeFiscal`, `BrouillonEcriture`, `LigneBrouillon`, `verifier_brouillon`,
   `passer_ecriture` minimal, migration `1000_compta_socle.sql` (tables `compta_compte`, `compta_ecriture`, `compta_ligne`
   + déclencheurs d'immuabilité). Tu **ajoutes** des migrations 1001, 1002… (ne modifie jamais 1000 une fois fusionnée
@@ -59,6 +62,8 @@ produisent des écritures **par tes fonctions**, et les états financiers lisent
 - Ajouter `Quantite` (millièmes, i64) avec `Montant::multiplier_quantite(q, Arrondi)`.
 - `Montant::repartir(parts: &[i64]) -> Vec<Montant>` (répartition sans perte d'un franc : la différence d'arrondi va à la plus grande part).
 - Tests de propriété (`proptest` en dev-dépendance, justifier en PR) : `a + b - b == a`, répartition conserve le total.
+- Fiche entreprise : quand le chef de projet confirme les formats officiels RCCM / téléphone / n° CNSS (issues `fiscal-a-verifier`), durcir
+  `Rccm::format_reconnu` et ajouter la validation du n° CNSS, sans jamais bloquer à tort une entreprise réelle.
 
 ### Lot 2 — Plan de comptes SYSCOHADA (≤ 5 jours)
 - Fichier de données `crates/ac-compta/donnees/plan_syscohada.csv` : **tous** les comptes à 2 et 3 chiffres du plan
@@ -115,7 +120,7 @@ produisent des écritures **par tes fonctions**, et les états financiers lisent
 
 ## 7. Contrats
 
-- **Tu fournis** : C1 (noyau), C3 (écritures), C4 (étiquettes), C5 (plan), C7 (documents). Toute modification de signature publique = ADR.
+- **Tu fournis** : C1 (noyau), C3 (écritures), C4 (étiquettes), C5 (plan), C7 (documents), C11 (fiche entreprise). Toute modification de signature publique = ADR.
 - **Tu consommes** : C2 (`ac-donnees` : `Transaction`, `Session`, `audit::journaliser`).
 
 ## 8. Tests exigés (exemples chiffrés obligatoires)

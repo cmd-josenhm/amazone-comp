@@ -12,12 +12,16 @@ plateforme/
 ├── src/
 │   ├── main.rs
 │   ├── comptes.rs        inscription, connexion, vérification e-mail, mot de passe oublié
+│   ├── entreprises.rs    fiche entreprise (IFU, RCCM…), statut de vérification, justificatifs (ADR 0009)
+│   ├── assistance.rs     conversations, messages, pièces jointes, flux SSE (ADR 0010)
+│   ├── annonces.rs       messages diffusés dans le logiciel
 │   ├── cgu.rs            versions des conditions, acceptations
 │   ├── licences.rs       émission / renouvellement / révocation / transfert (Ed25519)
 │   ├── sauvegardes.rs    dépôt et récupération de blobs chiffrés
 │   ├── avis.rs           avis et critiques des utilisateurs
 │   ├── mises_a_jour.rs   manifeste du plugin updater de Tauri
-│   └── admin.rs          tableau de bord minimal du propriétaire
+│   └── admin/            API de la console : authentification + TOTP, entreprises, licences, audit
+├── web-admin/            console d'administration (React + TypeScript + Vite, design noir et blanc)
 ├── Dockerfile
 ├── docker-compose.yml    plateforme + postgres + caddy
 └── .env.exemple          variables (aucun secret réel)

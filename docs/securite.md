@@ -21,6 +21,9 @@
 | Licence piratée / partagée | Jeton Ed25519 signé par le serveur, lié à l'IFU et à l'empreinte du poste ; révocation côté serveur ; mises à jour et sauvegarde distante réservées aux licences valides | A10 |
 | Injection via fichier importé (CSV/Excel) | Analyse stricte, taille maximale, aucune formule exécutée, aperçu avant import, requêtes SQL paramétrées uniquement | A6, A9 |
 | XSS dans l'interface | CSP stricte (`tauri.conf.json`), pas de `dangerouslySetInnerHTML`, permissions Tauri minimales | A3, A10 |
+| Vol du compte administrateur (console web) | Comptes administrateurs séparés, **2FA TOTP obligatoire**, sous-domaine `admin.` distinct, limitation de débit renforcée, session ≤ 8 h, journal d'audit de toutes les actions | A10 |
+| Fuite des données d'inscription (IFU, RCCM, contacts) ou des conversations d'assistance | Collecte minimale (ADR 0009), accès limité au compte concerné et aux administrateurs, justificatifs facultatifs par défaut, durée de conservation, sauvegardes chiffrées | A10 |
+| Envoi de données sensibles dans l'assistance | Avertissement permanent « jamais de mot de passe ni de clé de secours » ; diagnostic technique sans données comptables, joint seulement avec accord explicite | A10 |
 | Dépendance compromise | `cargo deny`, `npm audit`, Dependabot, nouvelles dépendances justifiées (R12), `package-lock.json` et `Cargo.lock` commités | Chef de projet |
 
 ## Anti-piratage : ce qui est réaliste avec un code ouvert

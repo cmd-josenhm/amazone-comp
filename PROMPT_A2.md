@@ -55,7 +55,13 @@ reposent sur toi : ton API doit être **simple, stable et documentée**.
 - Changement de mot de passe = nouvelle enveloppe (pas de re-chiffrement de la base). Réinitialisation par l'administrateur pour un autre utilisateur.
 
 ### Lot 3 — Dossier, utilisateurs, connexion (≤ 5 jours)
-- `dossier::creer(chemin, entreprise: NouvelleEntreprise, admin: NouvelUtilisateur) -> (Base, CleDeSecours)` : crée le fichier, applique **toutes** les migrations reçues en paramètre, l'entreprise et l'administrateur.
+- `dossier::creer(chemin, entreprise: &FicheEntreprise, compta: ParametresDossier, admin: NouvelUtilisateur) -> (Base, CleDeSecours)` : crée le fichier, applique **toutes** les migrations reçues en paramètre,
+  enregistre l'entreprise et l'administrateur. `FicheEntreprise` vient de `ac_noyau::entreprise` (contrat C11, ADR 0009) : **refuser** une fiche dont
+  `valider(aujourdhui)` contient des erreurs ; stocker les valeurs **normalisées** (`Ifu`, `Rccm::new`, `Telephone::new`) dans `donnees_entreprise`
+  (toutes les colonnes existent déjà dans `0001_socle.sql`). `ParametresDossier { systeme_comptable, debut_exercice }`.
+- `dossier::lire_entreprise(base) -> FicheEntreprise` et `dossier::modifier_entreprise(tx, session, &FicheEntreprise)` (permission `Administrer`, audit `ENTREPRISE_MODIFIEE`
+  avec avant/après ; **l'IFU n'est pas modifiable localement** tant que la plateforme n'a pas approuvé le changement — A10 fournit l'approbation).
+- `dossier::enregistrer_statut_plateforme(tx, plateforme_id, statut)` pour A10 (colonnes `plateforme_id`, `statut_plateforme`).
 - `utilisateurs::{creer, modifier_role, desactiver, lister, changer_mot_de_passe}` (permission `Administrer`, sauf changement de son propre mot de passe).
 - `connexion::ouvrir_session(base, identifiant, mot_de_passe) -> Session` : Argon2id (format PHC), **5 échecs → blocage 15 minutes** (horodatage stocké), audit `CONNEXION` / `ECHEC_CONNEXION`.
 - Politique : mot de passe ≥ 10 caractères, refus des 1 000 mots de passe les plus courants (liste embarquée).

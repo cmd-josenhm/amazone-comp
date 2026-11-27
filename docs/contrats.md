@@ -13,6 +13,7 @@ c'est le code qui fait foi, et ce document doit être corrigé.
 | `Arrondi` | `PlusProche` / `Inferieur` / `Superieur` | Chaque calcul choisit explicitement sa règle et la documente. |
 | `Periode` | Intervalle de dates fermé | `Periode::mois(a, m)`, `Periode::annee(a)`. |
 | `Ifu` | 13 chiffres | Validé à la saisie. |
+| `entreprise::{FicheEntreprise, Regime, FormeJuridique, Departement, SecteurActivite, Rccm, Telephone}` | Fiche légale de l'entreprise | Voir C11 et ADR 0009. `ac_fiscal::Regime` est un ré-export. |
 | `parametres::Valeur<T>` | `{ valeur, source, verifie, note }` | Toute valeur réglementaire. |
 
 Code : `crates/ac-noyau/src/`.
@@ -105,3 +106,17 @@ Les composants viennent de `ui/src/design/composants.tsx`. Aucun style de couleu
 `parametres-fiscaux/<année>/<fichier>.toml`, chaque valeur `{ valeur, source, verifie, note }`. Chargement via
 `ac_fiscal::ParametresAnnee::charger(annee)` (A8) et `ac_paie` pour `social.toml` (A7). L'année applicable est
 celle de **la date de l'opération** (pas la date du jour).
+
+## C11. Fiche entreprise — `ac_noyau::entreprise` (A1, utilisé par A2, A3, A10)
+
+- `FicheEntreprise` : identité légale, IFU, RCCM, fiscalité, activité, adresse, contacts, responsable du compte (liste exacte : ADR 0009).
+- `FicheEntreprise::valider(aujourdhui: Date) -> RapportValidation { erreurs, avertissements }` : **la même validation** dans l'application (assistant de démarrage, Paramètres)
+  et sur la plateforme (inscription). Chaque `ProblemeChamp { champ, message }` nomme le champ (nom Rust) pour que l'interface le surligne.
+- Identifiants validés : `Ifu` (13 chiffres), `Rccm` (normalisé, format `RB/<GREFFE>/<AA> <A|B> <numéro>` en avertissement), `Telephone` (normalisé `+229 01 XX XX XX XX`).
+- Stockage local : `donnees_entreprise` (A2). Stockage plateforme : table `entreprises` (A10). Les deux reprennent **tous** les champs.
+
+## C12. Assistance et annonces (A10)
+
+- Commandes logiciel : `assistance_lister`, `assistance_ouvrir(categorie, sujet, message, pieces, diagnostic)`, `assistance_repondre(id, message, pieces)`, `assistance_marquer_lue(id)`, `annonces_lister`.
+- API plateforme : `/v1/assistance/conversations` (GET/POST), `/v1/assistance/conversations/{id}/messages` (GET/POST, paramètre `depuis` pour la récupération incrémentale), `/v1/annonces` (GET).
+- API console : `/admin/v1/…` (authentification administrateur + TOTP), flux temps réel `/admin/v1/assistance/flux` (SSE).

@@ -19,7 +19,7 @@ validations, modèles) et leurs **tests**, en se basant sur les contrats de `doc
 - A1 : `Montant`/`Taux` finalisés, plan SYSCOHADA complet, exercices/périodes, `passer_ecriture` complète, contre-passation.
 - A2 : SQLCipher + clé enveloppée + clé de secours, utilisateurs/rôles, audit, sauvegarde locale.
 - A3 : coque, design system, connexion, assistant de démarrage (écrans), Paramètres, À propos + avis.
-- A10 : plateforme (comptes, CGU, émission de licence Ed25519), vérification hors ligne dans `ac-licence`.
+- A10 : plateforme (comptes, **inscription des entreprises** avec IFU/RCCM, CGU, émission de licence Ed25519), vérification hors ligne dans `ac-licence`.
 - A8 : chargement typé de tous les paramètres 2026, calculs purs TVA / AIB / minimum de perception / TPS.
 - A7 : barème ITS, CNSS, VPS (fonctions pures + tests).
 - **Jalon M1** : on crée un dossier, on se connecte, on passe une écriture OD équilibrée, licence vérifiée.
@@ -44,12 +44,12 @@ validations, modèles) et leurs **tests**, en se basant sur les contrats de `doc
 
 - A1 : clôture, à-nouveaux. A8 : IS/IBA, minimum, acomptes, TPS annuelle, ITS/VPS mensuels.
 - A9 : bilan, compte de résultat, TFT, notes, DSF ; reprise de données (balance d'ouverture, tiers, articles).
-- A10 : sauvegarde distante chiffrée, restauration, envoi des avis.
+- A10 : sauvegarde distante chiffrée, restauration, envoi des avis, **ASSISTANCE** (module logiciel + console).
 - **Jalon M4** : un exercice complet de démonstration produit des états financiers équilibrés.
 
 ## Mois 5 — Intégration et bêta (avril 2027)
 
-- A10 : installateur NSIS/MSI, mises à jour signées (auto/manuel), page de téléchargement.
+- A10 : installateur NSIS/MSI, mises à jour signées (auto/manuel), page de téléchargement, **console d'administration web** complète (entreprises, licences, annonces, publications).
 - Tous : corrections, performances (PC 4 Go), accessibilité. Tests de bout en bout.
 - **Bêta fermée** avec 5 à 10 PME + **validation fiscale par un expert-comptable** (passage `verifie = true`).
 

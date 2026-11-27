@@ -25,6 +25,12 @@ pub enum ErreurNoyau {
     /// IFU mal formé.
     #[error("IFU invalide : « {0} » (13 chiffres attendus)")]
     IfuInvalide(String),
+    /// Numéro RCCM inutilisable (vide, trop long ou caractères interdits).
+    #[error("numéro RCCM invalide : « {0} »")]
+    RccmInvalide(String),
+    /// Numéro de téléphone béninois invalide.
+    #[error("numéro de téléphone invalide : « {0} » (10 chiffres commençant par 01 attendus)")]
+    TelephoneInvalide(String),
     /// Fichier de paramètres introuvable ou illisible.
     #[error("paramètres introuvables : {0}")]
     ParametresIntrouvables(String),

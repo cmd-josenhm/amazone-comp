@@ -12,4 +12,6 @@ Un agent peut **proposer** un ADR (nouveau fichier, statut « Proposé ») ; il 
 | 0005 | Base locale chiffrée SQLCipher | Accepté |
 | 0006 | Adaptateur MECeF / e-MECeF | Accepté |
 | 0007 | Mises à jour signées et signature de code | Accepté |
-| 0008 | Plateforme en ligne minimale | Accepté |
+| 0008 | Plateforme en ligne minimale | Accepté (complété par 0009 et 0010) |
+| 0009 | Inscription obligatoire des entreprises (IFU, RCCM, identité) | Accepté |
+| 0010 | Console d'administration web et ASSISTANCE | Accepté |

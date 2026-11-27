@@ -40,6 +40,7 @@
         "ui/src/modules/etats/",
         "ui/src/modules/tableau-de-bord/",
         "ui/src/modules/compte/",
+        "ui/src/modules/assistance/",
         "ui/src/pages/a-propos/proprietaire.ts"
       ]
     },
@@ -105,6 +106,7 @@
         "crates/ac-licence/",
         "src-tauri/",
         "ui/src/modules/compte/",
+        "ui/src/modules/assistance/",
         ".github/workflows/release.yml",
         ".github/workflows/plateforme.yml"
       ],

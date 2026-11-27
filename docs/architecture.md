@@ -30,8 +30,13 @@ Version 1.0 du document, novembre 2026. Propriétaire : chef de projet. Toute mo
                                │ HTTPS (seulement si connecté)
 ┌──────────────────────────────┴───────────────────────────────┐
 │  plateforme/ (Rust axum + PostgreSQL, un VPS)                │
-│  comptes · CGU · licences signées Ed25519 · sauvegardes      │
-│  chiffrées (blobs opaques) · avis/critiques · flux de MAJ    │
+│  inscription des entreprises (IFU, RCCM…) · comptes · CGU    │
+│  licences signées Ed25519 · sauvegardes chiffrées (opaques)  │
+│  avis · ASSISTANCE (messagerie) · annonces · flux de MAJ     │
+│                                                              │
+│  plateforme/web-admin/ (React) — console du propriétaire     │
+│  https://admin.<domaine> · 2FA · entreprises · licences      │
+│  ASSISTANCE en temps réel (SSE) · annonces · publications    │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -93,11 +98,12 @@ Conséquence : les états financiers, la balance et les déclarations sont toujo
 
 ## 6. Compte, licence, mises à jour (résumé de l'ADR 0004)
 
-1. Premier lancement : acceptation des CGU (version enregistrée), création de compte ou connexion sur la plateforme (**Internet obligatoire une seule fois**), déclaration de l'entreprise (raison sociale, IFU, régime).
+1. Premier lancement : acceptation des CGU (version enregistrée), création de compte ou connexion sur la plateforme (**Internet obligatoire une seule fois**), **inscription de l'entreprise** avec sa fiche légale complète (IFU, RCCM, forme juridique, adresse, responsable… — ADR 0009), saisie une seule fois et réutilisée par la comptabilité.
 2. La plateforme renvoie une **licence signée Ed25519** : `{compte, entreprise_ifu, empreinte_poste, emise_le, expire_le = +6 mois, offre = "gratuite"}`.
 3. À chaque démarrage : vérification **hors ligne** (signature + date). Renouvellement automatique dès qu'Internet est disponible dans les 30 derniers jours.
 4. Licence expirée : **15 jours de grâce**, puis **mode consultation** (lecture, exports, sauvegarde locale autorisés ; saisie bloquée). On ne prend jamais les données de l'utilisateur en otage.
 5. Mises à jour : uniquement avec licence valide ; paquets signés (Tauri updater). Mode **automatique** ou **manuel**, réglable dans Paramètres.
+6. **Administration** : le propriétaire gère entreprises, licences, annonces et versions depuis la console web, et **discute avec les utilisateurs** via ASSISTANCE (module « Assistance » dans le logiciel ↔ console web) — ADR 0010.
 
 ## 7. Facturation normalisée (résumé de l'ADR 0006)
 

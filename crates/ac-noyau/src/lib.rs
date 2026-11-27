@@ -7,10 +7,12 @@
 //! - [`Arrondi`] : règle d'arrondi au franc.
 //! - [`Periode`] : intervalle de dates fermé.
 //! - [`Ifu`] : Identifiant fiscal unique béninois.
+//! - [`entreprise`] : fiche légale de l'entreprise (IFU, RCCM, adresse…) et sa validation (ADR 0009).
 //! - [`parametres`] : lecture des paramètres versionnés (`parametres-fiscaux/<année>/*.toml`).
 
 #![forbid(unsafe_code)]
 
+pub mod entreprise;
 pub mod erreur;
 pub mod identifiants;
 pub mod montant;
@@ -18,6 +20,7 @@ pub mod parametres;
 pub mod periode;
 pub mod taux;
 
+pub use entreprise::{FicheEntreprise, RapportValidation, Regime};
 pub use erreur::ErreurNoyau;
 pub use identifiants::Ifu;
 pub use montant::{Arrondi, Montant};

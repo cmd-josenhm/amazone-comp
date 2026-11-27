@@ -130,4 +130,26 @@ mod tests {
         let r = b.migrer(&[migrations(), migrations()]);
         assert!(matches!(r, Err(ErreurDonnees::MigrationInvalide(_))));
     }
+
+    const INSERER_ENTREPRISE: &str = "INSERT INTO donnees_entreprise (id, raison_sociale, forme_juridique,
+        date_creation, ifu, rccm, regime_fiscal, centre_impots, secteur, activite_principale, departement,
+        commune, adresse, telephone, courriel, responsable_nom, responsable_prenoms, responsable_fonction,
+        responsable_telephone, responsable_courriel, systeme_comptable, debut_exercice)
+        VALUES (1, 'Boutique Exemple SARL', 'SARL', '2021-03-15', ?1, 'RB/COT/21 B 12345', 'REEL_SIMPLIFIE',
+        'CIME Cotonou', 'COMMERCE', 'Fournitures de bureau', 'LITTORAL', 'Cotonou', 'Ganhi',
+        '+2290197123456', 'contact@exemple.bj', 'AHOUANSOU', 'Marie', 'Gérante', '+2290166001122',
+        'marie@exemple.bj', 'NORMAL', '2026-01-01')";
+
+    #[test]
+    fn fiche_entreprise_contraintes() {
+        let mut b = Base::en_memoire().unwrap();
+        b.migrer(&[migrations()]).unwrap();
+        let c = b.connexion();
+        // IFU de 12 chiffres puis IFU avec une lettre : refusés par la base
+        assert!(c.execute(INSERER_ENTREPRISE, ["320191234567"]).is_err());
+        assert!(c.execute(INSERER_ENTREPRISE, ["320191234567A"]).is_err());
+        assert_eq!(c.execute(INSERER_ENTREPRISE, ["3201912345678"]).unwrap(), 1);
+        // un seul dossier par base
+        assert!(c.execute(INSERER_ENTREPRISE, ["3201912345678"]).is_err());
+    }
 }

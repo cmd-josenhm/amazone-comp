@@ -1,7 +1,7 @@
 # PROMPT A3 — Interface : coque, design system, assistant de démarrage, Paramètres, À propos et avis
 
 > **Lis d'abord, dans cet ordre :** `AGENTS.md` (règles R1 à R14, **non négociables**), ce fichier, `docs/architecture.md` (§8),
-> `docs/contrats.md` (C8, C9), `docs/design-system.md`.
+> `docs/contrats.md` (C8, C9, C11), `docs/design-system.md`, `docs/adr/0009-inscription-des-entreprises.md`.
 > Tu ne connais pas le projet : **ne devine rien**. Question ou blocage : issue GitHub `agent:a3` + `question`.
 
 ## 1. Le projet en une minute
@@ -22,7 +22,7 @@ la page **À propos** avec le **formulaire d'avis/critiques**, l'aide et l'acces
 
 | Autorisé | Interdit |
 |---|---|
-| `ui/` **sauf** les dossiers `ui/src/modules/<module>/` des autres agents ; `ui/src/modules/registre.ts` et `ui/src/modules/types.ts` sont à toi ; `src-tauri/src/commandes/systeme.rs` ; `docs/modules/interface.md` | `ui/src/modules/{comptabilite,ventes,achats,tresorerie,paie,fiscal,etats,tableau-de-bord,compte}/`, **`ui/src/pages/a-propos/proprietaire.ts`** (seul le chef de projet y met les informations personnelles du propriétaire), tout le Rust hors `systeme.rs`. |
+| `ui/` **sauf** les dossiers `ui/src/modules/<module>/` des autres agents ; `ui/src/modules/registre.ts` et `ui/src/modules/types.ts` sont à toi ; `src-tauri/src/commandes/systeme.rs` ; `docs/modules/interface.md` | `ui/src/modules/{comptabilite,ventes,achats,tresorerie,paie,fiscal,etats,tableau-de-bord,compte,assistance}/`, **`ui/src/pages/a-propos/proprietaire.ts`** (seul le chef de projet y met les informations personnelles du propriétaire), tout le Rust hors `systeme.rs`. |
 
 ## 4. Connaissances indispensables
 
@@ -66,15 +66,25 @@ Documenter chaque composant dans `docs/design-system.md` (section « Composants 
 Les 7 étapes de `Demarrage.tsx`, chacune un écran de l'`Assistant` :
 1. **Conditions d'utilisation** : texte fourni par la plateforme (A10) ; case « J'ai lu et j'accepte » obligatoire ; version enregistrée.
 2. **Compte AMAZONE COMP** : créer un compte ou se connecter (Internet nécessaire **une seule fois**, message clair si hors ligne).
-3. **Entreprise** : raison sociale, IFU (13 chiffres, validé), RCCM, forme juridique (EI, SARL, SA, SAS, SNC, GIE, autre), adresse, téléphone,
-   **régime fiscal** (réel normal / réel simplifié / TPS) avec une **aide au choix** simple (questions : forme juridique, CA annuel estimé) — la règle de décision est fournie par A8 (commande `fiscal_suggerer_regime`), pas codée ici.
+3. **Inscription de l'entreprise** (obligatoire, ADR 0009) : la fiche complète `FicheEntreprise`, en **sous-étapes** courtes pour ne pas décourager :
+   a) *Identité* : raison sociale ★, nom commercial, sigle, forme juridique ★ (liste `FormeJuridique`), date de création ★ ;
+   b) *Identifiants* : IFU ★ (13 chiffres, aide « où le trouver ? »), RCCM ★ (exemple `RB/COT/23 B 12345`), n° employeur CNSS (★ si effectif > 0) ;
+   c) *Fiscalité et activité* : **régime fiscal** ★ avec une **aide au choix** simple (questions : forme juridique, CA annuel estimé — la règle est fournie
+      par A8, commande `fiscal_suggerer_regime`, pas codée ici), centre des impôts ★, secteur ★, activité principale ★, effectif ;
+   d) *Adresse et contact* : département ★ (12), commune ★, quartier / rue ★, BP, téléphone ★ (`01 XX XX XX XX`), courriel ★, site web ;
+   e) *Responsable du compte* : nom ★, prénoms ★, fonction ★, téléphone ★, courriel ★ (pré-rempli depuis l'étape 2) ;
+   f) *Justificatifs* (attestation IFU, extrait RCCM) : facultatifs sauf si la plateforme indique « vérification renforcée ».
+   **Aucune validation n'est codée en TypeScript** : à chaque « Suivant », appeler la commande de validation (A10, qui appelle `FicheEntreprise::valider`)
+   et afficher **sous chaque champ** les `erreurs` (bloquantes, rouge) et `avertissements` (non bloquants, à confirmer). Résumé relisible avant envoi.
+   La fiche est envoyée à la plateforme **et** enregistrée dans le dossier local (commandes A10 `compte_inscrire_entreprise`, `dossier_creer`).
+   Après l'envoi, afficher le statut : « Inscription reçue — en cours de vérification » (l'utilisateur peut travailler sauf si la plateforme exige une vérification préalable).
 4. **Administrateur** : identifiant, mot de passe (jauge de robustesse), **affichage et impression de la clé de secours** avec case « Je l'ai notée et rangée ».
 5. **Comptabilité** : date de début d'exercice, système (normal / minimal de trésorerie, suggestion par A8), comptes de trésorerie (banques, caisse, Mobile Money : MTN MoMo, Moov Money, Celtiis — **facultatifs**).
 6. **Reprise de données** (facultative) : renvoie vers l'assistant « Reprise » de A9.
 7. **Terminé** : visite guidée en 5 bulles du tableau de bord.
 
 ### Lot 5 — Paramètres (≤ 4 jours)
-Sections : **Dossier** (infos entreprise, régime — changement réservé à l'administrateur avec avertissement), **Utilisateurs et rôles** (liste, ajout, rôle, désactivation, réinitialisation),
+Sections : **Dossier** (la fiche entreprise complète, mêmes champs et même validation qu'à l'inscription, statut de vérification de la plateforme ; régime — changement réservé à l'administrateur avec avertissement ; **IFU non modifiable** ici : bouton « Demander un changement d'IFU » qui passe par la plateforme), **Utilisateurs et rôles** (liste, ajout, rôle, désactivation, réinitialisation),
 **Mises à jour** (automatique / manuel, « Rechercher maintenant », version installée — logique A10), **Sauvegardes** (locales : dossier, fréquence, « Sauvegarder maintenant », « Restaurer » ; en ligne : renvoi vers le module Compte),
 **Sécurité** (délai de verrouillage, « Vérifier l'intégrité des données » → rapport A2, journal d'audit consultable), **Modules facultatifs** (activer/désactiver Mobile Money, Stocks, Paie).
 
