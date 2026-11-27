@@ -31,6 +31,15 @@ pub enum ErreurNoyau {
     /// Numéro de téléphone béninois invalide.
     #[error("numéro de téléphone invalide : « {0} » (10 chiffres commençant par 01 attendus)")]
     TelephoneInvalide(String),
+    /// Quantité hors des bornes autorisées (± [`crate::Quantite::MAX`] millièmes).
+    #[error("quantité hors limites : {0} millièmes")]
+    QuantiteHorsLimites(i128),
+    /// Texte qui ne représente pas une quantité valide (ex. plus de 3 décimales).
+    #[error("quantité invalide : « {0} » (nombre décimal simple attendu, au plus 3 décimales, séparateur , ou .)")]
+    QuantiteInvalide(String),
+    /// Répartition d'un montant impossible avec les parts fournies.
+    #[error("répartition impossible : {0}")]
+    RepartitionImpossible(String),
     /// Fichier de paramètres introuvable ou illisible.
     #[error("paramètres introuvables : {0}")]
     ParametresIntrouvables(String),
