@@ -242,9 +242,9 @@ impl Montant {
         let mut resultats = Vec::with_capacity(parts_calculees.len());
         let _ = &resultats;
         for &part in &parts_calculees {
-            let valeur = signe * part;
-            let francs = i64::try_from(arrondi_francs)
-                .map_err(|_| ErreurNoyau::MontantHorsLimites(arrondi_francs))?;
+            let valeur_de_la_part = signe * part;
+            let francs = i64::try_from(valeur_de_la_part)
+                .map_err(|_| ErreurNoyau::MontantHorsLimites(valeur_de_la_part))?;
             resultats.push(Montant::new(francs)?);
         }
         Ok(resultats)
