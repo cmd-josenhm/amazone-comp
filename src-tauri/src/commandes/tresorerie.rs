@@ -61,7 +61,12 @@ pub fn tresorerie_comptes(
     let (_session, mut garde_base) = ouvrir(&etat, Permission::Consulter)?;
     let base = garde_base
         .as_mut()
-        .ok_or_else(|| ErreurCommande::new("AUCUNE_BASE", "Aucun dossier ouvert : ouvrir un dossier d'abord"))?;
+        .ok_or_else(|| {
+            ErreurCommande::new(
+                "AUCUNE_BASE",
+                "Aucun dossier ouvert : ouvrir un dossier d'abord",
+            )
+        })?;
     let tx = base.transaction().map_err(erreur_donnees)?;
     ac_tresorerie::compte::comptes(&tx).map_err(erreur_tresorerie)
 }
@@ -76,7 +81,12 @@ pub fn tresorerie_compte_creer(
     let (session, mut garde_base) = ouvrir(&etat, Permission::Valider)?;
     let base = garde_base
         .as_mut()
-        .ok_or_else(|| ErreurCommande::new("AUCUNE_BASE", "Aucun dossier ouvert : ouvrir un dossier d'abord"))?;
+        .ok_or_else(|| {
+            ErreurCommande::new(
+                "AUCUNE_BASE",
+                "Aucun dossier ouvert : ouvrir un dossier d'abord",
+            )
+        })?;
     let tx = base.transaction().map_err(erreur_donnees)?;
     let compte = ac_tresorerie::compte::creer_compte(&tx, &session, &params)
         .map_err(erreur_tresorerie)?;
@@ -93,7 +103,12 @@ pub fn tresorerie_compte_afficher(
     let (_session, mut garde_base) = ouvrir(&etat, Permission::Consulter)?;
     let base = garde_base
         .as_mut()
-        .ok_or_else(|| ErreurCommande::new("AUCUNE_BASE", "Aucun dossier ouvert : ouvrir un dossier d'abord"))?;
+        .ok_or_else(|| {
+            ErreurCommande::new(
+                "AUCUNE_BASE",
+                "Aucun dossier ouvert : ouvrir un dossier d'abord",
+            )
+        })?;
     let tx = base.transaction().map_err(erreur_donnees)?;
     ac_tresorerie::compte::compte_par_id(&tx, id).map_err(erreur_tresorerie)
 }
@@ -106,7 +121,12 @@ pub fn tresorerie_soldes(
     let (_session, mut garde_base) = ouvrir(&etat, Permission::Consulter)?;
     let base = garde_base
         .as_mut()
-        .ok_or_else(|| ErreurCommande::new("AUCUNE_BASE", "Aucun dossier ouvert : ouvrir un dossier d'abord"))?;
+        .ok_or_else(|| {
+            ErreurCommande::new(
+                "AUCUNE_BASE",
+                "Aucun dossier ouvert : ouvrir un dossier d'abord",
+            )
+        })?;
     let tx = base.transaction().map_err(erreur_donnees)?;
     ac_tresorerie::compte::soldes_comptes(&tx).map_err(erreur_tresorerie)
 }
@@ -119,7 +139,12 @@ pub fn tresorerie_configuration(
     let (_session, mut garde_base) = ouvrir(&etat, Permission::Consulter)?;
     let base = garde_base
         .as_mut()
-        .ok_or_else(|| ErreurCommande::new("AUCUNE_BASE", "Aucun dossier ouvert : ouvrir un dossier d'abord"))?;
+        .ok_or_else(|| {
+            ErreurCommande::new(
+                "AUCUNE_BASE",
+                "Aucun dossier ouvert : ouvrir un dossier d'abord",
+            )
+        })?;
     let tx = base.transaction().map_err(erreur_donnees)?;
     ac_tresorerie::compte::configuration(&tx).map_err(erreur_tresorerie)
 }
@@ -133,7 +158,12 @@ pub fn tresorerie_mobile_money_configurer(
     let (session, mut garde_base) = ouvrir(&etat, Permission::Administrer)?;
     let base = garde_base
         .as_mut()
-        .ok_or_else(|| ErreurCommande::new("AUCUNE_BASE", "Aucun dossier ouvert : ouvrir un dossier d'abord"))?;
+        .ok_or_else(|| {
+            ErreurCommande::new(
+                "AUCUNE_BASE",
+                "Aucun dossier ouvert : ouvrir un dossier d'abord",
+            )
+        })?;
     let tx = base.transaction().map_err(erreur_donnees)?;
     let configuration =
         ac_tresorerie::compte::configurer_mobile_money(&tx, &session, actif)
@@ -150,7 +180,12 @@ pub fn tresorerie_operateurs(
     let (_session, mut garde_base) = ouvrir(&etat, Permission::Consulter)?;
     let base = garde_base
         .as_mut()
-        .ok_or_else(|| ErreurCommande::new("AUCUNE_BASE", "Aucun dossier ouvert : ouvrir un dossier d'abord"))?;
+        .ok_or_else(|| {
+            ErreurCommande::new(
+                "AUCUNE_BASE",
+                "Aucun dossier ouvert : ouvrir un dossier d'abord",
+            )
+        })?;
     let tx = base.transaction().map_err(erreur_donnees)?;
     ac_tresorerie::compte::operateurs(&tx).map_err(erreur_tresorerie)
 }
@@ -164,7 +199,12 @@ pub fn tresorerie_operateur_creer(
     let (session, mut garde_base) = ouvrir(&etat, Permission::Administrer)?;
     let base = garde_base
         .as_mut()
-        .ok_or_else(|| ErreurCommande::new("AUCUNE_BASE", "Aucun dossier ouvert : ouvrir un dossier d'abord"))?;
+        .ok_or_else(|| {
+            ErreurCommande::new(
+                "AUCUNE_BASE",
+                "Aucun dossier ouvert : ouvrir un dossier d'abord",
+            )
+        })?;
     let tx = base.transaction().map_err(erreur_donnees)?;
     let operateur = ac_tresorerie::compte::creer_operateur(&tx, &session, &params)
         .map_err(erreur_tresorerie)?;
