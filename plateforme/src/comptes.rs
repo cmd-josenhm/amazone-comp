@@ -319,13 +319,17 @@ async fn ouvrir_session(
         ));
     }
     let Some((compte_id, hash, _verifie)) = compte_par_courriel(&etat, &courriel).await? else {
-        return Err(ErreurApi::invalide(
+        return Err(ErreurApi::nouvelle(
+            StatusCode::UNAUTHORIZED,
+            "IDENTIFIANTS_INVALIDES",
             "Adresse électronique ou mot de passe incorrect.",
         ));
     };
     if !verifier_mot_de_passe(&corps.mot_de_passe, &hash) {
         enregistrer_echec_connexion(&etat, &courriel);
-        return Err(ErreurApi::invalide(
+        return Err(ErreurApi::nouvelle(
+            StatusCode::UNAUTHORIZED,
+            "IDENTIFIANTS_INVALIDES",
             "Adresse électronique ou mot de passe incorrect.",
         ));
     }
