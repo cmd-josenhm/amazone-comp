@@ -222,8 +222,7 @@ pub fn creer(
             details: &details_audit(&code, &informations.nom),
         },
     )?;
-    obtenir_tx(tx, id)?
-        .ok_or(ErreurVentes::DonneeIncoherente(format!("client {id}")))
+    obtenir_tx(tx, id)?.ok_or(ErreurVentes::DonneeIncoherente(format!("client {id}")))
 }
 
 /// Modifie un client existant (sauf le client « Comptant »), avec journal d'audit.
@@ -268,8 +267,7 @@ pub fn modifier(
             details: &details_audit(&existant.code, &informations.nom),
         },
     )?;
-    obtenir_tx(tx, id)?
-        .ok_or(ErreurVentes::DonneeIncoherente(format!("client {id}")))
+    obtenir_tx(tx, id)?.ok_or(ErreurVentes::DonneeIncoherente(format!("client {id}")))
 }
 
 /// Désactive un client (jamais de suppression : un client facturé reste dans l'historique).
@@ -737,7 +735,13 @@ mod tests {
         {
             let tx = base.transaction().unwrap();
             let client = creer(&tx, &saisie, &informations("Boutique Étoile")).unwrap();
-            modifier(&tx, &saisie, client.id, &informations("Boutique Étoile SARL")).unwrap();
+            modifier(
+                &tx,
+                &saisie,
+                client.id,
+                &informations("Boutique Étoile SARL"),
+            )
+            .unwrap();
             desactiver(&tx, &saisie, client.id).unwrap();
             tx.commit().unwrap();
         }

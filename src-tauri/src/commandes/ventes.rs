@@ -108,8 +108,7 @@ pub fn ventes_client_obtenir(
 ) -> Result<Client, ErreurCommande> {
     avec_dossier(&etat, |base, session| {
         session.exiger(Permission::Consulter)?;
-        clients::obtenir(base.connexion(), id)?
-            .ok_or(ErreurVentes::ClientInconnu(id))
+        clients::obtenir(base.connexion(), id)?.ok_or(ErreurVentes::ClientInconnu(id))
     })
 }
 
