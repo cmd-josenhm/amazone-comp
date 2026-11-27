@@ -30,7 +30,10 @@ macro_rules! gestionnaire_commandes {
             crate::commandes::tresorerie::tresorerie_compte_creer,
             crate::commandes::tresorerie::tresorerie_compte_afficher,
             crate::commandes::tresorerie::tresorerie_soldes,
+            crate::commandes::tresorerie::tresorerie_configuration,
+            crate::commandes::tresorerie::tresorerie_mobile_money_configurer,
             crate::commandes::tresorerie::tresorerie_operateurs,
+            crate::commandes::tresorerie::tresorerie_operateur_creer,
             // --- A7 : paie ---
             // --- A8 : fiscalité ---
             // --- A9 : états et tableau de bord ---

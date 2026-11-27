@@ -14,7 +14,8 @@ pub mod erreur;
 pub mod journal;
 
 pub use compte::{
-    CreerCompte, TresorerieCompte, TresorerieOperateur, TresorerieSolde, TypeCompte, masquer,
+    CreerCompte, CreerOperateur, TresorerieCompte, TresorerieConfiguration, TresorerieOperateur,
+    TresorerieSolde, TypeCompte, masquer,
 };
 pub use erreur::ErreurTresorerie;
 

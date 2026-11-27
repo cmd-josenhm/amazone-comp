@@ -1,15 +1,13 @@
-//! Journaux comptables déclarés par les comptes de trésorerie (table `compta_journal`, migration 4000).
+//! Journaux comptables déclarés par les comptes de trésorerie.
 //!
-//! `A1` fournit [`ac_compta::journal::creer`] dans `ac-compta` (contrat C3) ; pour le Lot 1,
-//! les journaux sont enregistrés ici via [`journal_creer`] et alloués via [`journal_prochant_code`]
-//! (codes standards `BQn` et `MMn` du contrat C3).
+//! La branche principale ne fournit pas encore `ac_compta::journal::creer` ; ces deux fonctions
+//! restent privées au crate et utilisent la structure `compta_journal` prévue par le contrat C3.
 
 use ac_donnees::Transaction;
 
 use crate::{ErreurTresorerie, Resultat};
 
-/// Code de journal valide : 2 à 4 caractères ASCII majuscules ou chiffres, au moins une lettre
-/// (ex. `BQ1`, `MM2`, `CA`).
+/// Code de journal valide : 2 à 4 caractères ASCII majuscules ou chiffres, avec une lettre.
 fn code_valide(code: &str) -> bool {
     (2..=4).contains(&code.len())
         && code
@@ -18,48 +16,64 @@ fn code_valide(code: &str) -> bool {
         && code.chars().any(|c| c.is_ascii_alphabetic())
 }
 
-/// Enregistre un journal dans `compta_journal` (idempotent : PK sur le code).
-pub fn journal_creer(tx: &Transaction, code: &str, libelle: &str) -> Resultat<()> {
+/// Enregistre un journal de trésorerie (idempotent : clé primaire sur le code).
+pub(crate) fn journal_creer(
+    tx: &Transaction<'_>,
+    code: &str,
+    libelle: &str,
+    compte_tresorerie: Option<&str>,
+) -> Resultat<()> {
     if !code_valide(code) {
         return Err(ErreurTresorerie::JournalCodeInvalide(code.to_owned()));
     }
+    if libelle.trim().is_empty() {
+        return Err(ErreurTresorerie::JournalLibelleVide);
+    }
     tx.execute(
-        "INSERT OR IGNORE INTO compta_journal (code, libelle) VALUES (?1, ?2)",
-        [code, libelle],
+        "INSERT OR IGNORE INTO compta_journal (code, libelle, type, compte_tresorerie)
+         VALUES (?1, ?2, 'TRESORERIE', ?3)",
+        ac_donnees::rusqlite::params![code, libelle, compte_tresorerie],
     )?;
     Ok(())
 }
 
-/// Prochain code libre pour un préfixe donné : `BQ` → `BQ1`, `BQ2`, …
-/// (lecture des codes déjà présents dans `compta_journal`).
-pub fn journal_prochant_code(tx: &Transaction, prefixe: &str) -> Resultat<String> {
-    let mut stmt = tx.prepare("SELECT code FROM compta_journal ORDER BY code")?;
-    let mut codes: Vec<String> = Vec::new();
-    let mut lignes = stmt.query([])?;
-    while let Some(ligne) = lignes.next()? {
-        let code: String = ligne.get(0)?;
-        if code.starts_with(prefixe) {
-            codes.push(code);
+/// Prochain code libre : `BQ` → `BQ1`, `BQ2`, … ; `MM` → `MM1`, `MM2`, …
+pub(crate) fn journal_prochain_code(
+    tx: &Transaction<'_>,
+    prefixe: &str,
+) -> Resultat<String> {
+    for numero in 1..=99 {
+        let code = format!("{prefixe}{numero}");
+        if !code_valide(&code) {
+            return Err(ErreurTresorerie::JournalCodeInvalide(code));
+        }
+        let existe: bool = tx.query_row(
+            "SELECT EXISTS(SELECT 1 FROM compta_journal WHERE code = ?1)",
+            [&code],
+            |ligne| ligne.get(0),
+        )?;
+        if !existe {
+            return Ok(code);
         }
     }
-    let mut max = 0;
-    for code in codes {
-        if let Ok(n) = code.trim_start_matches(prefixe).parse::<i64>() {
-            max = max.max(n);
-        }
-    }
-    Ok(format!("{prefixe}{}", max + 1))
+    Err(ErreurTresorerie::JournalIndisponible(
+        prefixe.to_owned(),
+    ))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ac_donnees::{Base, Role, Session};
+    use ac_donnees::Base;
 
     fn base_test() -> Base {
         let mut base = Base::en_memoire().unwrap();
-        base.migrer(&[ac_donnees::base::migrations(), crate::migrations()])
-            .unwrap();
+        base.migrer(&[
+            ac_donnees::base::migrations(),
+            ac_compta::migrations(),
+            crate::migrations(),
+        ])
+        .unwrap();
         base
     }
 
@@ -70,29 +84,60 @@ mod tests {
         assert!(code_valide("MM2"));
         assert!(!code_valide("Bq"));
         assert!(!code_valide("B"));
+        assert!(!code_valide("1234"));
         assert!(!code_valide("bqq1"));
     }
 
     #[test]
-    fn journal_prochant_code_a_completion() {
-        let base = base_test();
+    fn journal_prochain_code_commence_a_un() {
+        let mut base = base_test();
         let tx = base.transaction().unwrap();
-        assert_eq!(journal_prochant_code(&tx, "BQ").unwrap(), "BQ1");
+        assert_eq!(journal_prochain_code(&tx, "BQ").unwrap(), "BQ1");
     }
 
     #[test]
-    fn journal_prochant_code_incremente() {
-        let base = base_test();
+    fn journal_prochain_code_choisit_le_premier_libre() {
+        let mut base = base_test();
         let tx = base.transaction().unwrap();
-        journal_creer(&tx, "BQ1", "Banque OBA").unwrap();
-        assert_eq!(journal_prochant_code(&tx, "BQ").unwrap(), "BQ2");
+        journal_creer(&tx, "BQ1", "Banque OBA", None).unwrap();
+        journal_creer(&tx, "BQ3", "Banque de l'Est", None).unwrap();
+        assert_eq!(journal_prochain_code(&tx, "BQ").unwrap(), "BQ2");
+    }
+
+    #[test]
+    fn journal_prochain_code_refuse_si_tous_utilises() {
+        let mut base = base_test();
+        let tx = base.transaction().unwrap();
+        for numero in 1..=99 {
+            let code = format!("BQ{numero}");
+            journal_creer(&tx, &code, "Banque", None).unwrap();
+        }
+        assert!(matches!(
+            journal_prochain_code(&tx, "BQ"),
+            Err(ErreurTresorerie::JournalIndisponible(_))
+        ));
     }
 
     #[test]
     fn journal_creer_rejette_code_invalide() {
-        let base = base_test();
+        let mut base = base_test();
         let tx = base.transaction().unwrap();
-        let e = journal_creer(&tx, "bq1", "Banque OBA").unwrap_err();
-        assert_eq!(e.code(), "JOURNAL_CODE_INVALIDE");
+        let erreur = journal_creer(&tx, "bq1", "Banque OBA", None).unwrap_err();
+        assert_eq!(erreur.code(), "JOURNAL_CODE_INVALIDE");
+    }
+
+    #[test]
+    fn journal_tresorerie_est_enregistre_dans_la_meme_base() {
+        let mut base = base_test();
+        let tx = base.transaction().unwrap();
+        journal_creer(&tx, "CA", "Journal de caisse", None).unwrap();
+        let type_journal: String = tx
+            .query_row(
+                "SELECT type FROM compta_journal WHERE code = 'CA'",
+                [],
+                |ligne| ligne.get(0),
+            )
+            .unwrap();
+        assert_eq!(type_journal, "TRESORERIE");
     }
 }

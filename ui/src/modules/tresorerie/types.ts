@@ -6,7 +6,7 @@ export interface TresorerieCompte {
   type_compte: TypeCompte;
   libelle: string;
   banque_operateur?: string | null;
-  /** Numéro de compte ou de téléphone masqué par Rust (4 derniers chiffres). */
+  /** Numéro de compte ou de téléphone masqué par Rust (4 derniers caractères visibles). */
   numero?: string | null;
   compte_comptable: string;
   journal: string;
@@ -28,10 +28,21 @@ export interface TresorerieOperateur {
   actif: boolean;
 }
 
+export interface TresorerieConfiguration {
+  mobile_money_actif: boolean;
+}
+
 export type CreerCompteParams = {
   type_compte: TypeCompte;
   libelle: string;
   banque_operateur?: string | null;
   numero?: string | null;
   solde_ouverture: number;
-}
+  piece_ouverture?: string | null;
+  compte_contrepartie_ouverture?: string | null;
+};
+
+export type CreerOperateurParams = {
+  nom: string;
+  libelle?: string | null;
+};

@@ -106,9 +106,12 @@ dependencies = [
 name = "ac-tresorerie"
 version = "0.1.0"
 dependencies = [
+ "ac-compta",
  "ac-donnees",
+ "ac-noyau",
  "chrono",
  "serde",
+ "serde_json",
  "thiserror 2.0.21",
 ]
 
