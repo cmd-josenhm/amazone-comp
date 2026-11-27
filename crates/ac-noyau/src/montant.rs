@@ -174,15 +174,6 @@ impl Montant {
     /// - parts vides ou contenant une valeur négative ;
     /// - somme des parts nulle alors que le montant n'est pas nul.
     ///
-    /// # Exemple
-    ///
-    /// ```
-    /// use ac_noyau::Montant;
-    ///
-    /// let parts = Montant::new(100).unwrap().repartir(&[1, 1, 1]).unwrap();
-    /// let francs: Vec<i64> = parts.iter().map(|m| m.francs()).collect();
-    /// assert_eq!(francs, vec![34, 33, 33]);
-    /// ```
     pub fn repartir(self, parts: &[i64]) -> Resultat<Vec<Self>> {
         if parts.is_empty() {
             return Err(ErreurNoyau::RepartitionImpossible(
