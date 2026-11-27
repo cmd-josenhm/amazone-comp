@@ -58,9 +58,9 @@ impl Quantite {
 
     /// Crée une quantité depuis un nombre entier d'unités (ex. `2` → 2,000).
     pub fn depuis_unites(unites: i64) -> Resultat<Self> {
-        let milliemes = unites.checked_mul(1_000).ok_or(
-            ErreurNoyau::QuantiteHorsLimites(i128::from(unites) * 1_000),
-        )?;
+        let milliemes = unites
+            .checked_mul(1_000)
+            .ok_or(ErreurNoyau::QuantiteHorsLimites(i128::from(unites) * 1_000))?;
         Self::depuis_milliemes(milliemes)
     }
 
@@ -118,9 +118,9 @@ impl Quantite {
         if milliemes_abs > i128::from(Self::MAX) {
             return Err(ErreurNoyau::QuantiteHorsLimites(milliemes_abs));
         }
-        let milliemes =
-            i64::try_from(if negatif { -milliemes_abs } else { milliemes_abs })
-                .map_err(|_| ErreurNoyau::QuantiteHorsLimites(milliemes_abs))?;
+        let signe = if negatif { -1i128 } else { 1i128 };
+        let milliemes = i64::try_from(signe * milliemes_abs)
+            .map_err(|_| ErreurNoyau::QuantiteHorsLimites(milliemes_abs))?;
         Self::depuis_milliemes(milliemes)
     }
 
@@ -256,8 +256,21 @@ mod tests {
     #[test]
     fn construction_par_texte_refus() {
         for texte in [
-            "", "   ", ",", ".", "-", "+", "3,5,5", "3,5555", "abc", "1 2", "1e3", "--2",
-            "0x10", "1,234 5", "99999999999999999999999999",
+            "",
+            "   ",
+            ",",
+            ".",
+            "-",
+            "+",
+            "3,5,5",
+            "3,5555",
+            "abc",
+            "1 2",
+            "1e3",
+            "--2",
+            "0x10",
+            "1,234 5",
+            "99999999999999999999999999",
         ] {
             assert!(
                 Quantite::depuis_texte(texte).is_err(),
@@ -321,7 +334,9 @@ mod tests {
         assert_eq!(serde_json::to_string(&q(1_500)).unwrap(), "1500");
         let lu: Quantite = serde_json::from_str("-42").unwrap();
         assert_eq!(lu, q(-42));
-        assert!(serde_json::from_str::<Quantite>("1000000000000001").is_err());
+        assert!(Quantite::try_from(1_000_000_000_000_001i64).is_err());
+        let hors_bornes = serde_json::from_str::<Quantite>("2000000000000000");
+        assert!(hors_bornes.is_err());
         assert!(serde_json::from_str::<Quantite>("12.5").is_err());
     }
 }

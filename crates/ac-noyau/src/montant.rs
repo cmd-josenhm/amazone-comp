@@ -223,9 +223,7 @@ impl Montant {
                 let produit = total_abs * i128::from(part);
                 let quotient = produit / somme_parts;
                 let reste = produit % somme_parts;
-                let double = reste
-                    .checked_mul(2)
-                    .ok_or(ErreurNoyau::Depassement)?;
+                let double = reste.checked_mul(2).ok_or(ErreurNoyau::Depassement)?;
                 if double >= somme_parts {
                     Ok(quotient + 1)
                 } else {
@@ -427,20 +425,28 @@ mod tests {
         // 0,333 × 1 001 FCFA = 333,333 → 333 FCFA au plus proche (exemple de l'issue n° 9)
         let tiers = Quantite::depuis_texte("0,333").unwrap();
         assert_eq!(
-            m(1_001).multiplier_quantite(tiers, Arrondi::PlusProche).unwrap(),
+            m(1_001)
+                .multiplier_quantite(tiers, Arrondi::PlusProche)
+                .unwrap(),
             m(333)
         );
         assert_eq!(
-            m(1_001).multiplier_quantite(tiers, Arrondi::Inferieur).unwrap(),
+            m(1_001)
+                .multiplier_quantite(tiers, Arrondi::Inferieur)
+                .unwrap(),
             m(333)
         );
         assert_eq!(
-            m(1_001).multiplier_quantite(tiers, Arrondi::Superieur).unwrap(),
+            m(1_001)
+                .multiplier_quantite(tiers, Arrondi::Superieur)
+                .unwrap(),
             m(334)
         );
         // Cas zéro, dans les deux sens
         assert_eq!(
-            prix.multiplier_quantite(Quantite::ZERO, Arrondi::PlusProche).unwrap(),
+            prix
+                .multiplier_quantite(Quantite::ZERO, Arrondi::PlusProche)
+                .unwrap(),
             Montant::ZERO
         );
         assert_eq!(
@@ -451,9 +457,18 @@ mod tests {
         );
         // Cas d'arrondi exact à 0,5 : le demi-franc s'éloigne de zéro
         let demi = Quantite::depuis_texte("0,5").unwrap();
-        assert_eq!(m(1).multiplier_quantite(demi, Arrondi::PlusProche).unwrap(), m(1));
-        assert_eq!(m(1).multiplier_quantite(demi, Arrondi::Inferieur).unwrap(), m(0));
-        assert_eq!(m(1).multiplier_quantite(demi, Arrondi::Superieur).unwrap(), m(1));
+        assert_eq!(
+            m(1).multiplier_quantite(demi, Arrondi::PlusProche).unwrap(),
+            m(1)
+        );
+        assert_eq!(
+            m(1).multiplier_quantite(demi, Arrondi::Inferieur).unwrap(),
+            m(0)
+        );
+        assert_eq!(
+            m(1).multiplier_quantite(demi, Arrondi::Superieur).unwrap(),
+            m(1)
+        );
         // Symétrie pour les avoirs (montants négatifs)
         assert_eq!(
             m(-1_250)
@@ -462,7 +477,9 @@ mod tests {
             m(-4_375)
         );
         assert_eq!(
-            m(-1).multiplier_quantite(demi, Arrondi::PlusProche).unwrap(),
+            m(-1)
+                .multiplier_quantite(demi, Arrondi::PlusProche)
+                .unwrap(),
             m(-1)
         );
         assert_eq!(
@@ -470,7 +487,12 @@ mod tests {
             m(0)
         );
         // Multiplication par une unité exacte et dépassement des bornes
-        assert_eq!(prix.multiplier_quantite(Quantite::UN, Arrondi::PlusProche).unwrap(), prix);
+        assert_eq!(
+            prix
+                .multiplier_quantite(Quantite::UN, Arrondi::PlusProche)
+                .unwrap(),
+            prix
+        );
         assert!(m(Montant::MAX)
             .multiplier_quantite(Quantite::depuis_texte("1,001").unwrap(), Arrondi::PlusProche)
             .is_err());
@@ -553,12 +575,14 @@ mod tests_propristes {
     use proptest::prelude::*;
 
     fn strategie_montant() -> impl Strategy<Value = Montant> {
-        (-Montant::MAX..=Montant::MAX).prop_map(|v| Montant::new(v).unwrap())
+        (-Montant::MAX..=Montant::MAX)
+            .prop_map(|v| Montant::new(v).unwrap())
     }
 
     fn strategie_montant_moyen() -> impl Strategy<Value = Montant> {
         // |a| + |b| ≤ Montant::MAX : les méthodes contrôlées ne peuvent pas échouer aux bornes.
-        (-Montant::MAX / 2..=Montant::MAX / 2).prop_map(|v| Montant::new(v).unwrap())
+        (-Montant::MAX / 2..=Montant::MAX / 2)
+            .prop_map(|v| Montant::new(v).unwrap())
     }
 
     proptest! {
