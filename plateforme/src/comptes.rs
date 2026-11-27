@@ -25,11 +25,7 @@ use rand::{thread_rng, RngCore};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-use crate::{
-    courriel::{self, EnvoyeurCourriel},
-    erreur::ErreurApi,
-    jetons, Etat,
-};
+use crate::{courriel, erreur::ErreurApi, jetons, Etat};
 
 /// Nombre de mots de passe faux avant le verrouillage temporaire du compte.
 pub const SEUIL_VERROUILLAGE: u64 = 10;

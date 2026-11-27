@@ -24,7 +24,7 @@ use axum::{
 use tower::{Layer, Service};
 
 /// Classe de route : chaque classe a son propre budget de requêtes.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ClasseDebit {
     /// Création de compte, envoi de codes.
     Inscription,

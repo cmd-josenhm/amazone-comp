@@ -173,8 +173,11 @@ pub fn est_conflit_unicite(e: &sqlx::Error) -> bool {
 
 /// Date du jour au Bénin (UTC+1), pour la validation des fiches entreprise.
 pub fn aujourdhui() -> ac_noyau::Date {
-    let decalage = chrono::FixedOffset::east_opt(3600).unwrap_or_else(Utc::fix);
-    Utc::now().with_timezone(&decalage).date_naive()
+    let maintenant = Utc::now();
+    match chrono::FixedOffset::east_opt(3600) {
+        Some(decalage) => maintenant.with_timezone(&decalage).date_naive(),
+        None => maintenant.date_naive(),
+    }
 }
 
 /// Construit le routeur complet de l'API `/v1` (limitation de débit comprise).

@@ -111,10 +111,11 @@ pub fn octets_depuis_hex(texte: &str) -> Option<[u8; 32]> {
 
 /// Convertit 32 octets en 64 caractères hexadécimaux minuscules.
 pub fn hex_depuis_octets(octets: &[u8]) -> String {
+    const HEX: [u8; 16] = *b"0123456789abcdef";
     let mut sortie = String::with_capacity(octets.len() * 2);
     for o in octets {
-        sortie.push(char::from_digit(u32::from(o / 16), 16));
-        sortie.push(char::from_digit(u32::from(o % 16), 16));
+        sortie.push(char::from(HEX[usize::from(o / 16)]));
+        sortie.push(char::from(HEX[usize::from(o % 16)]));
     }
     sortie
 }
