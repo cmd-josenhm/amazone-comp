@@ -20,7 +20,7 @@ valeur = [
 ]
 source = "CGI 2026, art. 125 — barème mensuel de l'ITS"
 verifie = false
-note = "Une source ancienne (formulaire administratif) cite un premier seuil de 50 000 FCFA. Vérifier l'article 125 du CGI 2026."
+note = "Une source ancienne (formulaire administratif) cite un premier seuil de 50 000 FCFA. Vérifier l'article 125 du CGI 2026 (issue fiscal-a-verifier #43)."
 
 [its_redevance_audiovisuelle]
 valeur = [ { mois = 3, montant = 1000 }, { mois = 6, montant = 3000 } ]
@@ -79,7 +79,26 @@ valeur = "0.015"
 source = "Code de sécurité sociale — majoration de 1,5 % par mois de retard"
 verifie = false
 
+[its_base_imposable]
+valeur = "non_tranchee"
+source = "CGI 2026, art. 119 à 129 (ITS) — base imposable : brut ou brut moins CNSS salarié, à confirmer"
+verifie = false
+note = "Point non tranché (issue fiscal-a-verifier #44). Aucun calcul définitif tant que la valeur vaut non_tranchee. Aucun abattement ni quotient familial : aucune source écrite."
+
+[cnss_periodicite]
+valeur = "non_tranchee"
+source = "Code de sécurité sociale du Bénin / CNSS — périodicité et date limite de déclaration et de paiement (à identifier)"
+verifie = false
+note = "Mensuelle ou trimestrielle selon l'effectif selon nos sources ; seuil d'effectif et date limite non confirmés (issue fiscal-a-verifier #47)."
+
+[heures_supplementaires_majorations]
+valeur = []
+source = "Code du travail du Bénin — majorations des heures supplémentaires (texte à identifier)"
+verifie = false
+note = "Liste vide = taux non renseignés (issue fiscal-a-verifier #49). Ne rien calculer tant que la liste est vide."
+
 [smig_mensuel]
 valeur = 52000
 source = "Décret fixant le SMIG au Bénin (52 000 FCFA depuis 2023 — à confirmer)"
 verifie = false
+note = "Montant à confirmer par le décret en vigueur (issue fiscal-a-verifier #48)."
