@@ -38,7 +38,7 @@ edition = "2021"
 rust-version = "1.80"
 license = "AGPL-3.0-only"
 authors = ["A COMPLETER"]
-repository = "https://github.com/A-COMPLETER/amazone-comp"
+repository = "https://github.com/cmd-josenhm/amazone-comp"
 publish = false
 
 [workspace.dependencies]
