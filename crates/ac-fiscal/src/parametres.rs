@@ -149,9 +149,7 @@ mod tests {
             let elements: Vec<&toml::Table> = match valeur {
                 toml::Value::Table(t) => vec![t],
                 toml::Value::Array(a) => a.iter().filter_map(|v| v.as_table()).collect(),
-                _ => panic!(
-                    "{nom} : « {cle} » doit être une table {{ valeur, source, verifie }}"
-                ),
+                _ => panic!("{nom} : « {cle} » doit être une table {{ valeur, source, verifie }}"),
             };
             for element in elements {
                 resultat.push((cle.clone(), element.clone()));
