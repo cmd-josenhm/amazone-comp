@@ -6,6 +6,8 @@
 //
 // L'agent est déduit du préfixe de branche « aN/ ». Les branches « chef/ » (chef de projet),
 // « dependabot/ » et « ext/ » (contributeurs externes, relus à la main) ne sont pas restreintes.
+// Les branches « arena/<id> » (imposées par la plateforme d'agents Arena) : l'agent est lu dans la
+// description de la PR, ligne « Agent : **AN** » du modèle (variable d'environnement CORPS_PR en CI).
 
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
@@ -27,11 +29,16 @@ if (!agent && branche) {
     process.exit(0);
   }
   if (/^a\d+$/.test(prefixe)) agent = prefixe;
+  if (prefixe === "arena") {
+    const trouve = /Agent\s*:\s*\**\s*A(\d+)\b/i.exec(process.env.CORPS_PR ?? "");
+    if (trouve) agent = `a${trouve[1]}`;
+  }
 }
 
 if (!agent) {
   console.error(
-    "ERREUR : impossible de déterminer l'agent. Nommer la branche « aN/<type>-<sujet> » (ex. a4/feat-avoirs).",
+    "ERREUR : impossible de déterminer l'agent. Nommer la branche « aN/<type>-<sujet> » (ex. a4/feat-avoirs) ou, " +
+      "pour une branche « arena/… », remplir la ligne « Agent : **AN** » de la description de PR.",
   );
   process.exit(2);
 }
