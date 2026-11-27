@@ -15,10 +15,16 @@ use serde::Deserialize;
 use crate::erreur::ErreurPaie;
 use crate::its::Tranche;
 
+/// `social.toml` 2026, embarqué à la compilation.
+const SOCIAL_2026: &str = include_str!("../../../parametres-fiscaux/2026/social.toml");
+
+/// Clé TOML de la redevance audiovisuelle (utilisée dans les messages d'erreur).
+const CLE_REDEVANCE: &str = "its_redevance_audiovisuelle";
+
 /// Contenu embarqué de `social.toml` pour une année, s'il existe.
 fn fichier_embarque(annee: i32) -> Option<&'static str> {
     match annee {
-        2026 => Some(include_str!("../../../parametres-fiscaux/2026/social.toml")),
+        2026 => Some(SOCIAL_2026),
         _ => None,
     }
 }
@@ -147,13 +153,13 @@ fn valider_bareme(bareme: &[Tranche]) -> Result<(), ErreurPaie> {
         match tranche.jusqu_a {
             Some(haut) if i < derniere => {
                 if haut <= borne {
-                    return Err(incoherent(CLE, "bornes non strictement croissantes"));
+                    return Err(incoherent(CLE, "bornes non croissantes"));
                 }
                 borne = haut;
             }
-            Some(_) => return Err(incoherent(CLE, "la dernière tranche doit être sans borne")),
+            Some(_) => return Err(incoherent(CLE, "dernière tranche bornée")),
             None if i == derniere => {}
-            None => return Err(incoherent(CLE, "seule la dernière tranche peut être sans borne")),
+            None => return Err(incoherent(CLE, "tranche sans borne au milieu")),
         }
     }
     Ok(())
@@ -162,10 +168,7 @@ fn valider_bareme(bareme: &[Tranche]) -> Result<(), ErreurPaie> {
 fn valider_redevance(echeances: &[EcheanceRedevance]) -> Result<(), ErreurPaie> {
     for echeance in echeances {
         if !(1..=12).contains(&echeance.mois) {
-            return Err(incoherent(
-                "its_redevance_audiovisuelle",
-                "mois hors de l'intervalle 1 à 12",
-            ));
+            return Err(incoherent(CLE_REDEVANCE, "mois hors de 1 à 12"));
         }
     }
     Ok(())
@@ -174,7 +177,9 @@ fn valider_redevance(echeances: &[EcheanceRedevance]) -> Result<(), ErreurPaie> 
 impl ParametresSociaux {
     /// Charge les paramètres sociaux embarqués d'une année.
     pub fn charger(annee: i32) -> Result<Self, ErreurPaie> {
-        let contenu = fichier_embarque(annee).ok_or(ErreurPaie::AnneeInconnue(annee))?;
+        let Some(contenu) = fichier_embarque(annee) else {
+            return Err(ErreurPaie::AnneeInconnue(annee));
+        };
         let parametres = Self::depuis_toml(contenu)?;
         if parametres.en_tete.annee != annee {
             return Err(ErreurPaie::AnneeIncoherente {
@@ -201,18 +206,14 @@ impl ParametresSociaux {
     fn valider(&self) -> Result<(), ErreurPaie> {
         valider_bareme(&self.its_bareme_mensuel.valeur)?;
         valider_redevance(&self.its_redevance_audiovisuelle.valeur)?;
-        let (min, max) = (
-            self.cnss_risques_professionnels_min.valeur,
-            self.cnss_risques_professionnels_max.valeur,
-        );
+        let min = self.cnss_risques_professionnels_min.valeur;
+        let max = self.cnss_risques_professionnels_max.valeur;
         if min > max {
-            return Err(incoherent(
-                "cnss_risques_professionnels_min",
-                "supérieur au taux maximum",
-            ));
+            return Err(incoherent("cnss_risques_professionnels_min", "au-dessus du max"));
         }
-        if self.smig_mensuel.valeur.francs() <= 0 {
-            return Err(incoherent("smig_mensuel", "doit être strictement positif"));
+        let smig = self.smig_mensuel.valeur.francs();
+        if smig <= 0 {
+            return Err(incoherent("smig_mensuel", "doit être positif"));
         }
         Ok(())
     }
@@ -241,11 +242,9 @@ impl ParametresSociaux {
 
     /// Montant de la redevance audiovisuelle retenue pour un mois (1 à 12), s'il y en a une.
     pub fn redevance_audiovisuelle(&self, mois: u32) -> Option<Montant> {
-        self.its_redevance_audiovisuelle
-            .valeur
-            .iter()
-            .find(|echeance| echeance.mois == mois)
-            .map(|echeance| echeance.montant)
+        let echeances = &self.its_redevance_audiovisuelle.valeur;
+        let echeance = echeances.iter().find(|e| e.mois == mois);
+        echeance.map(|e| e.montant)
     }
 
     /// Majorations d'heures supplémentaires. Liste vide tant que l'issue #49 n'est pas close.
@@ -258,9 +257,15 @@ impl ParametresSociaux {
         vec![
             source("its_bareme_mensuel", &self.its_bareme_mensuel),
             source("its_base_imposable", &self.its_base_imposable),
-            source("its_redevance_audiovisuelle", &self.its_redevance_audiovisuelle),
+            source(
+                "its_redevance_audiovisuelle",
+                &self.its_redevance_audiovisuelle,
+            ),
             source("vps_taux", &self.vps_taux),
-            source("vps_taux_enseignement_prive", &self.vps_taux_enseignement_prive),
+            source(
+                "vps_taux_enseignement_prive",
+                &self.vps_taux_enseignement_prive,
+            ),
             source("vps_exonere_tps", &self.vps_exonere_tps),
             source(
                 "cnss_prestations_familiales_employeur",
@@ -294,7 +299,8 @@ impl ParametresSociaux {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ac_noyau::{Arrondi, ErreurNoyau};
+    use ac_noyau::Arrondi;
+    use ac_noyau::ErreurNoyau::ParametresInvalides;
     use chrono::NaiveDate;
 
     fn m(v: i64) -> Montant {
@@ -309,9 +315,16 @@ mod tests {
         ParametresSociaux::charger(2026).unwrap()
     }
 
+    /// Cotisation sur un salaire brut de 300 000 FCFA.
+    fn sur_300_000(t: Taux) -> Montant {
+        let brut = m(300_000);
+        brut.appliquer_taux(t, Arrondi::PlusProche).unwrap()
+    }
+
     #[test]
     fn chaque_valeur_a_une_source() {
-        for s in charger_2026().sources() {
+        let parametres = charger_2026();
+        for s in parametres.sources() {
             assert!(!s.source.trim().is_empty(), "« {} » sans source", s.cle);
         }
     }
@@ -333,11 +346,10 @@ mod tests {
 
     #[test]
     fn cle_inconnue_refusee() {
-        let contenu = format!(
-            "{}\n[cle_inconnue]\nvaleur = 1\nsource = \"test\"\nverifie = false\n",
-            fichier_embarque(2026).unwrap()
-        );
-        assert!(ParametresSociaux::depuis_toml(&contenu).is_err());
+        let base = fichier_embarque(2026).unwrap();
+        let extra = "\n[cle_inconnue]\nvaleur = 1\nsource = \"test\"\nverifie = false\n";
+        let resultat = ParametresSociaux::depuis_toml(&format!("{base}{extra}"));
+        assert!(resultat.is_err());
     }
 
     #[test]
@@ -345,18 +357,14 @@ mod tests {
         let fin_2026 = NaiveDate::from_ymd_opt(2026, 12, 31).unwrap();
         assert!(ParametresSociaux::pour_date(fin_2026).is_ok());
         let debut_2027 = NaiveDate::from_ymd_opt(2027, 1, 1).unwrap();
-        assert_eq!(
-            ParametresSociaux::pour_date(debut_2027).unwrap_err(),
-            ErreurPaie::AnneeInconnue(2027)
-        );
+        let resultat = ParametresSociaux::pour_date(debut_2027);
+        assert_eq!(resultat.unwrap_err(), ErreurPaie::AnneeInconnue(2027));
     }
 
     #[test]
     fn annee_inconnue() {
-        assert_eq!(
-            ParametresSociaux::charger(1999).unwrap_err(),
-            ErreurPaie::AnneeInconnue(1999)
-        );
+        let resultat = ParametresSociaux::charger(1999);
+        assert_eq!(resultat.unwrap_err(), ErreurPaie::AnneeInconnue(1999));
     }
 
     #[test]
@@ -378,30 +386,27 @@ mod tests {
     #[test]
     fn cotisations_sur_300_000() {
         let p = charger_2026();
-        let brut = m(300_000);
-        let calcul = |t: Taux| brut.appliquer_taux(t, Arrondi::PlusProche).unwrap();
-        // 3,6 % de 300 000 = 10 800
-        assert_eq!(calcul(p.cnss_pension_salarie.valeur), m(10_800));
-        // 9 % de 300 000 = 27 000
-        assert_eq!(calcul(p.cnss_prestations_familiales_employeur.valeur), m(27_000));
-        // 6,4 % de 300 000 = 19 200
-        assert_eq!(calcul(p.cnss_pension_employeur.valeur), m(19_200));
-        // 1 % de 300 000 = 3 000 (taux minimum de risques professionnels)
-        assert_eq!(calcul(p.cnss_risques_professionnels_min.valeur), m(3_000));
-        // 4 % de 300 000 = 12 000 (VPS)
-        assert_eq!(calcul(p.vps_taux.valeur), m(12_000));
-        // 2 % de 300 000 = 6 000 (VPS, enseignement privé)
-        assert_eq!(calcul(p.vps_taux_enseignement_prive.valeur), m(6_000));
+        let salarie = p.cnss_pension_salarie.valeur;
+        assert_eq!(sur_300_000(salarie), m(10_800));
+        let prestations = p.cnss_prestations_familiales_employeur.valeur;
+        assert_eq!(sur_300_000(prestations), m(27_000));
+        let pension = p.cnss_pension_employeur.valeur;
+        assert_eq!(sur_300_000(pension), m(19_200));
+        let risques = p.cnss_risques_professionnels_min.valeur;
+        assert_eq!(sur_300_000(risques), m(3_000));
+        let vps = p.vps_taux.valeur;
+        assert_eq!(sur_300_000(vps), m(12_000));
+        let vps_privee = p.vps_taux_enseignement_prive.valeur;
+        assert_eq!(sur_300_000(vps_privee), m(6_000));
     }
 
     /// Salaire nul : aucune cotisation, et pas de plafond quand le fichier vaut 0.
     #[test]
     fn salaire_nul_et_pas_de_plafond() {
         let p = charger_2026();
-        assert_eq!(
-            m(0).appliquer_taux(p.cnss_pension_salarie.valeur, Arrondi::PlusProche),
-            Ok(m(0))
-        );
+        let taux_salarie = p.cnss_pension_salarie.valeur;
+        let cotisation = m(0).appliquer_taux(taux_salarie, Arrondi::PlusProche);
+        assert_eq!(cotisation, Ok(m(0)));
         assert_eq!(p.plafond_cnss_mensuel(), None);
     }
 
@@ -427,14 +432,14 @@ mod tests {
             jusqu_a: haut.map(m),
             taux: Taux::ZERO,
         };
-        assert!(valider_bareme(&[tranche(Some(100)), tranche(None)]).is_ok());
+        let bon = [tranche(Some(100)), tranche(None)];
+        assert!(valider_bareme(&bon).is_ok());
         assert!(valider_bareme(&[]).is_err());
-        // bornes décroissantes
-        assert!(valider_bareme(&[tranche(Some(100)), tranche(Some(50)), tranche(None)]).is_err());
-        // dernière tranche bornée
+        let decroissant = [tranche(Some(100)), tranche(Some(50)), tranche(None)];
+        assert!(valider_bareme(&decroissant).is_err());
         assert!(valider_bareme(&[tranche(Some(100))]).is_err());
-        // tranche sans borne au milieu
-        assert!(valider_bareme(&[tranche(None), tranche(Some(100))]).is_err());
+        let sans_borne_au_milieu = [tranche(None), tranche(Some(100))];
+        assert!(valider_bareme(&sans_borne_au_milieu).is_err());
     }
 
     #[test]
@@ -443,17 +448,16 @@ mod tests {
             mois,
             montant: m(1_000),
         };
-        assert!(valider_redevance(&[echeance(1), echeance(12)]).is_ok());
+        let bon = [echeance(1), echeance(12)];
+        assert!(valider_redevance(&bon).is_ok());
         assert!(valider_redevance(&[echeance(0)]).is_err());
         assert!(valider_redevance(&[echeance(13)]).is_err());
     }
 
     #[test]
     fn erreur_noyau_remontee() {
-        let r = ParametresSociaux::depuis_toml("n_est_pas_du_toml = [");
-        assert!(matches!(
-            r,
-            Err(ErreurPaie::Noyau(ErreurNoyau::ParametresInvalides { .. }))
-        ));
+        let resultat = ParametresSociaux::depuis_toml("n_est_pas_du_toml = [");
+        let erreur = resultat.unwrap_err();
+        assert!(matches!(erreur, ErreurPaie::Noyau(ParametresInvalides { .. })));
     }
 }

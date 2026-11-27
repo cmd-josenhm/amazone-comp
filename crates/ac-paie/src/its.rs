@@ -51,7 +51,8 @@ mod tests {
     }
 
     fn bareme_2026() -> Vec<Tranche> {
-        ParametresSociaux::charger(2026).unwrap().bareme_its().to_vec()
+        let parametres = ParametresSociaux::charger(2026).unwrap();
+        parametres.bareme_its().to_vec()
     }
 
     #[test]
