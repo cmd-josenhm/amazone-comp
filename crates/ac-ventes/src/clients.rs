@@ -654,6 +654,7 @@ mod tests {
             creer(&tx, &saisie, &etoile).unwrap();
             creer(&tx, &saisie, &amen).unwrap();
             creer(&tx, &saisie, &cent).unwrap();
+            tx.commit().unwrap();
         }
         let conn = base.connexion();
 
