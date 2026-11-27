@@ -34,7 +34,11 @@ jobs:
           echo "$TITRE" | grep -Eq '^(feat|fix|test|docs|refactor|perf|chore|ci|build)(\([a-z0-9-]+\))?!?: .{5,}' \
             || { echo "Titre invalide. Exemple : « feat(ventes): ajoute les avoirs »"; exit 1; }
       - name: Fichiers modifiés dans le périmètre (règle R10)
-        run: node scripts/verifier-perimetre.mjs --branche "${{ github.head_ref }}" --base "origin/${{ github.base_ref }}"
+        env:
+          BRANCHE: ${{ github.head_ref }}
+          BASE: ${{ github.base_ref }}
+          CORPS_PR: ${{ github.event.pull_request.body }}
+        run: node scripts/verifier-perimetre.mjs --branche "$BRANCHE" --base "origin/$BASE"
 
   rust:
     name: Rust (Windows) — format, lint, tests, couverture
