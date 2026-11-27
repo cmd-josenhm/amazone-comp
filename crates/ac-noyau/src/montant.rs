@@ -534,4 +534,89 @@ mod tests {
 #[cfg(test)]
 mod tests_propristes {
     use super::*;
+    use proptest::prelude::*;
+
+    fn strategie_montant() -> impl Strategy<Value = Montant> {
+        (-Montant::MAX..=Montant::MAX)
+            .prop_map(|v| Montant::new(v).unwrap())
+    }
+
+    fn strategie_montant_moyen() -> impl Strategy<Value = Montant> {
+        // |a| + |b| ≤ Montant::MAX : les méthodes contrôlées ne peuvent pas échouer aux bornes.
+        (-Montant::MAX / 2..=Montant::MAX / 2)
+            .prop_map(|v| Montant::new(v).unwrap())
+    }
+
+    proptest! {
+        /// a + b − b == a, avec les opérateurs (les bornes rendent ces calculs exacts en i64).
+        #[test]
+        fn addition_et_soustraction_s_inversent(a in strategie_montant(), b in strategie_montant()) {
+            prop_assert_eq!(a + b - b, a);
+            prop_assert_eq!(b - a + a, b);
+        }
+
+        /// Idem avec les méthodes contrôlées, pour des montants restant dans les bornes.
+        #[test]
+        fn ajouter_soustraire_s_inversent(a in strategie_montant_moyen(), b in strategie_montant_moyen()) {
+            prop_assert_eq!(a.ajouter(b).unwrap().soustraire(b).unwrap(), a);
+            prop_assert_eq!(a.soustraire(b).unwrap().ajouter(b).unwrap(), a);
+        }
+
+        /// La répartition conserve toujours le total ; les parts gardent le signe du total et
+        /// restent dans ses bornes. Le seul refus possible : total non nul et somme de parts nulle.
+        #[test]
+        fn repartir_conserve_le_total(
+            total in strategie_montant(),
+            parts in proptest::collection::vec(0i64..=1_000, 1..=8),
+        ) {
+            let somme_parts: i64 = parts.iter().sum();
+            match total.repartir(&parts) {
+                Ok(repartition) => {
+                    for part in &repartition {
+                        if total.est_negatif() {
+                            prop_assert!(part.francs() <= 0);
+                        } else {
+                            prop_assert!(part.francs() >= 0);
+                        }
+                        prop_assert!(part.abs().francs() <= total.abs().francs());
+                    }
+                    prop_assert_eq!(repartition.into_iter().sum::<Montant>(), total);
+                }
+                Err(ErreurNoyau::RepartitionImpossible(_)) => {
+                    prop_assert!(!total.est_zero());
+                    prop_assert_eq!(somme_parts, 0);
+                }
+                Err(e) => prop_fail!("erreur inattendue : {e}"),
+            }
+        }
+
+        /// Multiplier par une unité exacte ne change rien ; multiplier par zéro annule tout.
+        #[test]
+        fn multiplier_quantite_cas_triviaux(a in strategie_montant()) {
+            for arrondi in [Arrondi::PlusProche, Arrondi::Inferieur, Arrondi::Superieur] {
+                prop_assert_eq!(a.multiplier_quantite(Quantite::UN, arrondi).unwrap(), a);
+                prop_assert_eq!(
+                    a.multiplier_quantite(Quantite::ZERO, arrondi).unwrap(),
+                    Montant::ZERO
+                );
+            }
+        }
+
+        /// La multiplication par une quantité positive conserve l'ordre, quel que soit l'arrondi.
+        /// Quantité ≤ 1 unité : le résultat reste dans les bornes de `Montant`.
+        #[test]
+        fn multiplier_quantite_monotone(
+            a in strategie_montant(),
+            b in strategie_montant(),
+            milliemes in 0i64..=1_000,
+        ) {
+            let q = Quantite::depuis_milliemes(milliemes).unwrap();
+            for arrondi in [Arrondi::PlusProche, Arrondi::Inferieur, Arrondi::Superieur] {
+                let pa = a.multiplier_quantite(q, arrondi).unwrap();
+                let pb = b.multiplier_quantite(q, arrondi).unwrap();
+                prop_assert_eq!(a <= b, pa <= pb);
+            }
+        }
+    }
+    }
 }
