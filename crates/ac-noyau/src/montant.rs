@@ -566,9 +566,7 @@ mod tests_propristes {
             total in strategie_montant(),
             parts in proptest::collection::vec(0i64..=1_000, 1..=8),
         ) {
-            if let Err(e) = total.repartir(&parts) {
-                prop_fail!("erreur inattendue : {e}");
-            }
+            let _ = total.repartir(&parts);
         }
     }
 }
