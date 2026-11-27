@@ -618,5 +618,4 @@ mod tests_propristes {
             }
         }
     }
-    }
 }
