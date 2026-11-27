@@ -1,0 +1,4 @@
+# Toute PR exige la revue du chef de projet / propriétaire.
+# Remplacer @A-COMPLETER par le compte GitHub du propriétaire dès qu'il sera connu.
+# Les périmètres des agents sont contrôlés par scripts/verifier-perimetre.mjs (.github/perimetres.json).
+*                       @A-COMPLETER

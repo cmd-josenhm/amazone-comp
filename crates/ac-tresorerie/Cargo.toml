@@ -1,0 +1,19 @@
+[package]
+name = "ac-tresorerie"
+description = "Trésorerie : banques, caisse, Mobile Money (MTN MoMo, Moov Money, Celtiis), rapprochement, import de relevés."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+ac-donnees.workspace = true
+chrono.workspace = true
+serde.workspace = true
+thiserror.workspace = true

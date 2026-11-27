@@ -1,0 +1,36 @@
+[package]
+name = "amazone-comp"
+description = "AMAZONE COMP — application de bureau (Tauri 2)."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+name = "amazone_comp_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+ac-noyau.workspace = true
+ac-donnees.workspace = true
+ac-compta.workspace = true
+ac-fiscal.workspace = true
+ac-ventes.workspace = true
+ac-achats.workspace = true
+ac-tresorerie.workspace = true
+ac-paie.workspace = true
+ac-etats.workspace = true
+ac-licence.workspace = true

@@ -1,0 +1,20 @@
+[package]
+name = "ac-donnees"
+description = "Base locale SQLite chiffrée, migrations, journal d'audit chaîné, utilisateurs et rôles."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+chrono.workspace = true
+rusqlite.workspace = true
+serde.workspace = true
+sha2.workspace = true
+thiserror.workspace = true

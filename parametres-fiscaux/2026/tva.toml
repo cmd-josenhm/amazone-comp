@@ -1,0 +1,63 @@
+# TVA — Bénin — année 2026. Propriétaire : A8. AUCUNE valeur vérifiée (verifie = false).
+
+[en_tete]
+annee = 2026
+textes = [
+  "Code général des impôts du Bénin, édition 2026 (livre TVA, art. 223 à 262 — articles précis à vérifier)",
+  "Loi de finances pour la gestion 2026 (adoptée le 4 décembre 2025 — numéro à vérifier : loi n° 2025-22 ?)",
+]
+mis_a_jour_le = "2026-11-27"
+
+[taux_normal]
+valeur = "0.18"
+source = "CGI 2026, livre TVA — taux unique de 18 %"
+verifie = false
+
+[taux_exportation]
+valeur = "0"
+source = "CGI 2026, livre TVA — exportations et opérations assimilées"
+verifie = false
+
+[seuil_assujettissement_ca_ht]
+valeur = 50000000
+source = "CGI 2026 — seuil du régime réel / limite de la TPS, fixé par arrêté du ministre des Finances"
+verifie = false
+note = "En dessous du seuil : TPS (pas de TVA facturée), option possible pour le réel."
+
+[jour_limite_declaration]
+valeur = 10
+source = "CGI 2026 — déclaration et paiement au plus tard le 10 du mois suivant"
+verifie = false
+
+[limite_deduction_btp_industrie]
+valeur = "0.90"
+source = "LF 2026 — déduction limitée à 90 % de la TVA supportée pour les entreprises du BTP et les industries"
+verifie = false
+note = "Mesure rapportée par la presse (Banouto, Daabaaru). Champ exact (quels achats ?) à confirmer sur le texte."
+
+[deduction_carburant_autorisee]
+valeur = true
+source = "LF 2026 — TVA d'amont sur carburant déductible si utilisé pour l'objet social"
+verifie = false
+
+[retenue_tva_sur_fournisseur_tps]
+valeur = "1"
+source = "CGI 2026 — retenue de TVA par les structures désignées : 100 % lorsque le fournisseur relève de la TPS"
+verifie = false
+note = "Concerne l'État, les collectivités, les sociétés publiques et les entreprises désignées par la DGI."
+
+[retenue_tva_sur_fournisseur_reel]
+valeur = "0.40"
+source = "CGI 2026 — retenue de TVA par les structures désignées : 40 % pour les autres fournisseurs"
+verifie = false
+
+[retenue_tva_non_resident]
+valeur = "1"
+source = "CGI 2026 — retenue de 100 % sur les prestataires étrangers non domiciliés"
+verifie = false
+
+[services_numeriques_etrangers_taxables]
+valeur = true
+source = "LF 2026 — extension de la TVA aux services numériques fournis par des opérateurs étrangers"
+verifie = false
+note = "Une seule source secondaire (cabinet). Impact faible pour une PME."

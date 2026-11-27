@@ -1,0 +1,86 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/ac-noyau",
+    "crates/ac-donnees",
+    "crates/ac-compta",
+    "crates/ac-documents",
+    "crates/ac-fiscal",
+    "crates/ac-ventes",
+    "crates/ac-achats",
+    "crates/ac-tresorerie",
+    "crates/ac-paie",
+    "crates/ac-etats",
+    "crates/ac-licence",
+    "src-tauri",
+]
+# La plateforme en ligne (A10) est un projet Rust séparé, avec son propre Cargo.lock.
+exclude = ["plateforme"]
+# `cargo build` / `cargo test` sans option ne compilent que le cœur métier (rapide).
+# `cargo test --workspace` compile aussi l'application Tauri.
+default-members = [
+    "crates/ac-noyau",
+    "crates/ac-donnees",
+    "crates/ac-compta",
+    "crates/ac-documents",
+    "crates/ac-fiscal",
+    "crates/ac-ventes",
+    "crates/ac-achats",
+    "crates/ac-tresorerie",
+    "crates/ac-paie",
+    "crates/ac-etats",
+    "crates/ac-licence",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+license = "AGPL-3.0-only"
+authors = ["A COMPLETER"]
+repository = "https://github.com/A-COMPLETER/amazone-comp"
+publish = false
+
+[workspace.dependencies]
+# Crates internes
+ac-noyau = { path = "crates/ac-noyau" }
+ac-donnees = { path = "crates/ac-donnees" }
+ac-compta = { path = "crates/ac-compta" }
+# ac-documents = { path = "crates/ac-documents" }  # à décommenter au premier usage (A1)
+ac-fiscal = { path = "crates/ac-fiscal" }
+ac-ventes = { path = "crates/ac-ventes" }
+ac-achats = { path = "crates/ac-achats" }
+ac-tresorerie = { path = "crates/ac-tresorerie" }
+ac-paie = { path = "crates/ac-paie" }
+ac-etats = { path = "crates/ac-etats" }
+ac-licence = { path = "crates/ac-licence" }
+
+# Dépendances externes autorisées (toute nouvelle dépendance doit être justifiée en PR, règle R12)
+chrono = { version = "0.4", default-features = false, features = ["std", "clock", "serde"] }
+rust_decimal = { version = "1", features = ["serde-str"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+toml = "0.8"
+rusqlite = { version = "0.32", features = ["bundled"] }
+sha2 = "0.10"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+float_arithmetic = "deny"
+todo = "deny"
+unimplemented = "deny"
+dbg_macro = "deny"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

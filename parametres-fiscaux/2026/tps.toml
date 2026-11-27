@@ -1,0 +1,48 @@
+# TPS — Taxe professionnelle synthétique — 2026. Propriétaire : A8. AUCUNE valeur vérifiée.
+
+[en_tete]
+annee = 2026
+textes = ["CGI 2026 (art. 178 à 185 — à vérifier)", "Arrêté fixant le seuil (50 000 000 FCFA)"]
+mis_a_jour_le = "2026-11-27"
+
+[taux]
+valeur = "0.05"
+source = "CGI 2026 — TPS : 5 % du chiffre d'affaires annuel"
+verifie = false
+note = "Un ancien guide DGI cite 2 % : taux antérieur au CGI 2022. Retenir 5 % sous réserve de vérification."
+
+[minimum]
+valeur = 10000
+source = "CGI 2026 — minimum de TPS : 10 000 FCFA"
+verifie = false
+
+[seuil_ca_ht]
+valeur = 50000000
+source = "CGI 2026 + arrêté du ministre des Finances — CA ≤ 50 000 000 FCFA"
+verifie = false
+
+[redevance_audiovisuelle]
+valeur = 4000
+source = "CGI 2026 — redevance ORTB / SRTV due avec la TPS"
+verifie = false
+
+[acomptes_dates]
+valeur = ["02-10", "06-10"]
+source = "CGI 2026 — acomptes au plus tard les 10 février et 10 juin, calculés sur la TPS de N-1"
+verifie = false
+
+[solde_date_limite]
+valeur = "04-30"
+source = "CGI 2026 — solde au plus tard le 30 avril N+1"
+verifie = false
+
+[exoneration_premiers_mois]
+valeur = 12
+source = "CGI 2026 — exonération pendant les 12 premiers mois d'activité"
+verifie = false
+
+[personnes_morales_exclues]
+valeur = ["SARL", "SA", "SAS"]
+source = "CGI 2026 — les sociétés de capitaux relèvent de l'IS quel que soit leur CA"
+verifie = false
+note = "À confirmer (formes juridiques exactement visées)."

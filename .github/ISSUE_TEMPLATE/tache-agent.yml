@@ -1,0 +1,29 @@
+name: Tâche d'agent
+description: Tâche attribuée à un agent par le chef de projet.
+labels: ["tache"]
+body:
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Agent
+      options: [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10]
+    validations:
+      required: true
+  - type: textarea
+    id: objectif
+    attributes:
+      label: Objectif
+      description: Résultat attendu, vérifiable.
+    validations:
+      required: true
+  - type: textarea
+    id: criteres
+    attributes:
+      label: Critères d'acceptation
+      description: Liste de cases à cocher, avec exemples chiffrés si calcul.
+    validations:
+      required: true
+  - type: textarea
+    id: dependances
+    attributes:
+      label: Dépendances (autres agents, contrats)

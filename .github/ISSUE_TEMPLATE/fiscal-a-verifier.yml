@@ -1,0 +1,25 @@
+name: Point fiscal à vérifier
+description: Règle fiscale ou sociale incertaine (règle R14). À trancher par un expert-comptable.
+labels: ["fiscal-a-verifier"]
+body:
+  - type: input
+    id: parametre
+    attributes:
+      label: Paramètre concerné
+      placeholder: "parametres-fiscaux/2026/social.toml → cnss_plafond_mensuel"
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Question précise
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources trouvées et contradictions
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact si la valeur est fausse

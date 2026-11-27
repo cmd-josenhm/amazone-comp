@@ -1,0 +1,96 @@
+# Intégration continue — Propriétaire : chef de projet. Toute PR doit être entièrement verte.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+  SEUIL_COUVERTURE: 80
+
+jobs:
+  perimetre:
+    name: Périmètre de l'agent et titre de PR
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Titre au format Conventional Commits
+        env:
+          TITRE: ${{ github.event.pull_request.title }}
+        run: |
+          echo "$TITRE" | grep -Eq '^(feat|fix|test|docs|refactor|perf|chore|ci|build)(\([a-z0-9-]+\))?!?: .{5,}' \
+            || { echo "Titre invalide. Exemple : « feat(ventes): ajoute les avoirs »"; exit 1; }
+      - name: Fichiers modifiés dans le périmètre (règle R10)
+        run: node scripts/verifier-perimetre.mjs --branche "${{ github.head_ref }}" --base "origin/${{ github.base_ref }}"
+
+  rust:
+    name: Rust (Windows) — format, lint, tests, couverture
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy, llvm-tools-preview
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Dépendances de l'interface
+        run: npm ci
+      - name: Construire l'interface (nécessaire à la compilation Tauri)
+        run: npm run --workspace ui build
+      - name: Format
+        run: cargo fmt --all -- --check
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Tests
+        run: cargo test --workspace
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
+      - name: Couverture des crates métier (seuil ${{ env.SEUIL_COUVERTURE }} %)
+        run: cargo llvm-cov --fail-under-lines ${{ env.SEUIL_COUVERTURE }} --summary-only
+
+  interface:
+    name: Interface — lint, types, tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run --workspace ui test:couverture
+      - run: npm run --workspace ui build
+
+  securite:
+    name: Sécurité des dépendances et licences
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check advisories licenses bans sources
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm audit --audit-level=high
+      - name: Aucun secret évident dans le dépôt
+        run: |
+          ! git grep -nE '(BEGIN (RSA|EC|OPENSSH) PRIVATE KEY|TAURI_SIGNING_PRIVATE_KEY=|api[_-]?key\s*=\s*["'\''][A-Za-z0-9]{16,})' -- ':!*.md' ':!.github/workflows/*'

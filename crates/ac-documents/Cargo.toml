@@ -1,0 +1,18 @@
+[package]
+name = "ac-documents"
+description = "Rendu commun des documents PDF et Excel (factures, déclarations, états)."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+ac-noyau.workspace = true
+serde.workspace = true
+thiserror.workspace = true

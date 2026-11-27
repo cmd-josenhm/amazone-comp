@@ -1,0 +1,85 @@
+# Salaires : ITS, VPS, CNSS, SMIG — 2026. Propriétaire : A7. AUCUNE valeur vérifiée.
+
+[en_tete]
+annee = 2026
+textes = [
+  "CGI 2026 (ITS : art. 119 à 129, barème art. 125 ; VPS : art. 191 à 201 — à vérifier)",
+  "Code de sécurité sociale du Bénin (CNSS)",
+  "Décret fixant le SMIG (à identifier)",
+]
+mis_a_jour_le = "2026-11-27"
+
+# Barème mensuel progressif par tranches. `jusqu_a` absent = tranche supérieure illimitée.
+[its_bareme_mensuel]
+valeur = [
+  { jusqu_a = 60000, taux = "0" },
+  { jusqu_a = 150000, taux = "0.10" },
+  { jusqu_a = 250000, taux = "0.15" },
+  { jusqu_a = 500000, taux = "0.19" },
+  { taux = "0.30" },
+]
+source = "CGI 2026, art. 125 — barème mensuel de l'ITS"
+verifie = false
+note = "Une source ancienne (formulaire administratif) cite un premier seuil de 50 000 FCFA. Vérifier l'article 125 du CGI 2026."
+
+[its_redevance_audiovisuelle]
+valeur = [ { mois = 3, montant = 1000 }, { mois = 6, montant = 3000 } ]
+source = "CGI 2026 — redevance ORTB / SRTV retenue sur salaires"
+verifie = false
+note = "Mécanisme ambigu dans les sources (mois, montants, salariés dispensés). À VÉRIFIER."
+
+[vps_taux]
+valeur = "0.04"
+source = "CGI 2026 — VPS : 4 % des salaires bruts"
+verifie = false
+
+[vps_taux_enseignement_prive]
+valeur = "0.02"
+source = "CGI 2026 — VPS : 2 % pour les établissements privés d'enseignement"
+verifie = false
+
+[vps_exonere_tps]
+valeur = true
+source = "CGI 2026 — entreprises soumises à la TPS dispensées de VPS"
+verifie = false
+
+[cnss_prestations_familiales_employeur]
+valeur = "0.09"
+source = "CNSS Bénin — prestations familiales : 9 % à la charge de l'employeur"
+verifie = false
+
+[cnss_pension_employeur]
+valeur = "0.064"
+source = "CNSS Bénin (cnss.bj) — pension : 10 % dont 6,4 % employeur"
+verifie = false
+
+[cnss_pension_salarie]
+valeur = "0.036"
+source = "CNSS Bénin (cnss.bj) — pension : 10 % dont 3,6 % salarié"
+verifie = false
+
+[cnss_risques_professionnels_min]
+valeur = "0.01"
+source = "CNSS Bénin — risques professionnels : de 1 % à 4 % selon l'activité"
+verifie = false
+
+[cnss_risques_professionnels_max]
+valeur = "0.04"
+source = "CNSS Bénin — risques professionnels : de 1 % à 4 % selon l'activité"
+verifie = false
+
+[cnss_plafond_mensuel]
+valeur = 0
+source = "CNSS Bénin — plafond de l'assiette"
+verifie = false
+note = "0 = pas de plafond. Les sources divergent (aucun plafond / 600 000 FCFA). À VÉRIFIER EN PRIORITÉ."
+
+[cnss_majoration_retard_mensuelle]
+valeur = "0.015"
+source = "Code de sécurité sociale — majoration de 1,5 % par mois de retard"
+verifie = false
+
+[smig_mensuel]
+valeur = 52000
+source = "Décret fixant le SMIG au Bénin (52 000 FCFA depuis 2023 — à confirmer)"
+verifie = false

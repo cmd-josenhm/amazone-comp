@@ -1,0 +1,31 @@
+//! # ac-noyau
+//!
+//! Types communs à tout AMAZONE COMP. **Propriétaire : agent A1.**
+//!
+//! - [`Montant`] : somme d'argent en **francs CFA entiers** (XOF). Jamais de flottant (règle R1).
+//! - [`Taux`] : taux exact (décimal), par exemple 18 % = `Taux::pourcentage("18")`.
+//! - [`Arrondi`] : règle d'arrondi au franc.
+//! - [`Periode`] : intervalle de dates fermé.
+//! - [`Ifu`] : Identifiant fiscal unique béninois.
+//! - [`parametres`] : lecture des paramètres versionnés (`parametres-fiscaux/<année>/*.toml`).
+
+#![forbid(unsafe_code)]
+
+pub mod erreur;
+pub mod identifiants;
+pub mod montant;
+pub mod parametres;
+pub mod periode;
+pub mod taux;
+
+pub use erreur::ErreurNoyau;
+pub use identifiants::Ifu;
+pub use montant::{Arrondi, Montant};
+pub use periode::Periode;
+pub use taux::Taux;
+
+/// Date civile (sans heure ni fuseau). Le Bénin est en UTC+1 sans heure d'été.
+pub type Date = chrono::NaiveDate;
+
+/// Résultat standard des fonctions du noyau.
+pub type Resultat<T> = Result<T, ErreurNoyau>;

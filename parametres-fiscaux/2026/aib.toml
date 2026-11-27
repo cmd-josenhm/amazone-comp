@@ -1,0 +1,43 @@
+# AIB — Acompte sur impôt assis sur les bénéfices — 2026. Propriétaire : A8. AUCUNE valeur vérifiée.
+
+[en_tete]
+annee = 2026
+textes = ["CGI 2026 (art. 130 à 136 — à vérifier)", "Communiqués DGI 2026 sur le recouvrement de l'AIB"]
+mis_a_jour_le = "2026-11-27"
+
+[taux_ifu_biens]
+valeur = "0.01"
+source = "CGI 2026 — 1 % : importations, achats commerciaux, fournitures par des personnes immatriculées à l'IFU"
+verifie = false
+
+[taux_marches_publics]
+valeur = "0.01"
+source = "CGI 2026 — 1 % : fournitures de travaux, biens et services à l'État et aux collectivités"
+verifie = false
+
+[taux_ifu_services]
+valeur = "0.03"
+source = "CGI 2026 — 3 % : prestations de services par des personnes immatriculées à l'IFU"
+verifie = false
+note = "Certaines sources ne citent que 1 % et 5 %. À confirmer."
+
+[taux_sans_ifu]
+valeur = "0.05"
+source = "CGI 2026 — 5 % : opérations avec des personnes non immatriculées à l'IFU"
+verifie = false
+note = "Depuis le 7 septembre 2026 (communiqué DGI rapporté par la presse), 5 % aussi pour les personnes morales dont l'IFU est désactivé pour non-conformité."
+
+[jour_limite_reversement]
+valeur = 10
+source = "CGI 2026 — déclaration et reversement au plus tard le 10 du mois suivant"
+verifie = false
+
+[base_hors_tva]
+valeur = true
+source = "CGI 2026 — base : prix toutes taxes comprises, hors TVA"
+verifie = false
+
+[imputable]
+valeur = true
+source = "CGI 2026 — l'AIB supporté est imputable sur l'IS, l'IBA ou la TPS dû"
+verifie = false

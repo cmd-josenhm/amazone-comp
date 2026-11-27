@@ -1,0 +1,86 @@
+/*
+ * Design system AMAZONE COMP — Propriétaire : A3.
+ * Sobre, noir et blanc, inspiré de la clarté des pages Google. Polices système uniquement (hors ligne).
+ * Toute couleur passe par ces jetons : pas de couleur en dur dans les composants.
+ */
+:root {
+  --fond: #ffffff;
+  --fond-doux: #f8f9fa;
+  --survol: #f1f3f4;
+  --texte: #202124;
+  --texte-secondaire: #5f6368;
+  --bordure: #dadce0;
+  --accent: #000000;
+  --accent-texte: #ffffff;
+  --focus: #1a1a1a;
+  --erreur: #b3261e;
+  --succes: #137333;
+  --alerte: #8a5a00;
+
+  --police: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --police-chiffres: "Segoe UI", system-ui, sans-serif;
+  --taille-base: 14px;
+  --rayon: 8px;
+  --rayon-pilule: 999px;
+  --ombre: 0 1px 2px rgba(60, 64, 67, 0.15), 0 1px 3px 1px rgba(60, 64, 67, 0.1);
+  --espace-1: 4px;
+  --espace-2: 8px;
+  --espace-3: 12px;
+  --espace-4: 16px;
+  --espace-6: 24px;
+  --espace-8: 32px;
+  --largeur-menu: 240px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#racine {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--fond);
+  color: var(--texte);
+  font-family: var(--police);
+  font-size: var(--taille-base);
+  line-height: 1.5;
+}
+
+h1 {
+  font-size: 22px;
+  font-weight: 400;
+  margin: 0 0 var(--espace-4);
+}
+
+h2 {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 var(--espace-3);
+}
+
+a {
+  color: var(--texte);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Montants : chiffres tabulaires alignés à droite. */
+.montant {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.texte-secondaire {
+  color: var(--texte-secondaire);
+}

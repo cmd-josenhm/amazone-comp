@@ -1,0 +1,72 @@
+# Facture normalisée (MECeF / e-MECeF) — 2026. Propriétaire : A8, consommé par A4. AUCUNE valeur vérifiée.
+# Source attendue : spécification officielle de l'API e-MECeF de la DGI (à obtenir auprès de la DGI).
+
+[en_tete]
+annee = 2026
+textes = ["Dispositif de facture normalisée DGI (MECeF / e-MECeF) — spécification API à obtenir"]
+mis_a_jour_le = "2026-11-27"
+
+[[groupe_taxation]]
+code = "A"
+libelle = "Exonéré"
+taux = "0"
+source = "Spécification e-MECeF (de mémoire, à confirmer)"
+verifie = false
+
+[[groupe_taxation]]
+code = "B"
+libelle = "Taxable (TVA 18 %)"
+taux = "0.18"
+source = "Spécification e-MECeF (de mémoire, à confirmer)"
+verifie = false
+
+[[groupe_taxation]]
+code = "C"
+libelle = "Exportation de produits taxables"
+taux = "0"
+source = "Spécification e-MECeF (de mémoire, à confirmer)"
+verifie = false
+
+[[groupe_taxation]]
+code = "D"
+libelle = "TVA régime d'exception"
+taux = "0.18"
+source = "Spécification e-MECeF (de mémoire, à confirmer)"
+verifie = false
+
+[[groupe_taxation]]
+code = "E"
+libelle = "Régime fiscal TPS"
+taux = "0"
+source = "Spécification e-MECeF (de mémoire, à confirmer)"
+verifie = false
+
+[[groupe_taxation]]
+code = "F"
+libelle = "Réservé"
+taux = "0"
+source = "Spécification e-MECeF (de mémoire, à confirmer)"
+verifie = false
+
+[[code_aib]]
+code = "A"
+taux = "0.01"
+source = "Spécification e-MECeF (de mémoire, à confirmer)"
+verifie = false
+
+[[code_aib]]
+code = "B"
+taux = "0.05"
+source = "Spécification e-MECeF (de mémoire, à confirmer)"
+verifie = false
+note = "Le taux de 3 % (services) n'a pas de code connu dans e-MECeF : à clarifier avec la DGI."
+
+[types_facture]
+valeur = ["FV", "FA", "EV", "EA"]
+source = "Spécification e-MECeF — FV vente, FA avoir, EV vente export, EA avoir export (à confirmer)"
+verifie = false
+
+[types_paiement]
+valeur = ["ESPECES", "VIREMENT", "CARTEBANCAIRE", "MOBILEMONEY", "CHEQUES", "CREDIT", "AUTRE"]
+source = "Spécification e-MECeF (de mémoire, à confirmer)"
+verifie = false

@@ -1,0 +1,98 @@
+# Calendrier des échéances — 2026. Propriétaire : A8 (échéances sociales : A7). AUCUNE valeur vérifiée.
+# jour = jour limite ; mois = mois concernés (liste vide = chaque mois, pour la période du mois précédent).
+
+[en_tete]
+annee = 2026
+textes = ["CGI 2026", "Code de sécurité sociale (CNSS)"]
+mis_a_jour_le = "2026-11-27"
+
+[[echeance]]
+code = "TVA_MENSUELLE"
+libelle = "Déclaration et paiement de la TVA du mois précédent"
+regimes = ["REEL_NORMAL", "REEL_SIMPLIFIE"]
+jour = 10
+mois = []
+source = "CGI 2026 — TVA"
+verifie = false
+
+[[echeance]]
+code = "AIB_MENSUEL"
+libelle = "Déclaration et reversement de l'AIB prélevé le mois précédent"
+regimes = ["REEL_NORMAL", "REEL_SIMPLIFIE"]
+jour = 10
+mois = []
+source = "CGI 2026 — AIB"
+verifie = false
+
+[[echeance]]
+code = "ITS_VPS_MENSUEL"
+libelle = "Déclaration et paiement de l'ITS et du VPS des salaires du mois précédent"
+regimes = ["REEL_NORMAL", "REEL_SIMPLIFIE", "TPS"]
+jour = 10
+mois = []
+source = "CGI 2026 — ITS / VPS (VPS non dû par les entreprises à la TPS)"
+verifie = false
+
+[[echeance]]
+code = "RETENUES_MENSUEL"
+libelle = "Reversement des retenues à la source (loyers, non-résidents)"
+regimes = ["REEL_NORMAL", "REEL_SIMPLIFIE", "TPS"]
+jour = 10
+mois = []
+source = "CGI 2026 — retenues"
+verifie = false
+
+[[echeance]]
+code = "IS_ACOMPTE"
+libelle = "Acompte d'impôt sur les sociétés / IBA"
+regimes = ["REEL_NORMAL", "REEL_SIMPLIFIE"]
+jour = 10
+mois = [3, 6, 9, 12]
+source = "CGI 2026 — acomptes IS"
+verifie = false
+
+[[echeance]]
+code = "IS_SOLDE_DSF"
+libelle = "Déclaration de résultat, états financiers (DSF) et solde de l'IS / IBA"
+regimes = ["REEL_NORMAL", "REEL_SIMPLIFIE"]
+jour = 30
+mois = [4]
+source = "CGI 2026 — solde au 30 avril N+1"
+verifie = false
+
+[[echeance]]
+code = "TPS_ACOMPTE"
+libelle = "Acompte de TPS"
+regimes = ["TPS"]
+jour = 10
+mois = [2, 6]
+source = "CGI 2026 — TPS"
+verifie = false
+
+[[echeance]]
+code = "TPS_SOLDE"
+libelle = "Déclaration annuelle et solde de la TPS"
+regimes = ["TPS"]
+jour = 30
+mois = [4]
+source = "CGI 2026 — TPS"
+verifie = false
+
+[[echeance]]
+code = "PATENTE"
+libelle = "Patente : acompte (10 février) puis solde (30 avril)"
+regimes = ["REEL_NORMAL", "REEL_SIMPLIFIE"]
+jour = 10
+mois = [2]
+source = "CGI 2026 — patente"
+verifie = false
+note = "Taux et base de la patente non paramétrés en V1 : rappel uniquement."
+
+[[echeance]]
+code = "CNSS"
+libelle = "Déclaration et paiement des cotisations CNSS"
+regimes = ["REEL_NORMAL", "REEL_SIMPLIFIE", "TPS"]
+jour = 15
+mois = []
+source = "Code de sécurité sociale — date et périodicité (mensuelle ou trimestrielle selon l'effectif) À VÉRIFIER"
+verifie = false

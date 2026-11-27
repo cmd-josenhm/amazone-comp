@@ -1,0 +1,123 @@
+{
+  "$commentaire": "Source de vérité des périmètres (AGENTS.md §4). Lu par scripts/verifier-perimetre.mjs. Modifiable uniquement par le chef de projet.",
+  "communs": [
+    "docs/modules/",
+    "CHANGELOG.md",
+    "Cargo.lock",
+    "package-lock.json",
+    "src-tauri/src/commandes/mod.rs"
+  ],
+  "adr_nouveaux_seulement": "docs/adr/",
+  "agents": {
+    "a1": {
+      "autorise": [
+        "crates/ac-noyau/",
+        "crates/ac-compta/",
+        "crates/ac-documents/",
+        "ui/src/modules/comptabilite/",
+        "src-tauri/src/commandes/compta.rs"
+      ],
+      "interdit": []
+    },
+    "a2": {
+      "autorise": [
+        "crates/ac-donnees/"
+      ],
+      "interdit": []
+    },
+    "a3": {
+      "autorise": [
+        "ui/",
+        "src-tauri/src/commandes/systeme.rs"
+      ],
+      "interdit": [
+        "ui/src/modules/comptabilite/",
+        "ui/src/modules/ventes/",
+        "ui/src/modules/achats/",
+        "ui/src/modules/tresorerie/",
+        "ui/src/modules/paie/",
+        "ui/src/modules/fiscal/",
+        "ui/src/modules/etats/",
+        "ui/src/modules/tableau-de-bord/",
+        "ui/src/modules/compte/",
+        "ui/src/pages/a-propos/proprietaire.ts"
+      ]
+    },
+    "a4": {
+      "autorise": [
+        "crates/ac-ventes/",
+        "ui/src/modules/ventes/",
+        "src-tauri/src/commandes/ventes.rs"
+      ],
+      "interdit": []
+    },
+    "a5": {
+      "autorise": [
+        "crates/ac-achats/",
+        "ui/src/modules/achats/",
+        "src-tauri/src/commandes/achats.rs"
+      ],
+      "interdit": []
+    },
+    "a6": {
+      "autorise": [
+        "crates/ac-tresorerie/",
+        "ui/src/modules/tresorerie/",
+        "src-tauri/src/commandes/tresorerie.rs"
+      ],
+      "interdit": []
+    },
+    "a7": {
+      "autorise": [
+        "crates/ac-paie/",
+        "ui/src/modules/paie/",
+        "src-tauri/src/commandes/paie.rs",
+        "parametres-fiscaux/2026/social.toml",
+        "parametres-fiscaux/2027/social.toml"
+      ],
+      "interdit": []
+    },
+    "a8": {
+      "autorise": [
+        "crates/ac-fiscal/",
+        "ui/src/modules/fiscal/",
+        "src-tauri/src/commandes/fiscal.rs",
+        "parametres-fiscaux/",
+        "docs/fiscalite/"
+      ],
+      "interdit": [
+        "parametres-fiscaux/2026/social.toml",
+        "parametres-fiscaux/2027/social.toml"
+      ]
+    },
+    "a9": {
+      "autorise": [
+        "crates/ac-etats/",
+        "ui/src/modules/etats/",
+        "ui/src/modules/tableau-de-bord/",
+        "src-tauri/src/commandes/etats.rs"
+      ],
+      "interdit": []
+    },
+    "a10": {
+      "autorise": [
+        "plateforme/",
+        "crates/ac-licence/",
+        "src-tauri/",
+        "ui/src/modules/compte/",
+        ".github/workflows/release.yml",
+        ".github/workflows/plateforme.yml"
+      ],
+      "interdit": [
+        "src-tauri/src/commandes/compta.rs",
+        "src-tauri/src/commandes/ventes.rs",
+        "src-tauri/src/commandes/achats.rs",
+        "src-tauri/src/commandes/tresorerie.rs",
+        "src-tauri/src/commandes/paie.rs",
+        "src-tauri/src/commandes/fiscal.rs",
+        "src-tauri/src/commandes/etats.rs",
+        "src-tauri/src/commandes/systeme.rs"
+      ]
+    }
+  }
+}

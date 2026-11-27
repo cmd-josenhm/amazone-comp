@@ -1,0 +1,69 @@
+# IS / IBA — 2026. Propriétaire : A8. AUCUNE valeur vérifiée.
+
+[en_tete]
+annee = 2026
+textes = ["CGI 2026 (IS : art. 3 et s. ; minimum de perception : art. 156 — à vérifier)"]
+mis_a_jour_le = "2026-11-27"
+
+[is_taux_general]
+valeur = "0.30"
+source = "CGI 2026 — IS : 30 % pour les personnes morales"
+verifie = false
+
+[is_taux_industrie_ecoles]
+valeur = "0.25"
+source = "CGI 2026 — IS : 25 % pour les activités industrielles (hors extractives) et les établissements privés d'enseignement"
+verifie = false
+
+[iba_taux_general]
+valeur = "0.30"
+source = "CGI 2026 — IBA (personnes physiques au réel)"
+verifie = false
+note = "Taux non confirmé par une source lisible : À VÉRIFIER EN PRIORITÉ."
+
+[minimum_taux_is]
+valeur = "0.01"
+source = "CGI 2026, art. 156 (à vérifier) — minimum de perception : 1 % du produit encaissable (IS)"
+verifie = false
+
+[minimum_taux_iba]
+valeur = "0.015"
+source = "CGI 2026 — minimum de perception : 1,5 % du produit encaissable (IBA)"
+verifie = false
+
+[minimum_taux_btp]
+valeur = "0.03"
+source = "CGI 2026 — minimum de perception : 3 % pour le BTP"
+verifie = false
+
+[minimum_taux_immobilier]
+valeur = "0.10"
+source = "CGI 2026 — minimum de perception : 10 % pour les entreprises à prépondérance immobilière"
+verifie = false
+
+[minimum_plancher_is]
+valeur = 250000
+source = "CGI 2026 — minimum « en tout état de cause » : 250 000 FCFA (IS)"
+verifie = false
+
+[minimum_plancher_iba]
+valeur = 500000
+source = "CGI 2026 — minimum « en tout état de cause » : 500 000 FCFA (IBA)"
+verifie = false
+
+[reduction_entreprises_nouvelles]
+valeur = ["0.25", "0.25", "0.50"]
+source = "CGI 2026 — réduction pour les 3 premières années d'activité"
+verifie = false
+note = "Sens exact (réduction de l'impôt ou du minimum ? ordre des années) à confirmer."
+
+[acomptes_dates]
+valeur = ["03-10", "06-10", "09-10", "12-10"]
+source = "CGI 2026 — 4 acomptes au plus tard les 10 mars, 10 juin, 10 septembre, 10 décembre"
+verifie = false
+
+[solde_date_limite]
+valeur = "04-30"
+source = "CGI 2026 — déclaration de résultat et solde au plus tard le 30 avril N+1"
+verifie = false
+note = "Une source indique « avant le 1er mai » : équivalent au 30 avril."

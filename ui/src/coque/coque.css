@@ -1,0 +1,81 @@
+.coque {
+  display: grid;
+  grid-template-columns: var(--largeur-menu) 1fr;
+  grid-template-rows: 64px 1fr;
+  height: 100%;
+}
+
+.coque__barre {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: var(--espace-8);
+  padding: 0 var(--espace-6);
+  border-bottom: 1px solid var(--bordure);
+}
+
+.coque__marque {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  width: calc(var(--largeur-menu) - var(--espace-6));
+}
+
+.coque__recherche {
+  flex: 1;
+  max-width: 720px;
+  height: 44px;
+  padding: 0 var(--espace-6);
+  border: 1px solid var(--bordure);
+  border-radius: var(--rayon-pilule);
+  font: inherit;
+  background: var(--fond-doux);
+}
+
+.coque__recherche:focus {
+  outline: none;
+  background: var(--fond);
+  box-shadow: var(--ombre);
+}
+
+.coque__menu {
+  padding: var(--espace-2) 0;
+  overflow-y: auto;
+}
+
+.coque__menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.coque__menu hr {
+  border: none;
+  border-top: 1px solid var(--bordure);
+  margin: var(--espace-2) var(--espace-4);
+}
+
+.coque__menu a {
+  display: block;
+  padding: var(--espace-2) var(--espace-6);
+  margin-right: var(--espace-2);
+  border-radius: 0 var(--rayon-pilule) var(--rayon-pilule) 0;
+  color: var(--texte);
+  text-decoration: none;
+}
+
+.coque__menu a:hover {
+  background: var(--survol);
+}
+
+.coque__menu a.active {
+  background: var(--accent);
+  color: var(--accent-texte);
+  font-weight: 500;
+}
+
+.coque__contenu {
+  padding: var(--espace-6) var(--espace-8);
+  overflow-y: auto;
+  max-width: 1200px;
+}

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Icône PROVISOIRE (noir et blanc) en attendant le logo du graphiste. -->
+  <rect width="1024" height="1024" rx="200" fill="#000000"/>
+  <text x="512" y="640" font-family="Segoe UI, Arial, sans-serif" font-size="420" font-weight="700" fill="#ffffff" text-anchor="middle">AC</text>
+</svg>

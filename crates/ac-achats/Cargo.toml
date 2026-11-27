@@ -1,0 +1,19 @@
+[package]
+name = "ac-achats"
+description = "Achats et stocks : fournisseurs, commandes, réceptions, factures fournisseurs, articles, inventaire."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+ac-donnees.workspace = true
+chrono.workspace = true
+serde.workspace = true
+thiserror.workspace = true

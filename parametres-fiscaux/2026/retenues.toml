@@ -1,0 +1,29 @@
+# Retenues à la source — 2026. Propriétaire : A8. AUCUNE valeur vérifiée.
+
+[en_tete]
+annee = 2026
+textes = ["CGI 2026 (articles à préciser)"]
+mis_a_jour_le = "2026-11-27"
+
+[loyer_bailleur_personne_physique]
+valeur = "0.12"
+source = "CGI 2026 — retenue de 12 % sur les loyers versés à une personne physique"
+verifie = false
+
+[loyer_bailleur_personne_morale]
+valeur = "0.10"
+source = "CGI 2026 — retenue de 10 % sur les loyers versés à une personne morale"
+verifie = false
+
+[prestataire_non_resident]
+valeur = "0.20"
+source = "CGI 2026 — retenue de 20 % du montant HT, sous réserve des conventions fiscales"
+verifie = false
+
+[jour_limite_reversement]
+valeur = 10
+source = "CGI 2026 — reversement au plus tard le 10 du mois suivant"
+verifie = false
+
+# IRCM (dividendes, intérêts) : taux NON renseignés faute de source fiable (« 0 à 15 % » selon la nature).
+# A8 doit les ajouter après lecture du CGI 2026 (règle R14 : ne rien inventer).

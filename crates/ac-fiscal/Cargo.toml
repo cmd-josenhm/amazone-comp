@@ -1,0 +1,23 @@
+[package]
+name = "ac-fiscal"
+description = "Fiscalité béninoise : paramètres annuels, TVA, AIB, IS/IBA, TPS, retenues, calendrier, déclarations."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+ac-noyau.workspace = true
+chrono.workspace = true
+rust_decimal.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+toml.workspace = true

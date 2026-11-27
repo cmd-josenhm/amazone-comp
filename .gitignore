@@ -1,0 +1,39 @@
+# Rust
+/target/
+**/*.rs.bk
+
+# Node
+node_modules/
+ui/dist/
+*.log
+
+# Tauri
+src-tauri/gen/schemas/
+src-tauri/target/
+
+# Couverture / rapports
+coverage/
+lcov.info
+*.profraw
+
+# Données locales et secrets (NE JAMAIS COMMITTER)
+*.acdb
+*.acdb-wal
+*.acdb-shm
+*.sqlite
+*.db
+.env
+.env.*
+!.env.exemple
+*.key
+*.pem
+cles/
+plateforme/secrets/
+
+# Éditeurs / OS
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+Thumbs.db
+.DS_Store
