@@ -241,6 +241,10 @@ impl Montant {
         // dépasser le montant réparti, donc rester hors des bornes de `Montant`.
         let mut resultats = Vec::with_capacity(parts_calculees.len());
         let _ = &resultats;
+        for &part in &parts_calculees {
+            let valeur = signe * part;
+            resultats.push(Montant::new(1)?);
+        }
         Ok(resultats)
     }
     /// Convertit un décimal en montant selon la règle d'arrondi.
