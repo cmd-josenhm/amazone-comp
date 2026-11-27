@@ -188,8 +188,65 @@ impl Montant {
             )));
         }
         let total_abs = i128::from(total).abs();
-        let _ = (total_abs, somme_parts);
-        Ok(Vec::new())
+        // Proportion de chaque part, arrondie au franc le plus proche (0,5 s'éloignant de zéro).
+        // Produit exact en i128 : total ≤ 10^15 et part ≤ 9,2 × 10^18 donnent un produit
+        // ≤ 9,2 × 10^33, en dessous du maximum de i128 ; le doublage du reste est contrôlé.
+        let mut parts_calculees: Vec<i128> = Vec::with_capacity(parts.len());
+        for &part in parts {
+            let produit = total_abs * i128::from(part);
+            let quotient = produit / somme_parts;
+            let reste = produit % somme_parts;
+            let double = reste.checked_mul(2).ok_or(ErreurNoyau::Depassement)?;
+            if double >= somme_parts {
+                parts_calculees.push(quotient + 1);
+            } else {
+                parts_calculees.push(quotient);
+            }
+        }
+        // Ordre décroissant des parts d'origine ; le tri stable conserve l'ordre fourni à parts
+        // égales, donc le premier indice est celui de la première part maximale.
+        let mut ordre: Vec<usize> = (0..parts.len()).collect();
+        ordre.sort_by(|&a, &b| parts[b].cmp(&parts[a]));
+        let mut somme_arrondie = 0i128;
+        for &part in &parts_calculees {
+            somme_arrondie = somme_arrondie
+                .checked_add(part)
+                .ok_or(ErreurNoyau::Depassement)?;
+        }
+        // |écart| < nombre de parts : chaque arrondi diffère de son quotient exact de moins d'un.
+        let mut ecart = total_abs - somme_arrondie;
+        if ecart > 0 {
+            // Toute la différence d'arrondi va à la plus grande part.
+            parts_calculees[ordre[0]] += ecart;
+        } else if ecart < 0 {
+            // Réduire en commençant par les plus grandes parts, sans descendre sous zéro.
+            for &indice in &ordre {
+                if ecart == 0 {
+                    break;
+                }
+                let absorbe = ecart.max(-parts_calculees[indice]);
+                parts_calculees[indice] += absorbe;
+                ecart -= absorbe;
+            }
+            if ecart != 0 {
+                // Inatteignable : un écart négatif implique que la somme arrondie dépasse le
+                // total, donc qu'au moins une part calculée est strictement positive.
+                return Err(ErreurNoyau::RepartitionImpossible(
+                    "écart d'arrondi impossible à absorber".to_owned(),
+                ));
+            }
+        }
+        let signe = if total < 0 { -1i128 } else { 1i128 };
+        // La somme des parts vaut le total et chaque part est positive : aucune part ne peut
+        // dépasser le montant réparti, donc rester hors des bornes de `Montant`.
+        let mut resultats = Vec::with_capacity(parts_calculees.len());
+        for &part in &parts_calculees {
+            let valeur = signe * part;
+            let francs = i64::try_from(valeur)
+                .map_err(|_| ErreurNoyau::MontantHorsLimites(valeur))?;
+            resultats.push(Montant::new(francs)?);
+        }
+        Ok(resultats)
     }
     /// Convertit un décimal en montant selon la règle d'arrondi.
     pub fn depuis_decimal(valeur: Decimal, arrondi: Arrondi) -> Resultat<Self> {
