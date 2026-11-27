@@ -243,7 +243,9 @@ impl Montant {
         let _ = &resultats;
         for &part in &parts_calculees {
             let valeur = signe * part;
-            resultats.push(Montant::new(1)?);
+            let francs = i64::try_from(arrondi_francs)
+                .map_err(|_| ErreurNoyau::MontantHorsLimites(arrondi_francs))?;
+            resultats.push(Montant::new(francs)?);
         }
         Ok(resultats)
     }
