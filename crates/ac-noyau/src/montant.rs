@@ -566,14 +566,9 @@ mod tests_propristes {
             total in strategie_montant(),
             parts in proptest::collection::vec(0i64..=1_000, 1..=8),
         ) {
-            let somme_parts: i64 = parts.iter().sum();
             match total.repartir(&parts) {
                 Ok(repartition) => {
                     prop_assert_eq!(repartition.into_iter().sum::<Montant>(), total);
-                }
-                Err(ErreurNoyau::RepartitionImpossible(_)) => {
-                    prop_assert!(!total.est_zero());
-                    prop_assert_eq!(somme_parts, 0);
                 }
                 Err(e) => prop_fail!("erreur inattendue : {e}"),
             }
