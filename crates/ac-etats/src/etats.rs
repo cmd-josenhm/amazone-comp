@@ -1493,14 +1493,14 @@ mod tests {
         b_faux.total_actif_n = m(999_999);
         assert_coherence_deseq(verifier_coherence(&b_faux, &cr2), "N");
 
+        let cr_ok_n = compte_resultat(&bal1).unwrap();
         let mut b_faux_n1 = b1.clone();
         b_faux_n1.possede_comparatif = true;
         b_faux_n1.total_actif_n1 = m(500);
-        assert_coherence_deseq(verifier_coherence(&b_faux_n1, &cr2), "N-1");
+        assert_coherence_deseq(verifier_coherence(&b_faux_n1, &cr_ok_n), "N-1");
 
         b_faux_n1.total_actif_n1 = Montant::ZERO;
         b_faux_n1.resultat_net_n1 = m(100);
-        let cr_ok_n = compte_resultat(&bal1).unwrap();
         assert_coherence_inc(verifier_coherence(&b_faux_n1, &cr_ok_n), "N-1");
     }
 
