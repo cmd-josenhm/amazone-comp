@@ -566,7 +566,26 @@ mod tests_propristes {
             total in strategie_montant(),
             parts in proptest::collection::vec(0i64..=1_000, 1..=8),
         ) {
-            let _ = total.repartir(&parts);
+            match total.repartir(&parts) {
+                Ok(repartition) => {
+                    for part in &repartition {
+                        if total.est_negatif() {
+                            prop_assert!(part.francs() <= 0);
+                        } else {
+                            prop_assert!(part.francs() >= 0);
+                        }
+                        prop_assert!(part.abs().francs() <= total.abs().francs());
+                    }
+                    prop_assert_eq!(repartition.into_iter().sum::<Montant>(), total);
+                }
+                Err(e) => {
+                    prop_assert!(
+                        matches!(e, ErreurNoyau::RepartitionImpossible(_)),
+                        "erreur inattendue : {e}"
+                    );
+                    prop_assert!(parts.iter().sum::<i64>() == 0);
+                }
+            }
         }
     }
 }
