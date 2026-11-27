@@ -633,7 +633,7 @@ impl FicheEntreprise {
         let cnss_vide = self
             .numero_cnss
             .as_deref()
-            .map_or(true, |n| n.trim().is_empty());
+            .is_none_or(|n| n.trim().is_empty());
         if salaries && cnss_vide {
             r.erreur(
                 "numero_cnss",
