@@ -53,9 +53,7 @@ pub(crate) fn journal_prochain_code(tx: &Transaction<'_>, prefixe: &str) -> Resu
             return Ok(code);
         }
     }
-    Err(ErreurTresorerie::JournalIndisponible(
-        prefixe.to_owned(),
-    ))
+    Err(ErreurTresorerie::JournalIndisponible(prefixe.to_owned()))
 }
 
 #[cfg(test)]

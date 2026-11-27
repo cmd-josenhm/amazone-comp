@@ -284,9 +284,7 @@ fn creer_compte_comptable(
         |ligne| ligne.get(0),
     )?;
     if mouvements {
-        return Err(ErreurTresorerie::CompteRacineAvecMouvements(
-            racine.to_owned(),
-        ));
+        return Err(ErreurTresorerie::CompteRacineAvecMouvements(racine.to_owned()));
     }
 
     let libelle_racine = match type_compte {
@@ -335,9 +333,7 @@ fn creer_compte_comptable(
     }
     let numero = format!("{racine}{suffixe}");
     if NumeroCompte::new(&numero).is_err() {
-        return Err(ErreurTresorerie::SousCompteIndisponible(
-            racine.to_owned(),
-        ));
+        return Err(ErreurTresorerie::SousCompteIndisponible(racine.to_owned()));
     }
     tx.execute(
         "INSERT INTO compta_compte (numero, libelle, mouvementable, actif)
@@ -387,9 +383,7 @@ fn valider_contrepartie_ouverture(
         .ok_or(ErreurTresorerie::ContrepartieOuvertureObligatoire)?;
     let compte = NumeroCompte::new(texte)?;
     if !contrepartie_mouvementable(tx, compte.as_str())? {
-        return Err(ErreurTresorerie::ContrepartieInconnue(
-            compte.to_string(),
-        ));
+        return Err(ErreurTresorerie::ContrepartieInconnue(compte.to_string()));
     }
     Ok(Some(compte))
 }
@@ -443,9 +437,7 @@ pub fn creer_compte(
         return Err(ErreurTresorerie::LibelleTropLong);
     }
     if params.type_compte.ne_peut_pas_etre_negatif() && params.solde_ouverture.est_negatif() {
-        return Err(ErreurTresorerie::CaisseSoldeNegatif(
-            params.solde_ouverture.francs(),
-        ));
+        return Err(ErreurTresorerie::CaisseSoldeNegatif(params.solde_ouverture.francs()));
     }
 
     let banque_operateur = match params.type_compte {
