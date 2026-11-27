@@ -1,6 +1,7 @@
 //! Impôt sur les traitements et salaires (ITS) — barème mensuel progressif par tranches.
+//!
+//! Le barème n'est jamais écrit ici : il vient de [`crate::ParametresSociaux`] (règle R2).
 
-use ac_noyau::parametres::{lire_toml, Valeur};
 use ac_noyau::{Arrondi, ErreurNoyau, Montant, Taux};
 use serde::Deserialize;
 
@@ -14,24 +15,11 @@ pub struct Tranche {
     pub taux: Taux,
 }
 
-#[derive(Deserialize)]
-struct FichierSocial {
-    its_bareme_mensuel: Valeur<Vec<Tranche>>,
-}
-
-/// Barème embarqué pour 2026.
-pub fn bareme_2026() -> Result<Vec<Tranche>, ErreurNoyau> {
-    let f: FichierSocial = lire_toml(
-        "social.toml",
-        include_str!("../../../parametres-fiscaux/2026/social.toml"),
-    )?;
-    Ok(f.its_bareme_mensuel.valeur)
-}
-
 /// ITS mensuel sur un brut imposable mensuel. Chaque tranche est arrondie au franc inférieur.
 ///
-/// TODO(A7) : confirmer la base imposable (brut moins CNSS salarié ?), les avantages en nature,
-/// l'arrondi officiel, et le traitement des primes non mensuelles.
+/// TODO(#44) : la base imposable (brut ou brut moins CNSS salarié) n'est pas tranchée. Ne pas
+/// utiliser ce calcul pour un bulletin définitif avant confirmation. Les avantages en nature,
+/// l'arrondi officiel et les primes non mensuelles restent à confirmer.
 pub fn calculer_its(brut_imposable: Montant, bareme: &[Tranche]) -> Result<Montant, ErreurNoyau> {
     let mut impot = Montant::ZERO;
     let mut borne_basse = Montant::ZERO;
@@ -56,21 +44,38 @@ pub fn calculer_its(brut_imposable: Montant, bareme: &[Tranche]) -> Result<Monta
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ParametresSociaux;
 
     fn m(v: i64) -> Montant {
         Montant::new(v).unwrap()
     }
 
+    fn bareme_2026() -> Vec<Tranche> {
+        ParametresSociaux::charger(2026).unwrap().bareme_its().to_vec()
+    }
+
     #[test]
-    fn exemples_bareme_2026_non_verifie() {
-        let b = bareme_2026().unwrap();
+    fn zero_et_seuil_exact() {
+        let b = bareme_2026();
         assert_eq!(calculer_its(m(0), &b).unwrap(), m(0));
+        // Seuil exact : la tranche à 0 % s'arrête à 60 000 FCFA inclus.
         assert_eq!(calculer_its(m(60_000), &b).unwrap(), m(0));
+        // 60 001 : 1 × 10 % = 0,1 → 0 (arrondi au franc inférieur).
+        assert_eq!(calculer_its(m(60_001), &b).unwrap(), m(0));
+        // 150 000 : (150 000 − 60 000) × 10 % = 9 000 (borne de la tranche à 10 %).
+        assert_eq!(calculer_its(m(150_000), &b).unwrap(), m(9_000));
+        // 150 001 : 9 000 + 1 × 15 % = 9 000,15 → 9 000.
+        assert_eq!(calculer_its(m(150_001), &b).unwrap(), m(9_000));
+    }
+
+    #[test]
+    fn exemples_bareme_2026() {
+        let b = bareme_2026();
         // 100 000 : (100 000 − 60 000) × 10 % = 4 000
         assert_eq!(calculer_its(m(100_000), &b).unwrap(), m(4_000));
-        // 300 000 : 90 000×10 % + 100 000×15 % + 50 000×19 % = 9 000 + 15 000 + 9 500 = 33 500
+        // 300 000 : 9 000 + 15 000 + 50 000 × 19 % (9 500) = 33 500
         assert_eq!(calculer_its(m(300_000), &b).unwrap(), m(33_500));
-        // 1 000 000 : 9 000 + 15 000 + 47 500 + 500 000×30 % = 221 500
+        // 1 000 000 : 9 000 + 15 000 + 47 500 + 500 000 × 30 % (150 000) = 221 500
         assert_eq!(calculer_its(m(1_000_000), &b).unwrap(), m(221_500));
     }
 }
