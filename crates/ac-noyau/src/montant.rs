@@ -236,7 +236,17 @@ impl Montant {
                 ));
             }
         }
-        Ok(Vec::new())
+        let signe = if total < 0 { -1i128 } else { 1i128 };
+        // La somme des parts vaut le total et chaque part est positive : aucune part ne peut
+        // dépasser le montant réparti, donc rester hors des bornes de `Montant`.
+        let mut resultats = Vec::with_capacity(parts_calculees.len());
+        for &part in &parts_calculees {
+            let valeur = signe * part;
+            let francs = i64::try_from(valeur)
+                .map_err(|_| ErreurNoyau::MontantHorsLimites(valeur))?;
+            resultats.push(Montant::new(francs)?);
+        }
+        Ok(resultats)
     }
     /// Convertit un décimal en montant selon la règle d'arrondi.
     pub fn depuis_decimal(valeur: Decimal, arrondi: Arrondi) -> Resultat<Self> {
