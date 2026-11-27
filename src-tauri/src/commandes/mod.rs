@@ -8,7 +8,7 @@ pub mod systeme;
 // A1 : pub mod compta;
 // A4 : pub mod ventes;
 // A5 : pub mod achats;
-// A6 : pub mod tresorerie;
+pub mod tresorerie;
 // A7 : pub mod paie;
 // A8 : pub mod fiscal;
 // A9 : pub mod etats;
@@ -26,6 +26,11 @@ macro_rules! gestionnaire_commandes {
             // --- A4 : ventes ---
             // --- A5 : achats et stocks ---
             // --- A6 : trésorerie ---
+            crate::commandes::tresorerie::tresorerie_comptes,
+            crate::commandes::tresorerie::tresorerie_compte_creer,
+            crate::commandes::tresorerie::tresorerie_compte_afficher,
+            crate::commandes::tresorerie::tresorerie_soldes,
+            crate::commandes::tresorerie::tresorerie_operateurs,
             // --- A7 : paie ---
             // --- A8 : fiscalité ---
             // --- A9 : états et tableau de bord ---
