@@ -107,19 +107,16 @@ struct EntreprisePossedee {
     statut_change_le: Option<DateTime<Utc>>,
 }
 
+/// Ligne brute lue en base : identifiant, IFU, statut, motif,
+/// date de changement de statut, compte propriétaire.
+type LigneEntreprise = (i64, String, String, Option<String>, Option<DateTime<Utc>>, i64);
+
 async fn entreprise_possedee(
     etat: &Etat,
     compte_id: i64,
     id: i64,
 ) -> Result<EntreprisePossedee, ErreurApi> {
-    let ligne: Option<(
-        i64,
-        String,
-        String,
-        Option<String>,
-        Option<DateTime<Utc>>,
-        i64,
-    )> = sqlx::query_as(
+    let ligne: Option<LigneEntreprise> = sqlx::query_as(
         "SELECT id, ifu, statut, motif, statut_change_le, compte_id FROM entreprises WHERE id = $1",
     )
     .bind(id)
@@ -370,8 +367,10 @@ mod tests {
 
     #[test]
     fn ifu_normalise_retire_les_espaces() {
-        let mut fiche = FicheEntreprise::default();
-        fiche.ifu = "3201 9123 45678".into();
+        let mut fiche = FicheEntreprise {
+            ifu: "3201 9123 45678".into(),
+            ..Default::default()
+        };
         assert_eq!(ifu_normalise(&fiche).unwrap(), "3201912345678");
         fiche.ifu = "123".into();
         assert!(ifu_normalise(&fiche).is_err());

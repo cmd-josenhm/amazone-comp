@@ -49,7 +49,7 @@ impl Config {
         let courriel_expediteur = std::env::var("PLATEFORME_COURRIEL_EXPEDITEUR")
             .unwrap_or_else(|_| "ne-pas-repondre@localhost".to_owned());
         let transferts_poste_par_an = match std::env::var("PLATEFORME_TRANSFERTS_PAR_AN") {
-            Ok(texte) => i64::from_str_radix(&texte, 10).map_err(|_| {
+            Ok(texte) => texte.parse::<i64>().map_err(|_| {
                 ErreurConfig::ValeurInvalide("PLATEFORME_TRANSFERTS_PAR_AN".into(), texte)
             })?,
             Err(_) => TRANSFERTS_PAR_AN_DEFAUT,

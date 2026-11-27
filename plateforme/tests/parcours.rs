@@ -771,7 +771,7 @@ async fn modification_fiche_et_demande_changement_ifu(pool: PgPool) {
     )
     .await;
     assert_eq!(statut, StatusCode::OK);
-    assert_eq!(corps["demande_changement_ifu"], true);
+    assert_eq!(corps["demande_changement_ifu"].as_bool(), Some(true));
 
     let (statut, corps) = envoyer(
         &app,
