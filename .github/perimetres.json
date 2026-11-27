@@ -28,7 +28,8 @@
     "a3": {
       "autorise": [
         "ui/",
-        "src-tauri/src/commandes/systeme.rs"
+        "src-tauri/src/commandes/systeme.rs",
+        "docs/design-system.md"
       ],
       "interdit": [
         "ui/src/modules/comptabilite/",
