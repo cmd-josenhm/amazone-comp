@@ -546,6 +546,4 @@ mod tests_propristes {
         (-Montant::MAX / 2..=Montant::MAX / 2)
             .prop_map(|v| Montant::new(v).unwrap())
     }
-
 }
-
